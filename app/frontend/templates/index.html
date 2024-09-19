@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Grid Layout</title>
+        <link rel="stylesheet" href="./static/styles.css" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
+            rel="stylesheet"
+        />
+    </head>
+    <body>
+        <div class="grid-container">
+            <div class="navbar">
+                <div class="navbar-back">
+                    <button>Назад</button>
+                </div>
+
+                <div class="navbar-edit">
+                    <button>Редактировать</button>
+                </div>
+
+                <div class="navbar-group">
+                    <div class="navbar-guests">
+                        <button>Гости</button>
+                    </div>
+
+                    <div class="navbar-notifications">
+                        <button>Уведомления</button>
+                    </div>
+
+                    <div class="navbar-search">
+                        <button>Поиск</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container">
+                <div class="order-area">
+                    <div class="order-header">
+                        <div class="prev-order">
+                            <button><</button>
+                        </div>
+
+                        <div class="curr-oreder">
+                            <button>Заказ</button>
+                        </div>
+
+                        <div class="next-order">
+                            <button>></button>
+                        </div>
+                    </div>
+
+                    <div class="order-body">
+                        <div class="order-info">
+                            <div>Заказ</div>
+                            <div id="total-amount">0 P</div>
+                            <!-- Убедитесь, что здесь есть id -->
+                        </div>
+                        <div class="order-guess">Гость 1</div>
+                        <div id="order-items">
+                            <!-- Добавьте этот div для отображения элементов заказа -->
+                            <!-- Элементы заказа будут добавляться сюда -->
+                        </div>
+                    </div>
+
+                    <div class="order-footer">
+                        <div class="order-footer-buttons">
+                            <button>Вверх</button>
+                            <button>Вниз</button>
+                            <button>+Гость</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="menu-area">
+                    <div class="menu-header">
+                        <div>Меню</div>
+                    </div>
+
+                    <div class="menu-body">
+                        <!-- Генерация категорий -->
+                    </div>
+                </div>
+
+                <div class="position-area">
+                    <div class="position-header">
+                        <div>Категория</div>
+                    </div>
+
+                    <div class="position-body">
+                        <!-- Генерация продуктов -->
+                    </div>
+                </div>
+            </div>
+            <div class="footer-container">
+                <div class="order-payment">
+                    <button>Оплата</button>
+                </div>
+                <div class="menu-footer">
+                    <div><button>Скидка</button></div>
+                    <div><button>Код</button></div>
+                </div>
+                <div class="position-footer">
+                    <button>Сохранить</button>
+                </div>
+            </div>
+        </div>
+        <script>
+            let order = {};
+
+            function handleProductClick(productName, productCost) {
+                console.log(
+                    `Продукт нажал: ${productName}, стоимость: ${productCost}`
+                );
+
+                if (order[productName]) {
+                    order[productName].quantity += 1;
+                } else {
+                    order[productName] = { quantity: 1, cost: productCost };
+                }
+
+                updateOrder();
+            }
+
+            function updateOrder() {
+                const orderItemsContainer =
+                    document.getElementById("order-items");
+                orderItemsContainer.innerHTML = "";
+
+                let totalAmount = 0;
+
+                for (const [name, { quantity, cost }] of Object.entries(
+                    order
+                )) {
+                    const itemTotal = quantity * cost;
+                    totalAmount += itemTotal;
+
+                    const orderItem = document.createElement("div");
+                    orderItem.className = "order-item";
+
+                    const nameElement = document.createElement("div");
+                    nameElement.className = "order-item-name"; // Уникальный класс для названия
+                    nameElement.textContent = name;
+
+                    const quantityElement = document.createElement("div");
+                    quantityElement.className = "order-item-quantity"; // Уникальный класс для количества
+                    quantityElement.textContent = quantity;
+
+                    const totalElement = document.createElement("div");
+                    totalElement.className = "order-item-total"; // Уникальный класс для стоимости
+                    totalElement.textContent = `${itemTotal} P`;
+
+                    orderItem.appendChild(nameElement);
+                    orderItem.appendChild(quantityElement);
+                    orderItem.appendChild(totalElement);
+                    orderItemsContainer.appendChild(orderItem);
+                }
+
+                document.getElementById(
+                    "total-amount"
+                ).textContent = `${totalAmount} P`;
+            }
+
+            async function fetchCategories() {
+                try {
+                    const response = await fetch("/api/categories/");
+                    const data = await response.json();
+                    const menuBody = document.querySelector(".menu-body");
+                    menuBody.innerHTML = "";
+
+                    data.categories.forEach((category) => {
+                        const menuItem = document.createElement("div");
+                        menuItem.className = "menu-item";
+
+                        const button = document.createElement("button");
+                        button.className = "category-button";
+                        button.id = `category-${category.id}`;
+                        button.textContent = category.name;
+
+                        button.addEventListener("click", () => {
+                            fetchProductsByCategory(category.id, category.name);
+                        });
+
+                        menuItem.appendChild(button);
+                        menuBody.appendChild(menuItem);
+                    });
+                } catch (error) {
+                    console.error("Ошибка: ", error);
+                }
+            }
+
+            async function fetchProductsByCategory(categoryId) {
+                try {
+                    const response = await fetch(
+                        `/api/products/?category_id=${categoryId}`
+                    );
+                    const data = await response.json();
+
+                    const positionBody =
+                        document.querySelector(".position-body");
+                    const positionHeader = document.querySelector(
+                        ".position-header div"
+                    );
+
+                    positionBody.innerHTML = "";
+
+                    data.products.forEach((product) => {
+                        const productItem = document.createElement("div");
+                        productItem.className = "position-item";
+
+                        const button = document.createElement("button");
+                        button.onclick = () =>
+                            handleProductClick(product.name, product.cost);
+
+                        const productName = document.createElement("span");
+                        productName.className = "product-name";
+                        productName.textContent = product.name;
+
+                        const productPrice = document.createElement("span");
+                        productPrice.className = "product-price";
+                        productPrice.textContent = `${product.cost}₽`;
+
+                        button.appendChild(productName);
+                        button.appendChild(productPrice);
+
+                        productItem.appendChild(button);
+                        positionBody.appendChild(productItem);
+                    });
+
+                    const categoryResponse = await fetch(
+                        `/api/categories/${categoryId}`
+                    );
+                    const categoryData = await categoryResponse.json();
+                    positionHeader.textContent = categoryData.name;
+                } catch (error) {
+                    console.error("Ошибка при получении продуктов:", error);
+                }
+            }
+
+            window.onload = fetchCategories;
+        </script>
+    </body>
+</html>

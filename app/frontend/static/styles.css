@@ -1,0 +1,298 @@
+:root {
+    --main-bg-color: #444;
+    --second-bg-color: #3a3a3a;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    color: white;
+    font-family: "Open Sans", sans-serif;
+    font-size: 1em;
+    font-weight: 600;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    height: 100vh;
+    /* overflow: hidden; */
+    background-color: #111;
+}
+
+button {
+    cursor: pointer;
+}
+
+.grid-container {
+    width: 100vw;
+    height: 100vh;
+    padding: 1em;
+    padding-top: 0.75em;
+}
+
+.navbar {
+    display: grid;
+    grid-template-columns: 1fr minmax(477px, 5fr) minmax(300px, 3fr);
+    text-align: center;
+    gap: 0.5em;
+}
+
+.navbar-group {
+    display: grid;
+    grid-template-columns: minmax(118.5px, 1fr) 1fr 1fr;
+    gap: 0.5em;
+}
+
+.navbar button {
+    background-color: var(--main-bg-color);
+    color: white;
+    border: none;
+    padding: 1em;
+    cursor: pointer;
+    width: 100%;
+    border-radius: 5px;
+}
+
+.container {
+    display: grid;
+    grid-template-columns: 3fr 3fr 3fr;
+    padding-top: 0.5em;
+    gap: 0.5em;
+}
+
+.order-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2px;
+    padding-bottom: 2px;
+}
+
+.order-header button {
+    background-color: var(--main-bg-color);
+    color: white;
+    border: none;
+    padding: 1.25em;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+}
+
+.prev-order button {
+    border-top-left-radius: 10px;
+}
+
+.next-order button {
+    border-top-right-radius: 10px;
+}
+
+.order-body {
+    display: grid;
+    grid-template-rows: auto auto auto; /* Add rows for header, guest info, and items */
+    grid-template-columns: 1fr; /* Single column layout */
+    gap: 2px;
+}
+
+.order-guess {
+    padding: 1.25em;
+    background-color: var(--main-bg-color);
+}
+
+.order-info {
+    display: flex;
+    justify-content: space-between;
+    background-color: var(--main-bg-color);
+    padding: 1.25em;
+    grid-row: 1 / 2; /* Positioned in the first row */
+}
+
+.order-item {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr; /* Adjust column widths as needed */
+    align-items: center;
+    padding: 1.25em;
+    /* padding-top: 1.25em;
+    padding-bottom: 1.25em; */
+    background-color: var(--item-bg-color);
+}
+
+/* .order-item > div {
+    text-align: center;
+} */
+
+.order-item button {
+    max-width: 100%; /* Ограничивает ширину кнопок до размера контейнера */
+    box-sizing: border-box; /* Учитывает padding и border в ширину и высоту */
+}
+
+.order-item-name {
+    text-align: left;
+}
+
+.order-item-quantity {
+    text-align: right; /* Выравнивание количества по центру */
+}
+
+.order-item-total {
+    text-align: right; /* Выравнивание текста по правому краю */
+}
+
+.order-footer-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.5em;
+}
+
+.order-footer button {
+    background-color: var(--main-bg-color);
+    color: white;
+    border: none;
+    padding: 1.25em;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+}
+
+.order-payment button {
+    background-color: #444;
+    color: white;
+    border: none;
+    padding: 1.25em;
+    cursor: pointer;
+    width: 100%;
+    border-radius: 10px;
+}
+
+.menu-header,
+.position-header {
+    display: flex;
+    background-color: var(--main-bg-color);
+    color: white;
+    padding: 1.25em;
+    justify-content: center;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.position-header {
+    background-color: var(--second-bg-color);
+}
+
+.menu-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: repeat(5, 2fr);
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    gap: 2px;
+    padding-top: 2px;
+}
+
+.menu-item button {
+    /* padding: 3.25em; */
+    padding: 52px;
+    background-color: var(--main-bg-color);
+    border: none;
+    width: 100%;
+    height: 100%;
+    max-height: 3fr;
+}
+
+.menu-item:nth-child(9) button {
+    border-bottom-left-radius: 10px;
+}
+
+.menu-item:nth-child(10) button {
+    border-bottom-right-radius: 10px;
+}
+
+.position-item:nth-child(13) button {
+    border-bottom-left-radius: 10px;
+}
+
+.position-item:nth-child(15) button {
+    border-bottom-right-radius: 10px;
+}
+
+.menu-footer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.menu-footer button {
+    background-color: var(--main-bg-color);
+    color: white;
+    border: none;
+    padding: 1.2em;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+}
+
+.position-body {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    gap: 2px;
+    padding-top: 2px;
+}
+
+.position-item {
+    display: flex;
+    justify-content: center;
+}
+
+.position-item button {
+    padding: 1em;
+    background-color: var(--second-bg-color);
+    border: none;
+    width: 100%;
+    min-height: 126px;
+    max-height: 126px;
+    text-overflow: ellipsis;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow: hidden;
+}
+
+.product-name {
+    color: white;
+    display: block;
+}
+
+.product-price {
+    color: #cacaca;
+    display: block;
+}
+
+.position-footer button {
+    background-color: var(--main-bg-color);
+    color: white;
+    border: none;
+    padding: 1.25em;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+}
+
+.footer-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.5em;
+    padding-top: 8px;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    /* min-width: 940px; */
+}
