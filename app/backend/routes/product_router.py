@@ -9,7 +9,7 @@ product_router = APIRouter(tags=['Product'])
 
 
 @product_router.get("/api/products/{product_id}")
-async def read_product(product_id: int):
+async def read_product(product_id: int) -> dict:
     manager = ProductManager(id=product_id)
     product = await manager.get_product_by_id()
     if product:
@@ -19,7 +19,7 @@ async def read_product(product_id: int):
 
 
 @product_router.get("/api/products/")
-async def read_products(category_id: int):
+async def read_products(category_id: int) -> dict:
     manager = ProductManager(category_id=category_id)
     products = await manager.get_products_by_category()
     if products:
@@ -29,7 +29,7 @@ async def read_products(category_id: int):
 
 
 @product_router.delete("/api/products/{product_id}", status_code=204)
-async def delete_product(product_id: int):
+async def delete_product(product_id: int) -> None:
     manager = ProductManager(id=product_id)
     try:
         success = await manager.delete_product()
@@ -40,7 +40,7 @@ async def delete_product(product_id: int):
 
 
 @product_router.post("/api/products/", response_model=ProductCreate)
-async def create_product(product: ProductCreate):
+async def create_product(product: ProductCreate) -> ProductCreate:
     manager = ProductManager(name=product.name, category_id=product.category_id, cost=product.cost)
     try:
         await manager.add_product()

@@ -9,7 +9,7 @@ category_router = APIRouter(tags=['Category'])
 
 
 @category_router.get("/api/categories/{category_id}")
-async def read_category(category_id: int):
+async def read_category(category_id: int) -> dict:
     manager = CategoryManager(id=category_id)
     category = await manager.get_category_by_id()
     if category:
@@ -19,14 +19,14 @@ async def read_category(category_id: int):
     
 
 @category_router.get("/api/categories/")
-async def categories():
+async def categories() -> dict:
     manager = CategoryManager()
     categories = await manager.get_all_categories()
     return {"categories": categories}
     
 
 @category_router.delete("/api/categories/{category_id}", status_code=204)
-async def delete_category(category_id: int):
+async def delete_category(category_id: int) -> None:
     manager = CategoryManager(id=category_id)
     try:
         success = await manager.delete_category()
@@ -37,7 +37,7 @@ async def delete_category(category_id: int):
 
 
 @category_router.post("/api/categories/", response_model=CategoryCreate)
-async def create_category(category: CategoryCreate):
+async def create_category(category: CategoryCreate) -> CategoryCreate:
     manager = CategoryManager(name=category.name)
     try:
         await manager.add_category()

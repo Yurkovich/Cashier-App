@@ -10,7 +10,7 @@ warehouse_router = APIRouter(tags=['Warehouse'])
 
 
 @warehouse_router.post("/api/warehouse/")
-async def add_item(warehouse_data: WarehouseCreate):
+async def add_item(warehouse_data: WarehouseCreate) -> dict:
     warehouse_manager = WarehouseManager(
         category=warehouse_data.category,
         name=warehouse_data.name,
@@ -23,7 +23,7 @@ async def add_item(warehouse_data: WarehouseCreate):
 
 
 @warehouse_router.get("/api/warehouse/{item_id}")
-async def get_item(item_id: int):
+async def get_item(item_id: int) -> dict:
     warehouse_manager = WarehouseManager(id=item_id)
     item = await warehouse_manager.get_item_by_id()
     if item is None:
@@ -32,14 +32,14 @@ async def get_item(item_id: int):
 
 
 @warehouse_router.get("/api/warehouse/", response_model=List[dict])
-async def get_all_items():
+async def get_all_items() -> List[dict]:
     warehouse_manager = WarehouseManager()
     items = await warehouse_manager.get_all_items()
     return items
 
 
 @warehouse_router.delete("/api/warehouse/{item_id}")
-async def delete_item(item_id: int):
+async def delete_item(item_id: int) -> dict:
     warehouse_manager = WarehouseManager(id=item_id)
     result = await warehouse_manager.delete_item()
     if not result:
