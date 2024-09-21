@@ -1,6 +1,8 @@
 :root {
     --main-bg-color: #444;
     --second-bg-color: #3a3a3a;
+    --little-gap: 2px;
+    --medium-gap: 0.25em;
 }
 
 * {
@@ -38,13 +40,13 @@ button {
     display: grid;
     grid-template-columns: 1fr minmax(477px, 5fr) minmax(300px, 3fr);
     text-align: center;
-    gap: 0.25em;
+    gap: var(--medium-gap);
 }
 
 .navbar-group {
     display: grid;
     grid-template-columns: minmax(118.5px, 1fr) 1fr 1fr;
-    gap: 0.25em;
+    gap: var(--medium-gap);
 }
 
 .navbar button {
@@ -59,16 +61,17 @@ button {
 
 .container {
     display: grid;
-    grid-template-columns: 3fr 3fr 3fr;
+    grid-template-columns: 3fr minmax(290px, 3fr) minmax(374px, 3fr);
     padding-top: 0.25em;
     padding-bottom: 0.05em;
-    gap: 0.25em;
+    gap: var(--medium-gap);
 }
+
 
 .order-header {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap: 2px;
+    gap: var(--little-gap);
     padding-bottom: 2px;
 }
 
@@ -94,7 +97,7 @@ button {
     display: grid;
     grid-template-rows: auto auto auto;
     grid-template-columns: 1fr;
-    gap: 2px;
+    gap: var(--little-gap);
 }
 
 .order-guess {
@@ -107,7 +110,24 @@ button {
     justify-content: space-between;
     background-color: var(--main-bg-color);
     padding: 22px;
-    grid-row: 1 / 2;
+}
+
+.order-area {
+    display: flex;
+    flex-direction: column;
+    height: 100%;  /* Полная высота контейнера */
+}
+
+.order-footer {
+    margin-top: auto;  /* Обеспечиваем, что order-footer будет находиться внизу */
+}
+
+#order-items {
+    flex-grow: 1;  /* Заставляем этот блок занимать оставшееся пространство */
+    display: grid;
+    grid-template-rows: auto auto auto;
+    grid-template-columns: 1fr;
+    gap: var(--little-gap);
 }
 
 .order-item {
@@ -115,7 +135,6 @@ button {
     grid-template-columns: 2fr 1fr 1fr;
     align-items: center;
     padding: 22px;
-    margin-bottom: 2px;
 }
 
 .order-item button {
@@ -138,7 +157,7 @@ button {
 .order-footer-buttons {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap: 0.25em;
+    gap: var(--medium-gap);
 }
 
 .order-footer button {
@@ -184,7 +203,7 @@ button {
     justify-content: center;
     text-align: center;
     align-items: center;
-    gap: 2px;
+    gap: var(--little-gap);
     padding-top: 2px;
 }
 
@@ -220,7 +239,7 @@ button {
 .menu-footer {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 5px;
 }
 
 .menu-footer button {
@@ -240,7 +259,7 @@ button {
     justify-content: center;
     text-align: center;
     align-items: center;
-    gap: 2px;
+    gap: var(--little-gap);
     padding-top: 2px;
 }
 
@@ -286,7 +305,7 @@ button {
 .footer-container {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap: 0.25em;
+    gap: var(--medium-gap);
     padding-top: 0.25em;
     justify-content: center;
     text-align: center;

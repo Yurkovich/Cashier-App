@@ -114,8 +114,6 @@
             let totalAmount = 0;
 
             function handleProductClick(productName, productCost) {
-                console.log(`Продукт нажал: ${productName}, стоимость: ${productCost}`);
-
                 if (order[productName]) {
                     order[productName].quantity += 1;
                 } else {
@@ -124,6 +122,17 @@
 
                 updateTotalAmount();
                 updateOrder();
+
+                const productIndex = getProductIndex(productName);
+                const newPage = Math.floor(productIndex / maxItemsPerPage);
+                currentPage = newPage;
+
+                updateOrder();
+            }
+
+            function getProductIndex(productName) {
+                const orderEntries = Object.entries(order);
+                return orderEntries.findIndex(([name]) => name === productName);
             }
 
             function updateOrder() {
@@ -131,7 +140,6 @@
                 orderItemsContainer.innerHTML = "";
 
                 const orderEntries = Object.entries(order);
-                
                 const start = currentPage * maxItemsPerPage;
                 const end = Math.min(start + maxItemsPerPage, orderEntries.length);
 
@@ -164,11 +172,9 @@
 
             function updateTotalAmount() {
                 totalAmount = 0;
-
                 for (const { quantity, cost } of Object.values(order)) {
                     totalAmount += quantity * cost;
                 }
-
                 document.getElementById("total-amount").textContent = `${totalAmount} P`;
             }
 
@@ -177,7 +183,6 @@
                 const downButton = document.querySelector(".scroll-down");
 
                 upButton.disabled = currentPage === 0;
-
                 downButton.disabled = (currentPage + 1) * maxItemsPerPage >= totalItems;
             }
 
@@ -216,7 +221,7 @@
                         button.textContent = category.name;
 
                         button.addEventListener("click", () => {
-                            fetchProductsByCategory(category.id, category.name);
+                            fetchProductsByCategory(category.id);
                         });
 
                         menuItem.appendChild(button);
@@ -241,8 +246,7 @@
                         productItem.className = "position-item";
 
                         const button = document.createElement("button");
-                        button.onclick = () =>
-                            handleProductClick(product.name, product.cost);
+                        button.onclick = () => handleProductClick(product.name, product.cost);
 
                         const productName = document.createElement("span");
                         productName.className = "product-name";
