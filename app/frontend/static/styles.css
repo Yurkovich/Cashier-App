@@ -31,28 +31,27 @@ button {
 .grid-container {
     width: 100vw;
     height: 100vh;
-    padding: 1em;
-    padding-top: 0.75em;
+    padding: 0.5em;
 }
 
 .navbar {
     display: grid;
     grid-template-columns: 1fr minmax(477px, 5fr) minmax(300px, 3fr);
     text-align: center;
-    gap: 0.5em;
+    gap: 0.25em;
 }
 
 .navbar-group {
     display: grid;
     grid-template-columns: minmax(118.5px, 1fr) 1fr 1fr;
-    gap: 0.5em;
+    gap: 0.25em;
 }
 
 .navbar button {
     background-color: var(--main-bg-color);
     color: white;
     border: none;
-    padding: 1em;
+    padding: 1.35em;
     cursor: pointer;
     width: 100%;
     border-radius: 5px;
@@ -61,8 +60,9 @@ button {
 .container {
     display: grid;
     grid-template-columns: 3fr 3fr 3fr;
-    padding-top: 0.5em;
-    gap: 0.5em;
+    padding-top: 0.25em;
+    padding-bottom: 0.05em;
+    gap: 0.25em;
 }
 
 .order-header {
@@ -76,7 +76,7 @@ button {
     background-color: var(--main-bg-color);
     color: white;
     border: none;
-    padding: 1.25em;
+    padding: 1.35em;
     cursor: pointer;
     width: 100%;
     height: 100%;
@@ -98,7 +98,7 @@ button {
 }
 
 .order-guess {
-    padding: 1.25em;
+    padding: 22px;
     background-color: var(--main-bg-color);
 }
 
@@ -106,18 +106,19 @@ button {
     display: flex;
     justify-content: space-between;
     background-color: var(--main-bg-color);
-    padding: 1.25em;
+    padding: 22px;
     grid-row: 1 / 2; /* Positioned in the first row */
 }
 
 .order-item {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr; /* Adjust column widths as needed */
+    grid-template-columns: 2fr 1fr 1fr; /* Adjust column widths as needed */
     align-items: center;
-    padding: 1.25em;
+    padding: 22px;
     /* padding-top: 1.25em;
     padding-bottom: 1.25em; */
-    background-color: var(--item-bg-color);
+    background-color: var(--main-bg-color);
+    margin-bottom: 2px;
 }
 
 /* .order-item > div {
@@ -144,14 +145,14 @@ button {
 .order-footer-buttons {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap: 0.5em;
+    gap: 0.25em;
 }
 
 .order-footer button {
     background-color: var(--main-bg-color);
     color: white;
     border: none;
-    padding: 1.25em;
+    padding: 1.35em;
     cursor: pointer;
     width: 100%;
     height: 100%;
@@ -162,7 +163,7 @@ button {
     background-color: #444;
     color: white;
     border: none;
-    padding: 1.25em;
+    padding: 1.35em;
     cursor: pointer;
     width: 100%;
     border-radius: 10px;
@@ -173,7 +174,7 @@ button {
     display: flex;
     background-color: var(--main-bg-color);
     color: white;
-    padding: 1.25em;
+    padding: 1.35em;
     justify-content: center;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
@@ -195,13 +196,16 @@ button {
 }
 
 .menu-item button {
-    /* padding: 3.25em; */
-    padding: 52px;
+    padding: 1em;
     background-color: var(--main-bg-color);
     border: none;
     width: 100%;
-    height: 100%;
-    max-height: 3fr;
+    min-height: 134px;
+    max-height: 134px;
+    text-overflow: ellipsis;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow: hidden;
 }
 
 .menu-item:nth-child(9) button {
@@ -230,7 +234,7 @@ button {
     background-color: var(--main-bg-color);
     color: white;
     border: none;
-    padding: 1.2em;
+    padding: 1.35em;
     cursor: pointer;
     width: 100%;
     height: 100%;
@@ -257,8 +261,8 @@ button {
     background-color: var(--second-bg-color);
     border: none;
     width: 100%;
-    min-height: 126px;
-    max-height: 126px;
+    min-height: 134px;
+    max-height: 134px;
     text-overflow: ellipsis;
     white-space: normal;
     word-wrap: break-word;
@@ -279,7 +283,7 @@ button {
     background-color: var(--main-bg-color);
     color: white;
     border: none;
-    padding: 1.25em;
+    padding: 1.35em;
     cursor: pointer;
     width: 100%;
     height: 100%;
@@ -289,10 +293,9 @@ button {
 .footer-container {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap: 0.5em;
-    padding-top: 8px;
+    gap: 0.25em;
+    padding-top: 0.25em;
     justify-content: center;
     text-align: center;
     align-items: center;
-    /* min-width: 940px; */
 }
