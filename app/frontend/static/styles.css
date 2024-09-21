@@ -92,8 +92,8 @@ button {
 
 .order-body {
     display: grid;
-    grid-template-rows: auto auto auto; /* Add rows for header, guest info, and items */
-    grid-template-columns: 1fr; /* Single column layout */
+    grid-template-rows: auto auto auto;
+    grid-template-columns: 1fr;
     gap: 2px;
 }
 
@@ -107,27 +107,20 @@ button {
     justify-content: space-between;
     background-color: var(--main-bg-color);
     padding: 22px;
-    grid-row: 1 / 2; /* Positioned in the first row */
+    grid-row: 1 / 2;
 }
 
 .order-item {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr; /* Adjust column widths as needed */
+    grid-template-columns: 2fr 1fr 1fr;
     align-items: center;
     padding: 22px;
-    /* padding-top: 1.25em;
-    padding-bottom: 1.25em; */
-    background-color: var(--main-bg-color);
     margin-bottom: 2px;
 }
 
-/* .order-item > div {
-    text-align: center;
-} */
-
 .order-item button {
-    max-width: 100%; /* Ограничивает ширину кнопок до размера контейнера */
-    box-sizing: border-box; /* Учитывает padding и border в ширину и высоту */
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .order-item-name {
@@ -135,11 +128,11 @@ button {
 }
 
 .order-item-quantity {
-    text-align: right; /* Выравнивание количества по центру */
+    text-align: right;
 }
 
 .order-item-total {
-    text-align: right; /* Выравнивание текста по правому краю */
+    text-align: right;
 }
 
 .order-footer-buttons {
