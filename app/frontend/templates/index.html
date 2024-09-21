@@ -58,19 +58,17 @@
                         <div class="order-info">
                             <div>Заказ</div>
                             <div id="total-amount">0 P</div>
-                            <!-- Убедитесь, что здесь есть id -->
                         </div>
                         <div class="order-guess">Гость 1</div>
                         <div id="order-items">
-                            <!-- Добавьте этот div для отображения элементов заказа -->
                             <!-- Элементы заказа будут добавляться сюда -->
                         </div>
                     </div>
 
                     <div class="order-footer">
                         <div class="order-footer-buttons">
-                            <button>Вверх</button>
-                            <button>Вниз</button>
+                            <button class="scroll-up">Вверх</button>
+                            <button class="scroll-down">Вниз</button>
                             <button>+Гость</button>
                         </div>
                     </div>
@@ -111,11 +109,12 @@
         </div>
         <script>
             let order = {};
+            let currentPage = 0;
+            const maxItemsPerPage = 7;
+            let totalAmount = 0;
 
             function handleProductClick(productName, productCost) {
-                console.log(
-                    `Продукт нажал: ${productName}, стоимость: ${productCost}`
-                );
+                console.log(`Продукт нажал: ${productName}, стоимость: ${productCost}`);
 
                 if (order[productName]) {
                     order[productName].quantity += 1;
@@ -123,47 +122,82 @@
                     order[productName] = { quantity: 1, cost: productCost };
                 }
 
+                updateTotalAmount();
                 updateOrder();
             }
 
             function updateOrder() {
-                const orderItemsContainer =
-                    document.getElementById("order-items");
+                const orderItemsContainer = document.getElementById("order-items");
                 orderItemsContainer.innerHTML = "";
 
-                let totalAmount = 0;
+                const orderEntries = Object.entries(order);
+                
+                const start = currentPage * maxItemsPerPage;
+                const end = Math.min(start + maxItemsPerPage, orderEntries.length);
 
-                for (const [name, { quantity, cost }] of Object.entries(
-                    order
-                )) {
+                orderEntries.slice(start, end).forEach(([name, { quantity, cost }]) => {
                     const itemTotal = quantity * cost;
-                    totalAmount += itemTotal;
 
                     const orderItem = document.createElement("div");
                     orderItem.className = "order-item";
 
                     const nameElement = document.createElement("div");
-                    nameElement.className = "order-item-name"; // Уникальный класс для названия
+                    nameElement.className = "order-item-name";
                     nameElement.textContent = name;
 
                     const quantityElement = document.createElement("div");
-                    quantityElement.className = "order-item-quantity"; // Уникальный класс для количества
+                    quantityElement.className = "order-item-quantity";
                     quantityElement.textContent = quantity;
 
                     const totalElement = document.createElement("div");
-                    totalElement.className = "order-item-total"; // Уникальный класс для стоимости
+                    totalElement.className = "order-item-total";
                     totalElement.textContent = `${itemTotal} P`;
 
                     orderItem.appendChild(nameElement);
                     orderItem.appendChild(quantityElement);
                     orderItem.appendChild(totalElement);
                     orderItemsContainer.appendChild(orderItem);
+                });
+
+                updatePaginationButtons(orderEntries.length);
+            }
+
+            function updateTotalAmount() {
+                totalAmount = 0;
+
+                for (const { quantity, cost } of Object.values(order)) {
+                    totalAmount += quantity * cost;
                 }
 
-                document.getElementById(
-                    "total-amount"
-                ).textContent = `${totalAmount} P`;
+                document.getElementById("total-amount").textContent = `${totalAmount} P`;
             }
+
+            function updatePaginationButtons(totalItems) {
+                const upButton = document.querySelector(".scroll-up");
+                const downButton = document.querySelector(".scroll-down");
+
+                upButton.disabled = currentPage === 0;
+
+                downButton.disabled = (currentPage + 1) * maxItemsPerPage >= totalItems;
+            }
+
+            function scrollUp() {
+                if (currentPage > 0) {
+                    currentPage--;
+                    updateOrder();
+                }
+            }
+
+            function scrollDown() {
+                const totalItems = Object.keys(order).length;
+                if ((currentPage + 1) * maxItemsPerPage < totalItems) {
+                    currentPage++;
+                    updateOrder();
+                }
+            }
+
+            document.querySelector(".scroll-up").addEventListener("click", scrollUp);
+            document.querySelector(".scroll-down").addEventListener("click", scrollDown);
 
             async function fetchCategories() {
                 try {
@@ -195,17 +229,11 @@
 
             async function fetchProductsByCategory(categoryId) {
                 try {
-                    const response = await fetch(
-                        `/api/products/?category_id=${categoryId}`
-                    );
+                    const response = await fetch(`/api/products/?category_id=${categoryId}`);
                     const data = await response.json();
 
-                    const positionBody =
-                        document.querySelector(".position-body");
-                    const positionHeader = document.querySelector(
-                        ".position-header div"
-                    );
-
+                    const positionBody = document.querySelector(".position-body");
+                    const positionHeader = document.querySelector(".position-header div");
                     positionBody.innerHTML = "";
 
                     data.products.forEach((product) => {
@@ -231,9 +259,7 @@
                         positionBody.appendChild(productItem);
                     });
 
-                    const categoryResponse = await fetch(
-                        `/api/categories/${categoryId}`
-                    );
+                    const categoryResponse = await fetch(`/api/categories/${categoryId}`);
                     const categoryData = await categoryResponse.json();
                     positionHeader.textContent = categoryData.name;
                 } catch (error) {
@@ -242,6 +268,8 @@
             }
 
             window.onload = fetchCategories;
+
+
         </script>
     </body>
 </html>
