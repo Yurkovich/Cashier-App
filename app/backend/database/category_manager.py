@@ -14,15 +14,13 @@ class CategoryManager:
         return db_path
     
 
-    async def add_category(self) -> None: 
+    async def get_all_categories(self) -> list[dict]:
         async with aiosqlite.connect(self.get_db_path()) as conn:
             async with conn.cursor() as cursor:
-                await cursor.execute(
-                    "INSERT INTO category (name) VALUES (?)",
-                    (self.name,)
-                )
-                await conn.commit()
-
+                await cursor.execute("SELECT id, name FROM category")
+                results = await cursor.fetchall()
+                return [{"id": row[0], "name": row[1]} for row in results]
+    
 
     async def get_category_by_id(self) -> dict | None:
         async with aiosqlite.connect(self.get_db_path()) as conn:
@@ -38,13 +36,27 @@ class CategoryManager:
                     return None
 
 
-    async def get_all_categories(self) -> list[dict]:
+    async def add_category(self) -> None: 
         async with aiosqlite.connect(self.get_db_path()) as conn:
             async with conn.cursor() as cursor:
-                await cursor.execute("SELECT id, name FROM category")
-                results = await cursor.fetchall()
-                return [{"id": row[0], "name": row[1]} for row in results]
-            
+                await cursor.execute(
+                    "INSERT INTO category (name) VALUES (?)",
+                    (self.name,)
+                )
+                await conn.commit()
+
+
+    async def change_category(self) -> None:
+        async with aiosqlite.connect(self.get_db_path()) as conn:
+            async with conn.cursor() as cursor:
+                await cursor.execute(
+                    '''UPDATE category
+                       SET name = ?
+                       WHERE id = ?''',
+                    (self.name, self.id)
+                )
+                await conn.commit()
+
 
     async def delete_category(self) -> bool:
         async with aiosqlite.connect(self.get_db_path()) as conn:

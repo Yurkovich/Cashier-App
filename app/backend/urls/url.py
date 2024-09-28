@@ -12,3 +12,7 @@ url_router = APIRouter(tags=['Read pages'])
 async def read_index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
+
+@url_router.get("/admin", response_class=HTMLResponse)
+async def read_admin(request: Request):
+    return templates.TemplateResponse("admin.html", {"request": request})

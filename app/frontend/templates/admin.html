@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Админ-Панель</title>
+        <link rel="stylesheet" href="./static/admin.css" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
+            rel="stylesheet"
+        />
+    </head>
+    <body>
+        <div class="general-container">
+            <div class="navbar">
+                <h2>Админ-панель</h2>
+                <button class="main-page">🏠︎ Главная</button>
+                <button class="product-page">Товары</button>
+                <button>Категории</button>
+            </div>
+
+            <div class="product-container">
+                <div class="show-table">
+                    <!-- Генерация таблицы товаров -->
+                </div>
+                <div class="control-panel">
+                    <div class="control-panel-add">
+                        <h2>Добавить товар</h2>
+                        <select name="category-select" id="add-category-select">
+                            <!-- Генерация категорий -->
+                        </select>
+                        <input type="text" id="add-title-input" name="add-title-input" placeholder="Название">
+                        <input type="text" id="add-cost-input" name="add-cost-input" placeholder="Стоимость">
+                        <button id="add-product-button">Добавить</button>
+                    </div>
+
+                    <div class="control-panel-change">
+                        <h2>Изменить товар</h2>
+                        <input type="text" id="change-id-input" name="change-id-input" placeholder="ID">
+                        <input type="text" id="change-title-input" name="change-title-input" placeholder="Название">
+                        <select name="category-select" id="change-category-select">
+                            <!-- Генерация категорий -->
+                        </select>
+                        <input type="text" id="change-cost-input" name="change-cost-input" placeholder="Стоимость">
+                        <button id="change-product-button">Изменить</button>
+                    </div>
+                </div>
+            </div>
+
+            </div>
+        </div>
+        <script src="./static/admin.js"></script>
+    </body>
+</html>

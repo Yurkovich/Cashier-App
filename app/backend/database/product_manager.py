@@ -14,28 +14,7 @@ class ProductManager:
     @staticmethod
     def get_db_path() -> str:
         return db_path
-
-
-    async def add_product(self) -> None: 
-        async with aiosqlite.connect(self.get_db_path()) as conn:
-            async with conn.cursor() as cursor:
-                await cursor.execute(
-                    "INSERT INTO product (name, category_id, cost) VALUES (?, ?, ?)",
-                    (self.name, self.category_id, self.cost)
-                )
-                await conn.commit()
-
     
-    async def get_products_by_category(self) -> list[dict]:
-        async with aiosqlite.connect(self.get_db_path()) as conn:
-            async with conn.cursor() as cursor:
-                await cursor.execute(
-                    "SELECT id, name, cost FROM product WHERE category_id = ?",
-                    (self.category_id,)
-                )
-                results = await cursor.fetchall()
-                return [{"id": row[0], "name": row[1], "cost": row[2]} for row in results]
-
 
     async def get_product_by_id(self) -> dict | None:
         async with aiosqlite.connect(self.get_db_path()) as conn:
@@ -56,6 +35,17 @@ class ProductManager:
                     return None
                 
 
+    async def get_products_by_category(self) -> list[dict]:
+        async with aiosqlite.connect(self.get_db_path()) as conn:
+            async with conn.cursor() as cursor:
+                await cursor.execute(
+                    "SELECT id, name, cost FROM product WHERE category_id = ?",
+                    (self.category_id,)
+                )
+                results = await cursor.fetchall()
+                return [{"id": row[0], "name": row[1], "cost": row[2]} for row in results]
+    
+
     async def get_all_products(self) -> list[dict]:
         async with aiosqlite.connect(self.get_db_path()) as conn:
             async with conn.cursor() as cursor:
@@ -67,9 +57,32 @@ class ProductManager:
                         "name": row[1],
                         "category_id": row[2],
                         "cost": row[3]
-                    } 
+                    }
                     for row in results
                 ]
+
+
+    async def add_product(self) -> None: 
+        async with aiosqlite.connect(self.get_db_path()) as conn:
+            async with conn.cursor() as cursor:
+                await cursor.execute(
+                    "INSERT INTO product (name, category_id, cost) VALUES (?, ?, ?)",
+                    (self.name, self.category_id, self.cost)
+                )
+                await conn.commit()
+
+
+    async def change_product(self) -> dict:
+        async with aiosqlite.connect(self.get_db_path()) as conn:
+            async with conn.cursor() as cursor:
+                await cursor.execute(
+                    '''UPDATE product
+                       SET name = ?, category_id = ?, cost = ?
+                       WHERE id = ?''',
+                       (self.name, self.category_id, self.cost, self.id)
+                )
+                await conn.commit()
+    
 
     async def delete_product(self) -> bool:
         async with aiosqlite.connect(self.get_db_path()) as conn:
@@ -82,5 +95,3 @@ class ProductManager:
                 if cursor.rowcount == 0:
                     return False
                 return True
-
-

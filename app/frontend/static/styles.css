@@ -67,7 +67,6 @@ button {
     gap: var(--medium-gap);
 }
 
-
 .order-header {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
@@ -100,7 +99,7 @@ button {
     gap: var(--little-gap);
 }
 
-.order-guess {
+.order-guest {
     padding: 22px;
     background-color: var(--main-bg-color);
 }
@@ -115,15 +114,15 @@ button {
 .order-area {
     display: flex;
     flex-direction: column;
-    height: 100%;  /* Полная высота контейнера */
+    height: 100%; /* Полная высота контейнера */
 }
 
 .order-footer {
-    margin-top: auto;  /* Обеспечиваем, что order-footer будет находиться внизу */
+    margin-top: auto; /* Обеспечиваем, что order-footer будет находиться внизу */
 }
 
 #order-items {
-    flex-grow: 1;  /* Заставляем этот блок занимать оставшееся пространство */
+    flex-grow: 1; /* Заставляем этот блок занимать оставшееся пространство */
     display: grid;
     grid-template-rows: auto auto auto;
     grid-template-columns: 1fr;
@@ -207,6 +206,16 @@ button {
     padding-top: 2px;
 }
 
+.scroll-button {
+    background-color: var(--main-bg-color);
+    border: none;
+    grid-column: 2;
+    grid-row: 5;
+    padding: 1em;
+    width: 100%;
+    height: 100%;
+}
+
 .menu-item button {
     padding: 1em;
     background-color: var(--main-bg-color);
@@ -269,7 +278,7 @@ button {
 }
 
 .position-item button {
-    padding: 1em;
+    padding: 0.4em;
     background-color: var(--second-bg-color);
     border: none;
     width: 100%;
