@@ -49,13 +49,18 @@ class ProductManager:
     async def get_all_products(self) -> list[dict]:
         async with aiosqlite.connect(self.get_db_path()) as conn:
             async with conn.cursor() as cursor:
-                await cursor.execute("SELECT id, name, category_id, cost FROM product")
+                query = """
+                    SELECT p.id, p.name, c.name AS category_name, p.cost
+                    FROM product p
+                    JOIN category c ON p.category_id = c.id
+                """
+                await cursor.execute(query)
                 results = await cursor.fetchall()
                 return [
                     {
                         "id": row[0],
                         "name": row[1],
-                        "category_id": row[2],
+                        "category": row[2],
                         "cost": row[3]
                     }
                     for row in results

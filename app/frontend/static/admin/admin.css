@@ -56,20 +56,23 @@ body {
     color: #fff;
 }
 
-.product-container {
+.product-container,
+.category-container {
     display: none;
     grid-template-columns: 1fr 0.5fr;
     padding: 1.5em;
     gap: 1em;
 }
 
-.control-panel {
+.control-panel,
+.category-control-panel {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-.control-panel button {
+.control-panel button,
+.category-control-panel button {
     padding: 0.5em;
     border: none;
     background-color: #d14b4a;
@@ -78,7 +81,11 @@ body {
 }
 
 .control-panel-add,
-.control-panel-change {
+.control-panel-change,
+.control-panel-delete,
+.category-control-panel-add,
+.category-control-panel-change,
+.category-control-panel-delete {
     display: flex;
     flex-direction: column;
     gap: 5px;

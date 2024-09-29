@@ -1,7 +1,7 @@
 
 from fastapi import APIRouter, HTTPException
 
-from model.category_model import Category, CategoryCreate
+from model.category_model import Category, CategoryChange, CategoryCreate
 from database.category_manager import CategoryManager
 
 
@@ -35,14 +35,15 @@ async def create_category(category: CategoryCreate) -> CategoryCreate:
         raise HTTPException(status_code=500, detail=str(e))
     
 
-@category_router.put('/api/categories', summary="Изменить категорию по ID", response_model=Category)
-async def change_category(category_id: int, name: str) -> Category:
-    manager = CategoryManager(id=category_id, name=name)
+@category_router.put('/api/categories', summary="Изменить категорию по ID", response_model=CategoryChange)
+async def change_category(category: CategoryChange) -> CategoryChange:
+    manager = CategoryManager(id=category.id, name=category.name)
     try:
         await manager.change_category()
-        return Category(id=category_id, name=name)
+        return category
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
     
 
 @category_router.delete("/api/categories/{category_id}", summary="Удалить категорию по ID", status_code=204)

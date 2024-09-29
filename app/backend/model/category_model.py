@@ -9,5 +9,7 @@ class Category(BaseModel):
 class CategoryCreate(BaseModel):
     name: str
 
-
+class CategoryChange(BaseModel):
+    id: int
+    name: str
 

@@ -1,6 +1,8 @@
+
 document.addEventListener("DOMContentLoaded", () => {
     init();
 });
+
 
 function init() {
     document
@@ -13,6 +15,9 @@ function init() {
         .getElementById("add-product-button")
         .addEventListener("click", addProduct);
     categorySelector();
+    document
+        .getElementById("delete-product-button")
+        .addEventListener("click", deleteProduct);
 
     document
         .querySelector(".product-page")
@@ -21,6 +26,39 @@ function init() {
             generateProductTable(products);
         });
 }
+
+
+async function deleteProduct() {
+    const productId = document.getElementById("delete-id-input").value;
+
+    if (!productId) {
+        alert("Введите ID товара для удаления.");
+        return;
+    }
+
+    const confirmed = confirm(`Вы уверены, что хотите удалить товар с ID: ${productId}?`);
+    if (!confirmed) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/products/${productId}`, {
+            method: "DELETE",
+        });
+
+        if (response.status === 204) {
+            refreshProductTable();
+            productId = '';
+        } else if (response.status === 404) {
+            alert("Товар с таким ID не найден.");
+        } else {
+            throw new Error(`Ошибка: ${response.statusText}`);
+        }
+    } catch (error) {
+        console.error("Ошибка при удалении товара:", error);
+    }
+}
+
 
 async function handleIdInput(event) {
     const productId = event.target.value;
@@ -31,6 +69,7 @@ async function handleIdInput(event) {
     }
 }
 
+
 async function handleChangeProduct() {
     const productId = document.getElementById("change-id-input").value;
     const productName = document.getElementById("change-title-input").value;
@@ -39,11 +78,12 @@ async function handleChangeProduct() {
 
     if (productId && productName && categoryId && productCost) {
         await updateProduct(productId, productName, categoryId, productCost);
-        await refreshProductTable(); // Обновляем таблицу после изменения
+        await refreshProductTable();
     } else {
         alert("Пожалуйста, заполните все поля.");
     }
 }
+
 
 async function categorySelector() {
     const addSelector = document.getElementById("add-category-select");
@@ -81,6 +121,7 @@ async function categorySelector() {
     }
 }
 
+
 async function fetchProductData(productId) {
     try {
         const response = await fetch(`/api/products/${productId}`);
@@ -98,6 +139,7 @@ async function fetchProductData(productId) {
         clearChangeFields();
     }
 }
+
 
 async function updateProduct(id, name, categoryId, cost) {
     try {
@@ -124,6 +166,7 @@ async function updateProduct(id, name, categoryId, cost) {
         console.error("Ошибка при обновлении товара:", error);
     }
 }
+
 
 async function addProduct() {
     let getCategory = document.getElementById("add-category-select").value;
@@ -164,6 +207,7 @@ async function addProduct() {
     }
 }
 
+
 async function fetchProducts() {
     const showTable = (document.querySelector(
         ".product-container"
@@ -190,10 +234,20 @@ async function fetchProducts() {
     }
 }
 
+
 async function refreshProductTable() {
     const products = await fetchProducts();
     generateProductTable(products);
 }
+
+
+let sortOrder = {
+    id: 'asc',
+    name: 'asc',
+    category: 'asc',
+    cost: 'asc',
+};
+
 
 function generateProductTable(products) {
     const containerDiv = document.querySelector(".show-table");
@@ -209,12 +263,37 @@ function generateProductTable(products) {
     const tbody = document.createElement("tbody");
 
     const headerRow = document.createElement("tr");
-    const headers = ["ID", "Название", "Категория", "Цена"];
-    headers.forEach((headerText) => {
+
+    const headers = [
+        { key: "id", text: "ID" },
+        { key: "name", text: "Название" },
+        { key: "category", text: "Категория" },
+        { key: "cost", text: "Цена" },
+    ];
+
+    headers.forEach(({ key, text }) => {
         const th = document.createElement("th");
-        th.textContent = headerText;
+        
+        const headerContent = document.createElement("span");
+        headerContent.textContent = text;
+
+        const arrow = document.createElement("span");
+        arrow.className = "sort-arrow";
+        arrow.textContent = sortOrder[key] === 'asc' ? ' ▲' : ' ▼';
+
+        th.appendChild(headerContent);
+        th.appendChild(arrow);
+
+        th.style.cursor = "pointer";
+
+        th.addEventListener("click", () => {
+            sortProducts(products, key);
+            generateProductTable(products);
+        });
+
         headerRow.appendChild(th);
     });
+
     thead.appendChild(headerRow);
 
     products.forEach((product) => {
@@ -229,11 +308,11 @@ function generateProductTable(products) {
         row.appendChild(nameCell);
 
         const categoryCell = document.createElement("td");
-        categoryCell.textContent = product.category_id;
+        categoryCell.textContent = product.category;
         row.appendChild(categoryCell);
 
         const costCell = document.createElement("td");
-        costCell.textContent = product.cost;
+        costCell.textContent = product.cost + " ₽";
         row.appendChild(costCell);
 
         tbody.appendChild(row);
@@ -244,6 +323,22 @@ function generateProductTable(products) {
 
     containerDiv.appendChild(table);
 }
+
+
+function sortProducts(products, field) {
+    const order = sortOrder[field];
+
+    products.sort((a, b) => {
+        if (order === 'asc') {
+            return a[field] > b[field] ? 1 : -1;
+        } else {
+            return a[field] < b[field] ? 1 : -1;
+        }
+    });
+
+    sortOrder[field] = order === 'asc' ? 'desc' : 'asc';
+}
+
 
 function clearChangeFields() {
     document.getElementById("change-id-input").value = "";
