@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-import uvicorn
 
 from urls.url import url_router
 from routes.product_router import product_router
@@ -21,8 +20,9 @@ app.include_router(warehouse_router)
 
 
 if __name__ == '__main__':
-    from database.database import DataBase
-    db = DataBase()
+    import uvicorn
+    from database.database import Database
+    db = Database()
     db.create_table()
 
     uvicorn.run('main:app', port=8000, reload=True)

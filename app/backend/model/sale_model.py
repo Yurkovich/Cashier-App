@@ -7,7 +7,3 @@ class Sale(BaseModel):
     quantity: int
     price: int
     date: str
-
-
-
-

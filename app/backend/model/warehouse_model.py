@@ -16,3 +16,4 @@ class WarehouseCreate(BaseModel):
     cost: int
     quantity: int
     amount: int
+    

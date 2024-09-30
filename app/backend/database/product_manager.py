@@ -5,16 +5,14 @@ from config.config import db_path
 
 class ProductManager:
     def __init__(self, name: str = None, category_id: int = None, cost: int = None, id: int = None) -> None:
-        self.name = name
-        self.category_id = category_id
-        self.cost = cost
-        self.id = id
-
+        self.name: str | None = name
+        self.category_id: int | None = category_id
+        self.cost: int | None = cost
+        self.id: int | None = id
 
     @staticmethod
     def get_db_path() -> str:
         return db_path
-    
 
     async def get_product_by_id(self) -> dict | None:
         async with aiosqlite.connect(self.get_db_path()) as conn:
@@ -33,7 +31,6 @@ class ProductManager:
                     }
                 else:
                     return None
-                
 
     async def get_products_by_category(self) -> list[dict]:
         async with aiosqlite.connect(self.get_db_path()) as conn:
@@ -44,7 +41,6 @@ class ProductManager:
                 )
                 results = await cursor.fetchall()
                 return [{"id": row[0], "name": row[1], "cost": row[2]} for row in results]
-    
 
     async def get_all_products(self) -> list[dict]:
         async with aiosqlite.connect(self.get_db_path()) as conn:
@@ -66,7 +62,6 @@ class ProductManager:
                     for row in results
                 ]
 
-
     async def add_product(self) -> None: 
         async with aiosqlite.connect(self.get_db_path()) as conn:
             async with conn.cursor() as cursor:
@@ -75,7 +70,6 @@ class ProductManager:
                     (self.name, self.category_id, self.cost)
                 )
                 await conn.commit()
-
 
     async def change_product(self) -> dict:
         async with aiosqlite.connect(self.get_db_path()) as conn:
@@ -87,7 +81,6 @@ class ProductManager:
                        (self.name, self.category_id, self.cost, self.id)
                 )
                 await conn.commit()
-    
 
     async def delete_product(self) -> bool:
         async with aiosqlite.connect(self.get_db_path()) as conn:
@@ -100,3 +93,4 @@ class ProductManager:
                 if cursor.rowcount == 0:
                     return False
                 return True
+            

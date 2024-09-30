@@ -5,15 +5,13 @@ from config.config import db_path
 
 class CategoryManager:
     def __init__(self, name: str = None, id: int = None) -> None:
-        self.name = name
-        self.id = id
-
+        self.name: str | None = name
+        self.id: int | None = id
 
     @staticmethod
     def get_db_path() -> str:
         return db_path
     
-
     async def get_all_categories(self) -> list[dict]:
         async with aiosqlite.connect(self.get_db_path()) as conn:
             async with conn.cursor() as cursor:
@@ -21,7 +19,6 @@ class CategoryManager:
                 results = await cursor.fetchall()
                 return [{"id": row[0], "name": row[1]} for row in results]
     
-
     async def get_category_by_id(self) -> dict | None:
         async with aiosqlite.connect(self.get_db_path()) as conn:
             async with conn.cursor() as cursor:
@@ -35,7 +32,6 @@ class CategoryManager:
                 else:
                     return None
 
-
     async def add_category(self) -> None: 
         async with aiosqlite.connect(self.get_db_path()) as conn:
             async with conn.cursor() as cursor:
@@ -44,7 +40,6 @@ class CategoryManager:
                     (self.name,)
                 )
                 await conn.commit()
-
 
     async def change_category(self) -> None:
         async with aiosqlite.connect(self.get_db_path()) as conn:
@@ -56,7 +51,6 @@ class CategoryManager:
                     (self.name, self.id)
                 )
                 await conn.commit()
-
 
     async def delete_category(self) -> bool:
         async with aiosqlite.connect(self.get_db_path()) as conn:

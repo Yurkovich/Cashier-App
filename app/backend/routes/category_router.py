@@ -45,7 +45,6 @@ async def change_category(category: CategoryChange) -> CategoryChange:
         raise HTTPException(status_code=500, detail=str(e))
 
     
-
 @category_router.delete("/api/categories/{category_id}", summary="Удалить категорию по ID", status_code=204)
 async def delete_category(category_id: int) -> None:
     manager = CategoryManager(id=category_id)

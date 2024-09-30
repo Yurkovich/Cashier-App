@@ -22,7 +22,7 @@ body {
 
 body {
     height: 100vh;
-    /* overflow: hidden; */
+    overflow: hidden;
     background-color: #111;
 }
 
@@ -31,21 +31,21 @@ button {
 }
 
 .grid-container {
-    width: 100vw;
+    width: 100%;
     height: 100vh;
     padding: 0.5em;
 }
 
 .navbar {
     display: grid;
-    grid-template-columns: 1fr minmax(477px, 5fr) minmax(300px, 3fr);
+    grid-template-columns: 1fr 5fr 3fr;
     text-align: center;
     gap: var(--medium-gap);
 }
 
 .navbar-group {
     display: grid;
-    grid-template-columns: minmax(118.5px, 1fr) 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: var(--medium-gap);
 }
 
@@ -61,7 +61,7 @@ button {
 
 .container {
     display: grid;
-    grid-template-columns: 3fr minmax(290px, 3fr) minmax(374px, 3fr);
+    grid-template-columns: 3fr 3fr 3fr;
     padding-top: 0.25em;
     padding-bottom: 0.05em;
     gap: var(--medium-gap);
@@ -114,15 +114,15 @@ button {
 .order-area {
     display: flex;
     flex-direction: column;
-    height: 100%; /* Полная высота контейнера */
+    height: 100%;
 }
 
 .order-footer {
-    margin-top: auto; /* Обеспечиваем, что order-footer будет находиться внизу */
+    margin-top: auto;
 }
 
 #order-items {
-    flex-grow: 1; /* Заставляем этот блок занимать оставшееся пространство */
+    flex-grow: 1;
     display: grid;
     grid-template-rows: auto auto auto;
     grid-template-columns: 1fr;
@@ -171,7 +171,7 @@ button {
 }
 
 .order-payment button {
-    background-color: #444;
+    background-color: #1bb141;
     color: white;
     border: none;
     padding: 1.35em;
@@ -217,7 +217,7 @@ button {
 }
 
 .menu-item button {
-    padding: 1em;
+    padding: minmax(0.75em 1em);
     background-color: var(--main-bg-color);
     border: none;
     width: 100%;
@@ -278,7 +278,7 @@ button {
 }
 
 .position-item button {
-    padding: 0.4em;
+    padding: 0.2em;
     background-color: var(--second-bg-color);
     border: none;
     width: 100%;
@@ -319,4 +319,14 @@ button {
     justify-content: center;
     text-align: center;
     align-items: center;
+}
+
+@media (max-width: 1000px) {
+    /* .position-body {
+        font-size: 10px;
+    } */
+
+    .position-body {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
