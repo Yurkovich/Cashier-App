@@ -1,7 +1,10 @@
 
+import os
 import sqlite3
-from config.config import db_path
+from dotenv import load_dotenv
 
+load_dotenv(dotenv_path='app/backend/config.env')
+db_path = os.getenv('DB_PATH')
 
 class Database:
     def __init__(self) -> None:

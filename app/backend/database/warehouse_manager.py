@@ -1,7 +1,11 @@
 
+import os
 from typing import Dict, List
 import aiosqlite
-from config.config import db_path
+from dotenv import load_dotenv
+
+load_dotenv(dotenv_path='app/backend/config.env')
+db_path = os.getenv('DB_PATH')
 
 
 class WarehouseManager:
@@ -13,12 +17,8 @@ class WarehouseManager:
         self.quantity: int | None = quantity
         self.amount: int | None = amount
 
-    @staticmethod
-    def get_db_path() -> str:
-        return db_path
-
     async def add_item(self) -> None:
-        async with aiosqlite.connect(self.get_db_path()) as conn:
+        async with aiosqlite.connect(db_path) as conn:
             async with conn.cursor() as cursor:
                 await cursor.execute(
                     "INSERT INTO warehouse (category, name, cost, quantity, amount) VALUES (?, ?, ?, ?, ?)",
@@ -27,7 +27,7 @@ class WarehouseManager:
                 await conn.commit()
 
     async def get_item_by_id(self) -> dict | None:
-        async with aiosqlite.connect(self.get_db_path()) as conn:
+        async with aiosqlite.connect(db_path) as conn:
             async with conn.cursor() as cursor:
                 await cursor.execute(
                     """
@@ -51,7 +51,7 @@ class WarehouseManager:
                     return None
 
     async def get_all_items(self) -> List[Dict]:
-        async with aiosqlite.connect(self.get_db_path()) as conn:
+        async with aiosqlite.connect(db_path) as conn:
             async with conn.cursor() as cursor:
                 await cursor.execute(
                     """
@@ -76,7 +76,7 @@ class WarehouseManager:
                 ]
 
     async def delete_item(self) -> bool:
-        async with aiosqlite.connect(self.get_db_path()) as conn:
+        async with aiosqlite.connect(db_path) as conn:
             async with conn.cursor() as cursor:
                 await cursor.execute(
                     "DELETE FROM warehouse WHERE id = ?",

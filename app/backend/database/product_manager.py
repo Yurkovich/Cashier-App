@@ -1,6 +1,10 @@
 
+import os
 import aiosqlite
-from config.config import db_path
+from dotenv import load_dotenv
+
+load_dotenv(dotenv_path='app/backend/config.env')
+db_path = os.getenv('DB_PATH')
 
 
 class ProductManager:
@@ -10,12 +14,8 @@ class ProductManager:
         self.cost: int | None = cost
         self.id: int | None = id
 
-    @staticmethod
-    def get_db_path() -> str:
-        return db_path
-
     async def get_product_by_id(self) -> dict | None:
-        async with aiosqlite.connect(self.get_db_path()) as conn:
+        async with aiosqlite.connect(db_path) as conn:
             async with conn.cursor() as cursor:
                 await cursor.execute(
                     "SELECT id, name, category_id, cost FROM product WHERE id = ?",
@@ -33,7 +33,7 @@ class ProductManager:
                     return None
 
     async def get_products_by_category(self) -> list[dict]:
-        async with aiosqlite.connect(self.get_db_path()) as conn:
+        async with aiosqlite.connect(db_path) as conn:
             async with conn.cursor() as cursor:
                 await cursor.execute(
                     "SELECT id, name, cost FROM product WHERE category_id = ?",
@@ -43,7 +43,7 @@ class ProductManager:
                 return [{"id": row[0], "name": row[1], "cost": row[2]} for row in results]
 
     async def get_all_products(self) -> list[dict]:
-        async with aiosqlite.connect(self.get_db_path()) as conn:
+        async with aiosqlite.connect(db_path) as conn:
             async with conn.cursor() as cursor:
                 query = """
                     SELECT p.id, p.name, c.name AS category_name, p.cost
@@ -63,7 +63,7 @@ class ProductManager:
                 ]
 
     async def add_product(self) -> None: 
-        async with aiosqlite.connect(self.get_db_path()) as conn:
+        async with aiosqlite.connect(db_path) as conn:
             async with conn.cursor() as cursor:
                 await cursor.execute(
                     "INSERT INTO product (name, category_id, cost) VALUES (?, ?, ?)",
@@ -72,7 +72,7 @@ class ProductManager:
                 await conn.commit()
 
     async def change_product(self) -> dict:
-        async with aiosqlite.connect(self.get_db_path()) as conn:
+        async with aiosqlite.connect(db_path) as conn:
             async with conn.cursor() as cursor:
                 await cursor.execute(
                     '''UPDATE product
@@ -83,7 +83,7 @@ class ProductManager:
                 await conn.commit()
 
     async def delete_product(self) -> bool:
-        async with aiosqlite.connect(self.get_db_path()) as conn:
+        async with aiosqlite.connect(db_path) as conn:
             async with conn.cursor() as cursor:
                 await cursor.execute(
                     "DELETE FROM product WHERE id = ?",
