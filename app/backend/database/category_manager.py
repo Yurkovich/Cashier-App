@@ -11,14 +11,14 @@ class CategoryManager:
     def __init__(self, name: str = None, id: int = None) -> None:
         self.name: str | None = name
         self.id: int | None = id
-    
+
     async def get_all_categories(self) -> list[dict]:
         async with aiosqlite.connect(db_path) as conn:
             async with conn.cursor() as cursor:
                 await cursor.execute("SELECT id, name FROM category")
                 results = await cursor.fetchall()
                 return [{"id": row[0], "name": row[1]} for row in results]
-    
+
     async def get_category_by_id(self) -> dict | None:
         async with aiosqlite.connect(db_path) as conn:
             async with conn.cursor() as cursor:
@@ -32,7 +32,7 @@ class CategoryManager:
                 else:
                     return None
 
-    async def add_category(self) -> None: 
+    async def add_category(self) -> None:
         async with aiosqlite.connect(db_path) as conn:
             async with conn.cursor() as cursor:
                 await cursor.execute(

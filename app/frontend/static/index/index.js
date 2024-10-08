@@ -8,10 +8,9 @@
 
     async function fetchCategories() {
         try {
-            const response = await fetch("/api/categories");
+            const response = await fetch("/api/categories"); // Путь для получения всех категорий
             const data = await response.json();
-            const categories = data.categories;
-            updateCategoryMenu(categories);
+            updateCategoryMenu(data); // Обновление меню категорий с новым форматом
         } catch (error) {
             console.error("Ошибка при получении категорий:", error);
         }
@@ -190,7 +189,7 @@
 
     async function fetchProductsByCategory(categoryId) {
         try {
-            const response = await fetch(`/api/products?category_id=${categoryId}`);
+            const response = await fetch(`/api/products?category_id=${categoryId}`); // Путь для получения продуктов по категории
             const data = await response.json();
 
             const positionBody = document.querySelector(".position-body");
@@ -219,7 +218,7 @@
                 positionBody.appendChild(productItem);
             });
 
-            const categoryResponse = await fetch(`/api/categories/${categoryId}`);
+            const categoryResponse = await fetch(`/api/categories/${categoryId}`); // Путь для получения данных о категории
             const categoryData = await categoryResponse.json();
             positionHeader.textContent = categoryData.name;
         } catch (error) {

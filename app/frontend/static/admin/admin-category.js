@@ -1,8 +1,6 @@
-
 document.addEventListener("DOMContentLoaded", () => {
     initCategory();
 });
-
 
 function initCategory() {
     document.getElementById("add-category-button").addEventListener("click", addCategory);
@@ -10,7 +8,6 @@ function initCategory() {
     document.getElementById("delete-category-button").addEventListener("click", deleteCategory);
     refreshCategoryTable();
 }
-
 
 async function addCategory() {
     const categoryName = document.getElementById("add-category-input").value;
@@ -40,7 +37,6 @@ async function addCategory() {
         console.error("Ошибка:", error);
     }
 }
-
 
 async function handleChangeCategory() {
     const categoryId = document.getElementById("change-category-id-input").value;
@@ -73,7 +69,6 @@ async function handleChangeCategory() {
     }
 }
 
-
 async function deleteCategory() {
     const categoryId = document.getElementById("delete-category-id-input").value;
 
@@ -105,7 +100,6 @@ async function deleteCategory() {
     }
 }
 
-
 async function fetchCategories() {
     try {
         const response = await fetch("/api/categories");
@@ -113,7 +107,7 @@ async function fetchCategories() {
             throw new Error(`Ошибка HTTP: ${response.status}`);
         }
         const data = await response.json();
-        return data.categories;
+        return data;
     } catch (error) {
         console.error("Ошибка при получении категорий:", error);
         return [];
@@ -125,7 +119,6 @@ async function refreshCategoryTable() {
     const categories = await fetchCategories();
     generateCategoryTable(categories);
 }
-
 
 function generateCategoryTable(categories) {
     const containerDiv = document.querySelector(".category-table");

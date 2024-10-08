@@ -1,10 +1,9 @@
-
 document.addEventListener("DOMContentLoaded", () => {
-    init();
+    initProduct();
 });
 
 
-function init() {
+function initProduct() {
     document
         .getElementById("change-product-button")
         .addEventListener("click", handleChangeProduct);
@@ -29,7 +28,7 @@ function init() {
 
 
 async function deleteProduct() {
-    const productId = document.getElementById("delete-id-input").value;
+    let productId = document.getElementById("delete-id-input").value;
 
     if (!productId) {
         alert("Введите ID товара для удаления.");
@@ -48,7 +47,7 @@ async function deleteProduct() {
 
         if (response.status === 204) {
             refreshProductTable();
-            productId = '';
+            document.getElementById("delete-id-input").value = '';
         } else if (response.status === 404) {
             alert("Товар с таким ID не найден.");
         } else {
@@ -93,7 +92,7 @@ async function categorySelector() {
         const response = await fetch("/api/categories");
         const data = await response.json();
 
-        if (!Array.isArray(data.categories)) {
+        if (!Array.isArray(data)) {
             throw new Error("Неверный формат данных категорий");
         }
 
@@ -105,7 +104,7 @@ async function categorySelector() {
             selector.appendChild(defaultOption);
         });
 
-        data.categories.forEach((category) => {
+        data.forEach((category) => {
             const optionAdd = document.createElement("option");
             optionAdd.value = category.id;
             optionAdd.text = category.name;
@@ -160,7 +159,6 @@ async function updateProduct(id, name, categoryId, cost) {
             throw new Error(`Ошибка: ${response.status}`);
         }
 
-        const result = await response.json();
         clearChangeFields();
     } catch (error) {
         console.error("Ошибка при обновлении товара:", error);
@@ -169,9 +167,9 @@ async function updateProduct(id, name, categoryId, cost) {
 
 
 async function addProduct() {
-    let getCategory = document.getElementById("add-category-select").value;
-    let getTitle = document.getElementById("add-title-input").value;
-    let getCost = document.getElementById("add-cost-input").value;
+    const getCategory = document.getElementById("add-category-select").value;
+    const getTitle = document.getElementById("add-title-input").value;
+    const getCost = document.getElementById("add-cost-input").value;
 
     const productData = {
         category_id: getCategory,
@@ -209,30 +207,37 @@ async function addProduct() {
 
 
 async function fetchProducts() {
-    const showTable = (document.querySelector(
-        ".product-container"
-    ).style.display = "grid");
+    const showTable = (document.querySelector(".product-container").style.display = "grid");
     try {
-        const response = await fetch("/api/all_products");
-        if (!response.ok) {
-            throw new Error(`Ошибка HTTP: ${response.status}`);
-        }
-        const data = await response.json();
+        const [productsResponse, categoriesResponse] = await Promise.all([
+            fetch("/api/all_products"),
+            fetch("/api/categories")
+        ]);
 
-        if (Array.isArray(data)) {
-            return data;
-        } else {
-            console.warn(
-                "Ожидался массив продуктов, но получено что-то другое:",
-                data
-            );
-            return [];
+        if (!productsResponse.ok || !categoriesResponse.ok) {
+            throw new Error(`Ошибка HTTP: ${productsResponse.status} или ${categoriesResponse.status}`);
         }
+
+        const products = await productsResponse.json();
+        const categories = await categoriesResponse.json();
+
+        const categoryMap = {};
+        categories.forEach(category => {
+            categoryMap[category.id] = category.name;
+        });
+
+        products.forEach(product => {
+            product.category = categoryMap[product.category_id];
+        });
+
+        return products;
+
     } catch (error) {
-        console.error("Ошибка при получении продуктов:", error);
+        console.error("Ошибка при получении продуктов или категорий:", error);
         return [];
     }
 }
+
 
 
 async function refreshProductTable() {
@@ -337,12 +342,4 @@ function sortProducts(products, field) {
     });
 
     sortOrder[field] = order === 'asc' ? 'desc' : 'asc';
-}
-
-
-function clearChangeFields() {
-    document.getElementById("change-id-input").value = "";
-    document.getElementById("change-title-input").value = "";
-    document.getElementById("change-category-select").value = "";
-    document.getElementById("change-cost-input").value = "";
 }

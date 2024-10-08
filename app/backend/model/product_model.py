@@ -25,4 +25,3 @@ class ProductChange(BaseModel):
     name: str
     category_id: int
     cost: int
-    
