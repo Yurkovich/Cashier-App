@@ -1,27 +1,38 @@
-(function () {
-    let order = {};
-    let currentPage = 0;
-    const maxItemsPerPage = 7;
-    let totalAmount = 0;
-    let currentCategoryPage = 0;
-    const maxCategoriesPerPage = 9;
 
-    async function fetchCategories() {
+class OrderManager {
+    constructor() {
+        this.order = {};
+        this.currentPage = 0;
+        this.maxItemsPerPage = 7;
+        this.totalAmount = 0;
+        this.currentCategoryPage = 0;
+        this.maxCategoriesPerPage = 9;
+
+        this.init();
+    }
+
+    init() {
+        document.querySelector(".scroll-up").addEventListener("click", () => this.scrollUp());
+        document.querySelector(".scroll-down").addEventListener("click", () => this.scrollDown());
+        window.onload = () => this.fetchCategories();
+    }
+
+    async fetchCategories() {
         try {
             const response = await fetch("/api/categories");
             const data = await response.json();
-            updateCategoryMenu(data);
+            this.updateCategoryMenu(data);
         } catch (error) {
             console.error("Ошибка при получении категорий:", error);
         }
     }
 
-    function updateCategoryMenu(categories) {
+    updateCategoryMenu(categories) {
         const menuBody = document.querySelector(".menu-body");
         menuBody.innerHTML = "";
 
-        const start = currentCategoryPage * maxCategoriesPerPage;
-        const end = Math.min(start + maxCategoriesPerPage, categories.length);
+        const start = this.currentCategoryPage * this.maxCategoriesPerPage;
+        const end = Math.min(start + this.maxCategoriesPerPage, categories.length);
 
         categories.slice(start, end).forEach((category) => {
             const menuItem = document.createElement("div");
@@ -33,46 +44,29 @@
             button.textContent = category.name;
 
             button.addEventListener("click", () => {
-                fetchProductsByCategory(category.id);
+                this.fetchProductsByCategory(category.id);
             });
 
             menuItem.appendChild(button);
             menuBody.appendChild(menuItem);
         });
 
-        if (categories.length > maxCategoriesPerPage) {
-            const nextOrPrevButton = document.createElement("div");
-            nextOrPrevButton.className = "menu-item nextorprevButton";
-
-            const scrollButton = document.createElement("button");
-            scrollButton.className = "scroll-button";
-            scrollButton.textContent = ">";
-
-            scrollButton.addEventListener("click", () => {
-                if ((currentCategoryPage + 1) * maxCategoriesPerPage < categories.length) {
-                    scrollDownCategories(categories);
-                } else if (currentCategoryPage > 0) {
-                    scrollUpCategories(categories);
-                }
-            });
-
-            nextOrPrevButton.appendChild(scrollButton);
-            menuBody.appendChild(nextOrPrevButton);
-
-            updateCategoryPaginationButtons(categories.length);
+        if (categories.length > this.maxCategoriesPerPage) {
+            this.updateCategoryPaginationButtons(categories.length);
         }
     }
 
-    function updateCategoryPaginationButtons(totalCategories) {
+    updateCategoryPaginationButtons(totalCategories) {
         const scrollButton = document.querySelector(".scroll-button");
 
-        if (totalCategories > maxCategoriesPerPage) {
-            if ((currentCategoryPage + 1) * maxCategoriesPerPage >= totalCategories) {
+        if (totalCategories > this.maxCategoriesPerPage) {
+            scrollButton.style.display = "block";
+            if ((this.currentCategoryPage + 1) * this.maxCategoriesPerPage >= totalCategories) {
                 scrollButton.textContent = "<";
-                scrollButton.onclick = scrollUpCategories;
-            } else if (currentCategoryPage === 0) {
+                scrollButton.onclick = () => this.scrollUpCategories();
+            } else if (this.currentCategoryPage === 0) {
                 scrollButton.textContent = ">";
-                scrollButton.onclick = scrollDownCategories;
+                scrollButton.onclick = () => this.scrollDownCategories();
             } else {
                 scrollButton.textContent = ">";
             }
@@ -81,61 +75,59 @@
         }
     }
 
-    function scrollUpCategories(categories) {
-        if (currentCategoryPage > 0) {
-            currentCategoryPage--;
-            updateCategoryMenu(categories);
+    scrollUpCategories() {
+        if (this.currentCategoryPage > 0) {
+            this.currentCategoryPage--;
+            this.fetchCategories();
         }
     }
 
-    function scrollDownCategories(categories) {
-        if ((currentCategoryPage + 1) * maxCategoriesPerPage < categories.length) {
-            currentCategoryPage++;
-            updateCategoryMenu(categories);
-        }
+    scrollDownCategories() {
+        this.currentCategoryPage++;
+        this.fetchCategories();
     }
 
-    function handleProductClick(productName, productCost) {
-        if (order[productName]) {
-            order[productName].quantity += 1;
+    handleProductClick(productName, productCost) {
+        if (this.order[productName]) {
+            this.order[productName].quantity += 1;
         } else {
-            order[productName] = { quantity: 1, cost: productCost };
+            this.order[productName] = { quantity: 1, cost: productCost };
         }
 
-        updateTotalAmount();
-        updateOrder();
+        this.updateTotalAmount();
+        this.updateOrder();
 
-        const orderCount = Object.keys(order).length;
-        if (orderCount > maxItemsPerPage) {
-            const productIndex = getProductIndex(productName);
-            const newPage = Math.floor(productIndex / maxItemsPerPage);
-            if (newPage !== currentPage) {
-                currentPage = newPage;
-                updateOrder();
+        const orderCount = Object.keys(this.order).length;
+        if (orderCount > this.maxItemsPerPage) {
+            const productIndex = this.getProductIndex(productName);
+            const newPage = Math.floor(productIndex / this.maxItemsPerPage);
+            if (newPage !== this.currentPage) {
+                this.currentPage = newPage;
+                this.updateOrder();
             }
         }
     }
 
-    function getProductIndex(productName) {
-        const orderEntries = Object.entries(order);
+    getProductIndex(productName) {
+        const orderEntries = Object.entries(this.order);
         return orderEntries.findIndex(([name]) => name === productName);
     }
 
-    function updateTotalAmount() {
-        totalAmount = 0;
-        for (const { quantity, cost } of Object.values(order)) {
-            totalAmount += quantity * cost;
+    updateTotalAmount() {
+        this.totalAmount = 0;
+        for (const { quantity, cost } of Object.values(this.order)) {
+            this.totalAmount += quantity * cost;
         }
-        document.getElementById("total-amount").textContent = `${totalAmount} P`;
+        document.getElementById("total-amount").textContent = `${this.totalAmount} P`;
     }
 
-    function updateOrder() {
+    updateOrder() {
         const orderItemsContainer = document.getElementById("order-items");
         orderItemsContainer.innerHTML = "";
 
-        const orderEntries = Object.entries(order);
-        const start = currentPage * maxItemsPerPage;
-        const end = Math.min(start + maxItemsPerPage, orderEntries.length);
+        const orderEntries = Object.entries(this.order);
+        const start = this.currentPage * this.maxItemsPerPage;
+        const end = Math.min(start + this.maxItemsPerPage, orderEntries.length);
 
         orderEntries.slice(start, end).forEach(([name, { quantity, cost }]) => {
             const itemTotal = quantity * cost;
@@ -161,33 +153,33 @@
             orderItemsContainer.appendChild(orderItem);
         });
 
-        updatePaginationButtons(orderEntries.length);
+        this.updatePaginationButtons(orderEntries.length);
     }
 
-    function updatePaginationButtons(totalItems) {
+    updatePaginationButtons(totalItems) {
         const upButton = document.querySelector(".scroll-up");
         const downButton = document.querySelector(".scroll-down");
 
-        upButton.disabled = currentPage === 0;
-        downButton.disabled = (currentPage + 1) * maxItemsPerPage >= totalItems;
+        upButton.disabled = this.currentPage === 0;
+        downButton.disabled = (this.currentPage + 1) * this.maxItemsPerPage >= totalItems;
     }
 
-    function scrollUp() {
-        if (currentPage > 0) {
-            currentPage--;
-            updateOrder();
+    scrollUp() {
+        if (this.currentPage > 0) {
+            this.currentPage--;
+            this.updateOrder();
         }
     }
 
-    function scrollDown() {
-        const totalItems = Object.keys(order).length;
-        if ((currentPage + 1) * maxItemsPerPage < totalItems) {
-            currentPage++;
-            updateOrder();
+    scrollDown() {
+        const totalItems = Object.keys(this.order).length;
+        if ((this.currentPage + 1) * this.maxItemsPerPage < totalItems) {
+            this.currentPage++;
+            this.updateOrder();
         }
     }
 
-    async function fetchProductsByCategory(categoryId) {
+    async fetchProductsByCategory(categoryId) {
         try {
             const response = await fetch(`/api/products?category_id=${categoryId}`);
             const data = await response.json();
@@ -201,7 +193,7 @@
                 productItem.className = "position-item";
 
                 const button = document.createElement("button");
-                button.onclick = () => handleProductClick(product.name, product.cost);
+                button.onclick = () => this.handleProductClick(product.name, product.cost);
 
                 const productName = document.createElement("span");
                 productName.className = "product-name";
@@ -225,9 +217,6 @@
             console.error("Ошибка при получении продуктов:", error);
         }
     }
+}
 
-    document.querySelector(".scroll-up").addEventListener("click", scrollUp);
-    document.querySelector(".scroll-down").addEventListener("click", scrollDown);
-
-    window.onload = fetchCategories;
-})();
+const orderManager = new OrderManager();
