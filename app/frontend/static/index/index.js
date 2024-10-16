@@ -7,6 +7,7 @@ class OrderManager {
         this.totalAmount = 0;
         this.currentCategoryPage = 0;
         this.maxCategoriesPerPage = 9;
+        this.categories = [];
 
         this.init();
     }
@@ -21,7 +22,8 @@ class OrderManager {
         try {
             const response = await fetch("/api/categories");
             const data = await response.json();
-            this.updateCategoryMenu(data);
+            this.categories = data;
+            this.updateCategoryMenu(this.categories);
         } catch (error) {
             console.error("Ошибка при получении категорий:", error);
         }
@@ -51,40 +53,48 @@ class OrderManager {
             menuBody.appendChild(menuItem);
         });
 
-        if (categories.length > this.maxCategoriesPerPage) {
-            this.updateCategoryPaginationButtons(categories.length);
-        }
+        this.addPaginationButton(menuBody, categories.length);
     }
 
-    updateCategoryPaginationButtons(totalCategories) {
-        const scrollButton = document.querySelector(".scroll-button");
+    addPaginationButton(menuBody, totalCategories) {
+        const existingButton = document.querySelector(".next-button");
+        const isOnFirstPage = this.currentCategoryPage === 0;
 
         if (totalCategories > this.maxCategoriesPerPage) {
-            scrollButton.style.display = "block";
-            if ((this.currentCategoryPage + 1) * this.maxCategoriesPerPage >= totalCategories) {
-                scrollButton.textContent = "<";
-                scrollButton.onclick = () => this.scrollUpCategories();
-            } else if (this.currentCategoryPage === 0) {
-                scrollButton.textContent = ">";
-                scrollButton.onclick = () => this.scrollDownCategories();
+            if (!existingButton) {
+                const nextButton = document.createElement("button");
+                nextButton.className = "next-button";
+                nextButton.textContent = isOnFirstPage ? ">" : "<";
+                nextButton.addEventListener("click", () => {
+                    if (isOnFirstPage) {
+                        this.scrollDownCategories();
+                    } else {
+                        this.scrollUpCategories();
+                    }
+                });
+
+                const menuItem = document.createElement("div");
+                menuItem.className = "menu-item";
+                menuItem.appendChild(nextButton);
+                menuBody.appendChild(menuItem);
             } else {
-                scrollButton.textContent = ">";
+                existingButton.textContent = isOnFirstPage ? "Дальше" : "Назад";
             }
-        } else {
-            scrollButton.style.display = "none";
+        } else if (existingButton) {
+            existingButton.parentElement.remove();
         }
     }
 
     scrollUpCategories() {
         if (this.currentCategoryPage > 0) {
             this.currentCategoryPage--;
-            this.fetchCategories();
+            this.updateCategoryMenu(this.categories);
         }
     }
 
     scrollDownCategories() {
         this.currentCategoryPage++;
-        this.fetchCategories();
+        this.updateCategoryMenu(this.categories);
     }
 
     handleProductClick(productName, productCost) {
@@ -118,7 +128,7 @@ class OrderManager {
         for (const { quantity, cost } of Object.values(this.order)) {
             this.totalAmount += quantity * cost;
         }
-        document.getElementById("total-amount").textContent = `${this.totalAmount} P`;
+        document.getElementById("total-amount").textContent = `${this.totalAmount} ₽`;
     }
 
     updateOrder() {
@@ -145,7 +155,7 @@ class OrderManager {
 
             const totalElement = document.createElement("div");
             totalElement.className = "order-item-total";
-            totalElement.textContent = `${itemTotal} P`;
+            totalElement.textContent = `${itemTotal} ₽`;
 
             orderItem.appendChild(nameElement);
             orderItem.appendChild(quantityElement);

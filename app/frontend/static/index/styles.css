@@ -61,6 +61,29 @@ button {
     border-radius: 5px;
 }
 
+.navbar-search {
+    position: relative;
+}
+
+.navbar-search input {
+    display: none;
+    width: 100%;
+    background-color: var(--main-bg-color);
+    color: white;
+    border: none;
+    padding: 1.35em;
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+.navbar-search.active input {
+    display: block;
+}
+
+.navbar-search.active button {
+    display: none;
+}
+
 .container {
     display: grid;
     grid-template-columns: 3fr 3fr 3fr;

@@ -25,15 +25,16 @@
 
                 <div class="navbar-group">
                     <div class="navbar-guests">
-                        <button>Гости</button>
+                        <button id="guests-button">Гости</button>
                     </div>
-
+                
                     <div class="navbar-notifications">
-                        <button>Уведомления</button>
+                        <button id="notifications-button">Уведомления</button>
                     </div>
-
+                
                     <div class="navbar-search">
-                        <button>Поиск</button>
+                        <button id="search-button">Поиск</button>
+                        <input type="text" id="search-input" style="display: none; width: 0; transition: width 0.3s;" />
                     </div>
                 </div>
             </div>
@@ -57,7 +58,7 @@
                     <div class="order-body">
                         <div class="order-info">
                             <div>Заказ</div>
-                            <div id="total-amount">0 P</div>
+                            <div id="total-amount">0 ₽</div>
                         </div>
                         <div class="order-guest">Гость 1</div>
                         <div id="order-items">
@@ -107,6 +108,7 @@
                 </div>
             </div>
         </div>
+        <script src="./static/index/navbar.js"></script>
         <script src="./static/index/index.js"></script>
     </body>
 </html>

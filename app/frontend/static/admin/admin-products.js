@@ -1,3 +1,4 @@
+
 class ProductManager {
     constructor() {
         document.addEventListener("DOMContentLoaded", () => {
@@ -10,9 +11,10 @@ class ProductManager {
             category: 'asc',
             cost: 'asc',
         };
+        this.products = [];
     }
 
-    initProduct() {
+    async initProduct() {
         document.getElementById("change-product-button")
             .addEventListener("click", this.handleChangeProduct.bind(this));
         document.getElementById("change-id-input")
@@ -28,11 +30,11 @@ class ProductManager {
 
         document.querySelector(".product-page")
             .addEventListener("click", async () => {
-                const products = await this.fetchProducts();
-                this.generateProductTable(products);
+                await this.refreshProductTable();
             });
 
-        this.categorySelector();
+        await this.categorySelector();
+        document.getElementById("back-button").textContent = "Назад";
     }
 
     async deleteProduct() {
@@ -50,7 +52,7 @@ class ProductManager {
             const response = await fetch(`/api/products/${productId}`, { method: "DELETE" });
 
             if (response.status === 204) {
-                this.refreshProductTable();
+                await this.refreshProductTable();
                 document.getElementById("delete-id-input").value = '';
             } else if (response.status === 404) {
                 alert("Товар с таким ID не найден.");
@@ -240,6 +242,7 @@ class ProductManager {
                 product.category = categoryMap[product.category_id];
             });
 
+            this.products = products;
             return products;
         } catch (error) {
             console.error("Ошибка при получении продуктов или категорий:", error);
@@ -248,8 +251,8 @@ class ProductManager {
     }
 
     async refreshProductTable() {
-        const products = await this.fetchProducts();
-        this.generateProductTable(products);
+        this.products = await this.fetchProducts();
+        this.generateProductTable(this.products);
     }
 
     generateProductTable(products) {
@@ -273,50 +276,51 @@ class ProductManager {
             { key: "cost", text: "Цена" },
         ];
 
-        headers.forEach(({ key, text }) => {
+        headers.forEach(header => {
             const th = document.createElement("th");
-            const headerContent = document.createElement("span");
-            headerContent.textContent = text;
-
-            const arrow = document.createElement("span");
-            arrow.className = "sort-arrow";
-            arrow.textContent = this.sortOrder[key] === 'asc' ? ' ▲' : ' ▼';
-
-            th.appendChild(headerContent);
-            th.appendChild(arrow);
+            th.textContent = header.text;
             th.style.cursor = "pointer";
-            th.addEventListener("click", () => {
-                this.sortProducts(key);
-                this.generateProductTable(products);
-            });
+            th.addEventListener("click", () => this.sortProducts(header.key));
             headerRow.appendChild(th);
         });
 
         thead.appendChild(headerRow);
+        table.appendChild(thead);
+
         products.forEach(product => {
             const row = document.createElement("tr");
-            headers.forEach(({ key }) => {
+            headers.forEach(header => {
                 const td = document.createElement("td");
-                td.textContent = product[key];
+                td.textContent = product[header.key];
                 row.appendChild(td);
             });
             tbody.appendChild(row);
         });
 
-        table.appendChild(thead);
         table.appendChild(tbody);
         containerDiv.appendChild(table);
     }
 
     sortProducts(key) {
-        this.sortOrder[key] = this.sortOrder[key] === 'asc' ? 'desc' : 'asc';
+        const order = this.sortOrder[key] === 'asc' ? 'desc' : 'asc';
+        this.sortOrder[key] = order;
+
+        this.products.sort((a, b) => {
+            if (order === 'asc') {
+                return a[key] < b[key] ? -1 : a[key] > b[key] ? 1 : 0;
+            } else {
+                return a[key] > b[key] ? -1 : a[key] < b[key] ? 1 : 0;
+            }
+        });
+
+        this.generateProductTable(this.products);
     }
 
     clearChangeFields() {
-        document.getElementById("change-id-input").value = '';
-        document.getElementById("change-title-input").value = '';
-        document.getElementById("change-category-select").value = '';
-        document.getElementById("change-cost-input").value = '';
+        document.getElementById("change-id-input").value = "";
+        document.getElementById("change-title-input").value = "";
+        document.getElementById("change-cost-input").value = "";
+        document.getElementById("change-category-select").value = "";
     }
 }
 
