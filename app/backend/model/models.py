@@ -53,6 +53,10 @@ class Model(ABC):
         raise NotImplementedError
     
     @abstractmethod
+    async def get_by_name(self, name: str) -> List[Any]:
+        raise NotImplementedError
+    
+    @abstractmethod
     async def get_by_category(self, category_id: int) -> List[Any]:
         raise NotImplementedError
     
@@ -114,6 +118,25 @@ class Product(Model, ABC):
                     "cost": result[3]
                 }
             return None
+        
+    @staticmethod
+    async def get_by_name(product_name: str) -> Optional[dict]:
+        connection = await DatabaseConnection().get_connection()
+        async with connection.cursor() as cursor:
+            await cursor.execute(
+                "SELECT id, name, category_id, cost FROM product WHERE name = ?",
+                (product_name,)
+            )
+            result = await cursor.fetchone()
+            if result:
+                return {
+                    "id": result[0],
+                    "name": result[1],
+                    "category_id": result[2],
+                    "cost": result[3]
+                }
+            return None
+
 
     @staticmethod
     async def all() -> List[dict]:

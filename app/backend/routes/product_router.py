@@ -22,6 +22,15 @@ async def read_product(product_id: int) -> dict:
         raise HTTPException(status_code=404, detail="Товар не найден")
 
 
+@product_router.get("/api/products/name/{product_name}", summary="Получить товар по названию")
+async def read_product_by_name(product_name: str) -> dict:
+    product = await Product.get_by_name(product_name)
+    if product:
+        return product
+    else:
+        raise HTTPException(status_code=404, detail="Товар не найден")
+
+
 @product_router.get("/api/products", summary="Получить товары по категории")
 async def read_products_by_category(category_id: int) -> dict:
     products = await Product.get_by_category(category_id)

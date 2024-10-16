@@ -1,4 +1,3 @@
-
 class ProductManager {
     constructor() {
         document.addEventListener("DOMContentLoaded", () => {
@@ -18,6 +17,10 @@ class ProductManager {
             .addEventListener("click", this.handleChangeProduct.bind(this));
         document.getElementById("change-id-input")
             .addEventListener("input", this.handleIdInput.bind(this));
+        document.getElementById("change-title-input")
+            .addEventListener("blur", this.handleTitleBlur.bind(this)); // Отправка при потере фокуса
+        document.getElementById("change-title-input")
+            .addEventListener("keypress", this.handleTitleEnter.bind(this)); // Отправка по нажатию Enter
         document.getElementById("add-product-button")
             .addEventListener("click", this.addProduct.bind(this));
         document.getElementById("delete-product-button")
@@ -62,8 +65,59 @@ class ProductManager {
     async handleIdInput(event) {
         const productId = event.target.value;
         if (productId) {
-            await this.fetchProductData(productId);
+            await this.fetchProductDataById(productId);
         } else {
+            this.clearChangeFields();
+        }
+    }
+
+    handleTitleBlur(event) {
+        const productName = event.target.value;
+        if (productName) {
+            this.fetchProductDataByName(productName);
+        } else {
+            this.clearChangeFields();
+        }
+    }
+
+    handleTitleEnter(event) {
+        if (event.key === "Enter") {
+            const productName = event.target.value;
+            if (productName) {
+                this.fetchProductDataByName(productName);
+            } else {
+                this.clearChangeFields();
+            }
+        }
+    }
+
+    async fetchProductDataById(productId) {
+        try {
+            const response = await fetch(`/api/products/${productId}`);
+            if (!response.ok) throw new Error(`Ошибка: ${response.status}`);
+
+            const productData = await response.json();
+            document.getElementById("change-title-input").value = productData.name;
+            document.getElementById("change-category-select").value = productData.category_id;
+            document.getElementById("change-cost-input").value = productData.cost;
+        } catch (error) {
+            console.error("Ошибка при получении данных о продукте:", error);
+            this.clearChangeFields();
+        }
+    }
+
+    async fetchProductDataByName(productName) {
+        try {
+            const response = await fetch(`/api/products/name/${productName}`);
+            if (!response.ok) throw new Error(`Ошибка: ${response.status}`);
+
+            const productData = await response.json();
+
+            document.getElementById("change-id-input").value = productData.id;
+            document.getElementById("change-category-select").value = productData.category_id;
+            document.getElementById("change-cost-input").value = productData.cost;
+        } catch (error) {
+            console.error("Ошибка при получении данных о продукте:", error);
             this.clearChangeFields();
         }
     }
@@ -79,51 +133,6 @@ class ProductManager {
             await this.refreshProductTable();
         } else {
             alert("Пожалуйста, заполните все поля.");
-        }
-    }
-
-    async categorySelector() {
-        const addSelector = document.getElementById("add-category-select");
-        const changeSelector = document.getElementById("change-category-select");
-
-        try {
-            const response = await fetch("/api/categories");
-            const data = await response.json();
-
-            if (!Array.isArray(data)) throw new Error("Неверный формат данных категорий");
-
-            [addSelector, changeSelector].forEach(selector => {
-                selector.innerHTML = "";
-                const defaultOption = document.createElement("option");
-                defaultOption.text = "Выберите категорию";
-                defaultOption.value = "";
-                selector.appendChild(defaultOption);
-            });
-
-            data.forEach(category => {
-                const option = document.createElement("option");
-                option.value = category.id;
-                option.text = category.name;
-                addSelector.appendChild(option);
-                changeSelector.appendChild(option);
-            });
-        } catch (error) {
-            console.error("Ошибка при получении категорий:", error);
-        }
-    }
-
-    async fetchProductData(productId) {
-        try {
-            const response = await fetch(`/api/products/${productId}`);
-            if (!response.ok) throw new Error(`Ошибка: ${response.status}`);
-
-            const productData = await response.json();
-            document.getElementById("change-title-input").value = productData.name;
-            document.getElementById("change-category-select").value = productData.category_id;
-            document.getElementById("change-cost-input").value = productData.cost;
-        } catch (error) {
-            console.error("Ошибка при получении данных о продукте:", error);
-            this.clearChangeFields();
         }
     }
 
@@ -170,6 +179,41 @@ class ProductManager {
             }
         } catch (error) {
             console.error("Ошибка сети:", error);
+        }
+    }
+
+    async categorySelector() {
+        const addSelector = document.getElementById("add-category-select");
+        const changeSelector = document.getElementById("change-category-select");
+    
+        try {
+            const response = await fetch("/api/categories");
+            const data = await response.json();
+    
+            if (!Array.isArray(data)) throw new Error("Неверный формат данных категорий");
+    
+            [addSelector, changeSelector].forEach(selector => {
+                selector.innerHTML = "";
+                const defaultOption = document.createElement("option");
+                defaultOption.text = "Выберите категорию";
+                defaultOption.value = "";
+                selector.appendChild(defaultOption);
+            });
+    
+            data.forEach(category => {
+                const addOption = document.createElement("option");
+                addOption.value = category.id;
+                addOption.text = category.name;
+    
+                const changeOption = document.createElement("option");
+                changeOption.value = category.id;
+                changeOption.text = category.name;
+    
+                addSelector.appendChild(addOption);
+                changeSelector.appendChild(changeOption);
+            });
+        } catch (error) {
+            console.error("Ошибка при получении категорий:", error);
         }
     }
 
@@ -242,34 +286,20 @@ class ProductManager {
             th.appendChild(arrow);
             th.style.cursor = "pointer";
             th.addEventListener("click", () => {
-                this.sortProducts(products, key);
+                this.sortProducts(key);
                 this.generateProductTable(products);
             });
-
             headerRow.appendChild(th);
         });
 
         thead.appendChild(headerRow);
-
-        products.forEach((product) => {
+        products.forEach(product => {
             const row = document.createElement("tr");
-
-            const idCell = document.createElement("td");
-            idCell.textContent = product.id;
-            row.appendChild(idCell);
-
-            const nameCell = document.createElement("td");
-            nameCell.textContent = product.name;
-            row.appendChild(nameCell);
-
-            const categoryCell = document.createElement("td");
-            categoryCell.textContent = product.category;
-            row.appendChild(categoryCell);
-
-            const costCell = document.createElement("td");
-            costCell.textContent = product.cost + " ₽";
-            row.appendChild(costCell);
-
+            headers.forEach(({ key }) => {
+                const td = document.createElement("td");
+                td.textContent = product[key];
+                row.appendChild(td);
+            });
             tbody.appendChild(row);
         });
 
@@ -278,16 +308,15 @@ class ProductManager {
         containerDiv.appendChild(table);
     }
 
-    sortProducts(products, field) {
-        const order = this.sortOrder[field];
-        products.sort((a, b) => (order === 'asc' ? (a[field] > b[field] ? 1 : -1) : (a[field] < b[field] ? 1 : -1)));
-        this.sortOrder[field] = order === 'asc' ? 'desc' : 'asc';
+    sortProducts(key) {
+        this.sortOrder[key] = this.sortOrder[key] === 'asc' ? 'desc' : 'asc';
     }
 
     clearChangeFields() {
-        document.getElementById("change-title-input").value = "";
-        document.getElementById("change-category-select").value = "";
-        document.getElementById("change-cost-input").value = "";
+        document.getElementById("change-id-input").value = '';
+        document.getElementById("change-title-input").value = '';
+        document.getElementById("change-category-select").value = '';
+        document.getElementById("change-cost-input").value = '';
     }
 }
 
