@@ -18,9 +18,9 @@ class ProductManager {
         document.getElementById("change-id-input")
             .addEventListener("input", this.handleIdInput.bind(this));
         document.getElementById("change-title-input")
-            .addEventListener("blur", this.handleTitleBlur.bind(this)); // Отправка при потере фокуса
+            .addEventListener("blur", this.handleTitleBlur.bind(this));
         document.getElementById("change-title-input")
-            .addEventListener("keypress", this.handleTitleEnter.bind(this)); // Отправка по нажатию Enter
+            .addEventListener("keypress", this.handleTitleEnter.bind(this));
         document.getElementById("add-product-button")
             .addEventListener("click", this.addProduct.bind(this));
         document.getElementById("delete-product-button")
