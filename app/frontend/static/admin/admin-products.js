@@ -34,7 +34,6 @@ class ProductManager {
             });
 
         await this.categorySelector();
-        document.getElementById("back-button").textContent = "Назад";
     }
 
     async deleteProduct() {

@@ -20,49 +20,56 @@ class DatabaseConnection:
             cls._connection = None
         return cls._instance
 
-    async def get_connection(self):
+    async def connect(self):
         if self._connection is None:
             self._connection = await aiosqlite.connect(db_path)
         return self._connection
 
-    async def close_connection(self):
+    async def close(self):
         if self._connection is not None:
             await self._connection.close()
             self._connection = None
 
 
 class Model(ABC):
+    @staticmethod
     @abstractmethod
     async def all(self) -> List[Any]:
         raise NotImplementedError
-    
+
+    @staticmethod
     @abstractmethod
     async def add(self, data: Any) -> None:
         raise NotImplementedError
 
+    @staticmethod
     @abstractmethod
     async def update(self, data: Any) -> None:
         raise NotImplementedError
 
+    @staticmethod
     @abstractmethod
     async def delete(self, entity_id: int) -> bool:
         raise NotImplementedError
 
+    @staticmethod
     @abstractmethod
     async def get_by_id(self, entity_id: int) -> Optional[Any]:
         raise NotImplementedError
-    
+
+    @staticmethod
     @abstractmethod
     async def get_by_name(self, name: str) -> List[Any]:
         raise NotImplementedError
-    
+
+    @staticmethod
     @abstractmethod
     async def get_by_category(self, category_id: int) -> List[Any]:
         raise NotImplementedError
-    
+
 
 class Product(Model, ABC):
-    def __init__(self, name: str = None, category_id: int = None, cost: int = None, id: int = None) -> None:
+    def __init__(self, name: str = None, category_id: int = None, cost: int = None) -> None:
         self.name = name
         self.category_id = category_id
         self.cost = cost
@@ -70,7 +77,7 @@ class Product(Model, ABC):
 
     @staticmethod
     async def add(product_data: ProductCreate) -> None:
-        connection = await DatabaseConnection().get_connection()
+        connection = await DatabaseConnection().connect()
         async with connection.cursor() as cursor:
             await cursor.execute(
                 "INSERT INTO product (name, category_id, cost) VALUES (?, ?, ?)",
@@ -80,7 +87,7 @@ class Product(Model, ABC):
 
     @staticmethod
     async def update(product_data: ProductChange) -> None:
-        connection = await DatabaseConnection().get_connection()
+        connection = await DatabaseConnection().connect()
         async with connection.cursor() as cursor:
             await cursor.execute(
                 '''UPDATE product
@@ -92,7 +99,7 @@ class Product(Model, ABC):
 
     @staticmethod
     async def delete(product_id: int) -> bool:
-        connection = await DatabaseConnection().get_connection()
+        connection = await DatabaseConnection().connect()
         async with connection.cursor() as cursor:
             await cursor.execute(
                 "DELETE FROM product WHERE id = ?",
@@ -103,7 +110,7 @@ class Product(Model, ABC):
 
     @staticmethod
     async def get_by_id(product_id: int) -> Optional[dict]:
-        connection = await DatabaseConnection().get_connection()
+        connection = await DatabaseConnection().connect()
         async with connection.cursor() as cursor:
             await cursor.execute(
                 "SELECT id, name, category_id, cost FROM product WHERE id = ?",
@@ -118,10 +125,10 @@ class Product(Model, ABC):
                     "cost": result[3]
                 }
             return None
-        
+
     @staticmethod
     async def get_by_name(product_name: str) -> Optional[dict]:
-        connection = await DatabaseConnection().get_connection()
+        connection = await DatabaseConnection().connect()
         async with connection.cursor() as cursor:
             await cursor.execute(
                 "SELECT id, name, category_id, cost FROM product WHERE name = ?",
@@ -137,10 +144,9 @@ class Product(Model, ABC):
                 }
             return None
 
-
     @staticmethod
     async def all() -> List[dict]:
-        connection = await DatabaseConnection().get_connection()
+        connection = await DatabaseConnection().connect()
         async with connection.cursor() as cursor:
             await cursor.execute(
                 "SELECT id, name, category_id, cost FROM product"
@@ -153,7 +159,7 @@ class Product(Model, ABC):
 
     @staticmethod
     async def get_by_category(category_id: int) -> List[dict]:
-        connection = await DatabaseConnection().get_connection()
+        connection = await DatabaseConnection().connect()
         async with connection.cursor() as cursor:
             await cursor.execute(
                 "SELECT id, name, cost FROM product WHERE category_id = ?",
@@ -161,7 +167,7 @@ class Product(Model, ABC):
             )
             results = await cursor.fetchall()
             return [{"id": row[0], "name": row[1], "cost": row[2]} for row in results]
-    
+
 
 class Category(Model, ABC):
     def __init__(self, name: str = None, id: int = None) -> None:
@@ -170,7 +176,7 @@ class Category(Model, ABC):
 
     @staticmethod
     async def add(category_data: CategoryCreate) -> None:
-        connection = await DatabaseConnection().get_connection()
+        connection = await DatabaseConnection().connect()
         async with connection.cursor() as cursor:
             await cursor.execute(
                 "INSERT INTO category (name) VALUES (?)",
@@ -180,7 +186,7 @@ class Category(Model, ABC):
 
     @staticmethod
     async def update(category_data: CategoryChange) -> None:
-        connection = await DatabaseConnection().get_connection()
+        connection = await DatabaseConnection().connect()
         async with connection.cursor() as cursor:
             await cursor.execute(
                 '''UPDATE category
@@ -192,7 +198,7 @@ class Category(Model, ABC):
 
     @staticmethod
     async def delete(category_id: int) -> bool:
-        connection = await DatabaseConnection().get_connection()
+        connection = await DatabaseConnection().connect()
         async with connection.cursor() as cursor:
             await cursor.execute(
                 "DELETE FROM category WHERE id = ?",
@@ -203,7 +209,7 @@ class Category(Model, ABC):
 
     @staticmethod
     async def get_by_id(category_id: int) -> Optional[Dict[str, int | str]]:
-        connection = await DatabaseConnection().get_connection()
+        connection = await DatabaseConnection().connect()
         async with connection.cursor() as cursor:
             await cursor.execute(
                 "SELECT id, name FROM category WHERE id = ?",
@@ -219,7 +225,7 @@ class Category(Model, ABC):
 
     @staticmethod
     async def all() -> List[Dict[str, int | str]]:
-        connection = await DatabaseConnection().get_connection()
+        connection = await DatabaseConnection().connect()
         async with connection.cursor() as cursor:
             await cursor.execute(
                 "SELECT id, name FROM category"
@@ -229,4 +235,3 @@ class Category(Model, ABC):
                 {"id": row[0], "name": row[1]}
                 for row in results
             ]
-        
