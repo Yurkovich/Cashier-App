@@ -232,6 +232,19 @@ class ProductManager {
         }
     }
 
+    sortProducts(key) {
+        this.sortOrder[key] = this.sortOrder[key] === 'asc' ? 'desc' : 'asc';
+        const direction = this.sortOrder[key] === 'asc' ? 1 : -1;
+
+        this.products.sort((a, b) => {
+            if (a[key] < b[key]) return -1 * direction;
+            if (a[key] > b[key]) return 1 * direction;
+            return 0;
+        });
+
+        this.generateProductTable(this.products);
+    }
+
     async refreshProductTable() {
         this.products = await this.fetchProducts();
         this.generateProductTable(this.products);
