@@ -5,14 +5,27 @@ class CategoryManager {
     }
 
     initCategory() {
-        document.getElementById("add-category-button").addEventListener("click", () => this.addCategory());
-        document.getElementById("change-category-button").addEventListener("click", () => this.handleChangeCategory());
-        document.getElementById("delete-category-button").addEventListener("click", () => this.deleteCategory());
+        const addButton = document.getElementById("category-add-button");
+        const editButton = document.getElementById("category-edit-button");
+        const deleteButton = document.getElementById("category-delete-button");
+
+        if (addButton) {
+            addButton.addEventListener("click", () => this.addCategory());
+        }
+
+        if (editButton) {
+            editButton.addEventListener("click", () => this.handleChangeCategory());
+        }
+
+        if (deleteButton) {
+            deleteButton.addEventListener("click", () => this.deleteCategory());
+        }
+
         this.refreshCategoryTable();
     }
 
     async addCategory() {
-        const categoryName = document.getElementById("add-category-input").value;
+        const categoryName = document.getElementById("category-add-title").value;
 
         if (!categoryName) {
             alert("Введите название категории.");
@@ -29,7 +42,7 @@ class CategoryManager {
             });
 
             if (response.ok) {
-                document.getElementById("add-category-input").value = "";
+                document.getElementById("category-add-title").value = "";
                 this.refreshCategoryTable();
             } else {
                 const errorData = await response.json();
@@ -41,8 +54,8 @@ class CategoryManager {
     }
 
     async handleChangeCategory() {
-        const categoryId = document.getElementById("change-category-id-input").value;
-        const categoryName = document.getElementById("change-category-input").value;
+        const categoryId = document.getElementById("category-edit-id").value;
+        const categoryName = document.getElementById("category-edit-title").value;
 
         if (!categoryId || !categoryName) {
             alert("Введите ID и новое название категории.");
@@ -59,8 +72,8 @@ class CategoryManager {
             });
 
             if (response.ok) {
-                document.getElementById("change-category-id-input").value = "";
-                document.getElementById("change-category-input").value = "";
+                document.getElementById("category-edit-id").value = "";
+                document.getElementById("category-edit-title").value = "";
                 this.refreshCategoryTable();
             } else {
                 const errorData = await response.json();
@@ -72,7 +85,7 @@ class CategoryManager {
     }
 
     async deleteCategory() {
-        const categoryId = document.getElementById("delete-category-id-input").value;
+        const categoryId = document.getElementById("category-delete-id").value;
 
         if (!categoryId) {
             alert("Введите ID категории для удаления.");
@@ -90,7 +103,7 @@ class CategoryManager {
             });
 
             if (response.status === 204) {
-                document.getElementById("delete-category-id-input").value = "";
+                document.getElementById("category-delete-id").value = "";
                 this.refreshCategoryTable();
             } else if (response.status === 404) {
                 alert("Категория с таким ID не найдена.");
@@ -122,7 +135,7 @@ class CategoryManager {
     }
 
     generateCategoryTable(categories) {
-        const containerDiv = document.querySelector(".category-table");
+        const containerDiv = document.querySelector(".categories-table");
         containerDiv.innerHTML = "";
 
         if (!Array.isArray(categories) || categories.length === 0) {

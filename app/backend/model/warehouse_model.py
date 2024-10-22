@@ -2,18 +2,24 @@
 from pydantic import BaseModel
 
 
-class Warehouse(BaseModel):
-    category: str
+class WarehouseModel(BaseModel):
+    barcode: int
     name: str
-    cost: int
+    category: str
+    subcategory: str
+    retail_price: float
+    purchasing_price: float
     quantity: int
-    amount: int
+    display: int
 
 
-class WarehouseCreate(BaseModel):
-    category: str
+class WarehouseUpdateModel(BaseModel):
+    id: int
+    barcode: int
     name: str
-    cost: int
+    category: str
+    subcategory: str
+    retail_price: float
+    purchasing_price: float
     quantity: int
-    amount: int
-    
+    display: int

@@ -15,32 +15,21 @@ class ProductManager {
     }
 
     async initProduct() {
-        document.getElementById("change-product-button")
-            .addEventListener("click", this.handleChangeProduct.bind(this));
-        document.getElementById("change-id-input")
-            .addEventListener("input", this.handleIdInput.bind(this));
-        document.getElementById("change-title-input")
-            .addEventListener("blur", this.handleTitleBlur.bind(this));
-        document.getElementById("change-title-input")
-            .addEventListener("keypress", this.handleTitleEnter.bind(this));
-        document.getElementById("add-product-button")
-            .addEventListener("click", this.addProduct.bind(this));
-        document.getElementById("delete-product-button")
-            .addEventListener("click", this.deleteProduct.bind(this));
-
-        document.querySelector(".product-page")
-            .addEventListener("click", async () => {
-                await this.refreshProductTable();
-            });
+        document.getElementById("product-edit-button").addEventListener("click", this.handleChangeProduct.bind(this));
+        document.getElementById("product-edit-id").addEventListener("input", this.handleIdInput.bind(this));
+        document.getElementById("product-edit-title").addEventListener("blur", this.handleTitleBlur.bind(this));
+        document.getElementById("product-edit-title").addEventListener("keypress", this.handleTitleEnter.bind(this));
+        document.getElementById("product-add-button").addEventListener("click", this.addProduct.bind(this));
+        document.getElementById("product-delete-button").addEventListener("click", this.deleteProduct.bind(this));
 
         await this.categorySelector();
+        await this.refreshProductTable();
     }
 
     async deleteProduct() {
-        const productId = document.getElementById("delete-id-input").value;
-
+        const productId = document.getElementById("product-delete-id").value;
         if (!productId) {
-            alert("Введите ID товара для удаления.");
+            this.displayError("Введите ID товара для удаления.");
             return;
         }
 
@@ -49,12 +38,11 @@ class ProductManager {
 
         try {
             const response = await fetch(`/api/products/${productId}`, { method: "DELETE" });
-
             if (response.status === 204) {
                 await this.refreshProductTable();
-                document.getElementById("delete-id-input").value = '';
+                document.getElementById("product-delete-id").value = '';
             } else if (response.status === 404) {
-                alert("Товар с таким ID не найден.");
+                this.displayError("Товар с таким ID не найден.");
             } else {
                 throw new Error(`Ошибка: ${response.statusText}`);
             }
@@ -63,12 +51,19 @@ class ProductManager {
         }
     }
 
+    displayError(message) {
+        const errorDiv = document.getElementById("error-message");
+        errorDiv.textContent = message;
+        errorDiv.style.display = "block";
+        setTimeout(() => { errorDiv.style.display = "none"; }, 3000);
+    }
+
     async handleIdInput(event) {
         const productId = event.target.value;
         if (productId) {
             await this.fetchProductDataById(productId);
         } else {
-            this.clearChangeFields();
+            this.clearEditFields();
         }
     }
 
@@ -77,7 +72,7 @@ class ProductManager {
         if (productName) {
             this.fetchProductDataByName(productName);
         } else {
-            this.clearChangeFields();
+            this.clearEditFields();
         }
     }
 
@@ -87,7 +82,7 @@ class ProductManager {
             if (productName) {
                 this.fetchProductDataByName(productName);
             } else {
-                this.clearChangeFields();
+                this.clearEditFields();
             }
         }
     }
@@ -96,14 +91,11 @@ class ProductManager {
         try {
             const response = await fetch(`/api/products/${productId}`);
             if (!response.ok) throw new Error(`Ошибка: ${response.status}`);
-
             const productData = await response.json();
-            document.getElementById("change-title-input").value = productData.name;
-            document.getElementById("change-category-select").value = productData.category_id;
-            document.getElementById("change-cost-input").value = productData.cost;
+            this.populateProductFields(productData);
         } catch (error) {
             console.error("Ошибка при получении данных о продукте:", error);
-            this.clearChangeFields();
+            this.clearEditFields();
         }
     }
 
@@ -111,29 +103,32 @@ class ProductManager {
         try {
             const response = await fetch(`/api/products/name/${productName}`);
             if (!response.ok) throw new Error(`Ошибка: ${response.status}`);
-
             const productData = await response.json();
-
-            document.getElementById("change-id-input").value = productData.id;
-            document.getElementById("change-category-select").value = productData.category_id;
-            document.getElementById("change-cost-input").value = productData.cost;
+            this.populateProductFields(productData);
         } catch (error) {
             console.error("Ошибка при получении данных о продукте:", error);
-            this.clearChangeFields();
+            this.clearEditFields();
         }
     }
 
+    populateProductFields(productData) {
+        document.getElementById("product-edit-title").value = productData.name;
+        document.getElementById("product-edit-category-select").value = productData.category_id;
+        document.getElementById("product-edit-cost").value = productData.cost;
+        document.getElementById("product-edit-id").value = productData.id;
+    }
+
     async handleChangeProduct() {
-        const productId = document.getElementById("change-id-input").value;
-        const productName = document.getElementById("change-title-input").value;
-        const categoryId = document.getElementById("change-category-select").value;
-        const productCost = document.getElementById("change-cost-input").value;
+        const productId = document.getElementById("product-edit-id").value;
+        const productName = document.getElementById("product-edit-title").value;
+        const categoryId = document.getElementById("product-edit-category-select").value;
+        const productCost = document.getElementById("product-edit-cost").value;
 
         if (productId && productName && categoryId && productCost) {
             await this.updateProduct(productId, productName, categoryId, productCost);
             await this.refreshProductTable();
         } else {
-            alert("Пожалуйста, заполните все поля.");
+            this.displayError("Пожалуйста, заполните все поля.");
         }
     }
 
@@ -144,19 +139,19 @@ class ProductManager {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ id, name, category_id: categoryId, cost }),
             });
-
             if (!response.ok) throw new Error(`Ошибка: ${response.status}`);
-
-            this.clearChangeFields();
+            if (document.getElementById("product-edit-id").value = "") {
+                this.clearEditFields();
+            }
         } catch (error) {
             console.error("Ошибка при обновлении товара:", error);
         }
     }
 
     async addProduct() {
-        const getCategory = document.getElementById("add-category-select").value;
-        const getTitle = document.getElementById("add-title-input").value;
-        const getCost = document.getElementById("add-cost-input").value;
+        const getCategory = document.getElementById("product-add-category-select").value;
+        const getTitle = document.getElementById("product-add-title").value;
+        const getCost = document.getElementById("product-add-cost").value;
 
         const productData = { category_id: getCategory, name: getTitle, cost: getCost };
 
@@ -169,50 +164,38 @@ class ProductManager {
 
             if (response.ok) {
                 const responseData = await response.json();
-                document.getElementById("add-title-input").value = "";
-                document.getElementById("add-cost-input").value = "";
-                document.getElementById("add-category-select").value = "";
+                this.clearAddProductFields();
                 alert(`Товар ${responseData.name} добавлен успешно.`);
                 await this.refreshProductTable();
             } else {
                 const errorData = await response.json();
-                alert("Ошибка при добавлении продукта: " + (errorData.message || "Неизвестная ошибка"));
+                this.displayError("Ошибка при добавлении продукта: " + (errorData.message || "Неизвестная ошибка"));
             }
         } catch (error) {
             console.error("Ошибка сети:", error);
         }
     }
 
+    clearAddProductFields() {
+        document.getElementById("product-add-title").value = "";
+        document.getElementById("product-add-cost").value = "";
+        document.getElementById("product-add-category-select").value = "";
+    }
+
     async categorySelector() {
-        const addSelector = document.getElementById("add-category-select");
-        const changeSelector = document.getElementById("change-category-select");
-    
+        const addSelector = document.getElementById("product-add-category-select");
+        const changeSelector = document.getElementById("product-edit-category-select");
+
         try {
             const response = await fetch("/api/categories");
             const data = await response.json();
-    
-            if (!Array.isArray(data)) throw new Error("Неверный формат данных категорий");
-    
-            [addSelector, changeSelector].forEach(selector => {
-                selector.innerHTML = "";
-                const defaultOption = document.createElement("option");
-                defaultOption.text = "Выберите категорию";
-                defaultOption.value = "";
-                selector.appendChild(defaultOption);
-            });
-    
-            data.forEach(category => {
-                const addOption = document.createElement("option");
-                addOption.value = category.id;
-                addOption.text = category.name;
-    
-                const changeOption = document.createElement("option");
-                changeOption.value = category.id;
-                changeOption.text = category.name;
-    
-                addSelector.appendChild(addOption);
-                changeSelector.appendChild(changeOption);
-            });
+            if (data.length) {
+                data.forEach(category => {
+                    const option = new Option(category.name, category.id);
+                    addSelector.appendChild(option);
+                    changeSelector.appendChild(option.cloneNode(true));
+                });
+            }
         } catch (error) {
             console.error("Ошибка при получении категорий:", error);
         }
@@ -255,7 +238,7 @@ class ProductManager {
     }
 
     generateProductTable(products) {
-        const containerDiv = document.querySelector(".show-table");
+        const containerDiv = document.querySelector(".products-table");
         containerDiv.innerHTML = "";
 
         if (!Array.isArray(products) || products.length === 0) {
@@ -300,27 +283,12 @@ class ProductManager {
         containerDiv.appendChild(table);
     }
 
-    sortProducts(key) {
-        const order = this.sortOrder[key] === 'asc' ? 'desc' : 'asc';
-        this.sortOrder[key] = order;
-
-        this.products.sort((a, b) => {
-            if (order === 'asc') {
-                return a[key] < b[key] ? -1 : a[key] > b[key] ? 1 : 0;
-            } else {
-                return a[key] > b[key] ? -1 : a[key] < b[key] ? 1 : 0;
-            }
-        });
-
-        this.generateProductTable(this.products);
-    }
-
-    clearChangeFields() {
-        document.getElementById("change-id-input").value = "";
-        document.getElementById("change-title-input").value = "";
-        document.getElementById("change-cost-input").value = "";
-        document.getElementById("change-category-select").value = "";
+    clearEditFields() {
+        document.getElementById("product-edit-id").value = "";
+        document.getElementById("product-edit-title").value = "";
+        document.getElementById("product-edit-cost").value = "";
+        document.getElementById("product-edit-category-select").value = "";
     }
 }
 
-const productManager = new ProductManager();
+new ProductManager();

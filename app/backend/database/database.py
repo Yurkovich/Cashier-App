@@ -31,24 +31,15 @@ class Database:
                            ''')
 
             cursor.execute('''CREATE TABLE IF NOT EXISTS warehouse (
-                                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                    category TEXT NOT NULL,
+                                    id INTEGER PRIMARY KEY,
+                                    barcode INTEGER NOT NULL,
                                     name TEXT NOT NULL,
-                                    cost INTEGER NOT NULL,
+                                    category TEXT NOT NULL,
+                                    subcategory TEXT NOT NULL,
+                                    retail_price DECIMAL(10, 2) NOT NULL,
+                                    purchasing_price DECIMAL(10, 2) NOT NULL,
                                     quantity INTEGER NOT NULL,
-                                    amount INTEGER NOT NULL)
+                                    display INTEGER NOT NULL DEFAULT 0)
                            ''')
-            
-            cursor.execute('''CREATE TABLE IF NOT EXISTS sale (
-                                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                    product_id INTEGER NOT NULL,
-                                    basket TEXT NOT NULL,
-                                    quantity INTEGER NOT NULL,
-                                    price INTEGER NOT NULL,
-                                    date TEXT NOT NULL,
-                                    FOREIGN KEY (product_id) REFERENCES product (id))
-                           ''')
-            conn.commit()
-
         finally:
             conn.close()

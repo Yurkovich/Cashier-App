@@ -15,7 +15,7 @@ body {
     color: white;
 }
 
-.general-container {
+.admin-container {
     display: grid;
     grid-template-columns: minmax(270px, 1fr) 6fr;
     gap: 1em;
@@ -23,7 +23,7 @@ body {
     height: 100vh;
 }
 
-.navbar {
+.admin-navbar {
     gap: 15px;
     padding: 20px;
     height: 100%;
@@ -33,13 +33,13 @@ body {
     flex-direction: column;
 }
 
-.navbar h2 {
+.admin-navbar h2 {
     padding-bottom: 20px;
     font-size: 24px;
     text-align: center;
 }
 
-.navbar button {
+.admin-navbar button {
     color: #dadada;
     background-color: #292929;
     border: none;
@@ -51,28 +51,28 @@ body {
     transition: background-color 0.3s;
 }
 
-.navbar button:hover {
+.admin-navbar button:hover {
     background-color: #d14b4a;
     color: #fff;
 }
 
-.product-container,
-.category-container {
+.admin-products,
+.admin-categories {
     display: none;
     grid-template-columns: 1fr 0.5fr;
     padding: 1.5em;
     gap: 1em;
 }
 
-.control-panel,
-.category-control-panel {
+.products-control-panel,
+.categories-control-panel {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-.control-panel button,
-.category-control-panel button {
+.products-control-panel button,
+.categories-control-panel button {
     padding: 0.5em;
     border: none;
     background-color: #d14b4a;
@@ -80,12 +80,12 @@ body {
     border-radius: 5px;
 }
 
-.control-panel-add,
-.control-panel-change,
-.control-panel-delete,
-.category-control-panel-add,
-.category-control-panel-change,
-.category-control-panel-delete {
+.products-add,
+.products-edit,
+.products-delete,
+.categories-add,
+.categories-edit,
+.categories-delete {
     display: flex;
     flex-direction: column;
     gap: 5px;
@@ -102,7 +102,8 @@ input {
     padding: 8px;
 }
 
-.show-table {
+.products-table,
+.categories-table {
     width: 100%;
 }
 

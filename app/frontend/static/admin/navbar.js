@@ -1,24 +1,35 @@
+
 document.addEventListener("DOMContentLoaded", () => {
     initNavbar();
 });
 
 function initNavbar() {
-    document.querySelector(".main-page").addEventListener("click", () => {
-        toggleContainer("main");
-    });
-    
-    document.querySelector(".product-page").addEventListener("click", () => {
-        toggleContainer("product");
-    });
+    const mainNavButton = document.querySelector(".admin-nav-main");
+    const productsNavButton = document.querySelector(".admin-nav-products");
+    const categoriesNavButton = document.querySelector(".admin-nav-categories");
 
-    document.querySelector(".category-page").addEventListener("click", () => {
-        toggleContainer("category");
-    });
+    if (mainNavButton) {
+        mainNavButton.addEventListener("click", () => {
+            toggleContainer("main");
+        });
+    }
+
+    if (productsNavButton) {
+        productsNavButton.addEventListener("click", () => {
+            toggleContainer("product");
+        });
+    }
+
+    if (categoriesNavButton) {
+        categoriesNavButton.addEventListener("click", () => {
+            toggleContainer("category");
+        });
+    }
 }
 
 function toggleContainer(type) {
-    const productContainer = document.querySelector(".product-container");
-    const categoryContainer = document.querySelector(".category-container");
+    const productContainer = document.querySelector(".admin-products");
+    const categoryContainer = document.querySelector(".admin-categories");
 
     if (type === "product") {
         productContainer.style.display = "grid";
