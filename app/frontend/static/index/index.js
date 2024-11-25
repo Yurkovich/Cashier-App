@@ -1,4 +1,3 @@
-
 class OrderManager {
     constructor() {
         this.order = {};
@@ -8,6 +7,7 @@ class OrderManager {
         this.currentCategoryPage = 0;
         this.maxCategoriesPerPage = 9;
         this.categories = [];
+        this.categoryHistory = [];
 
         this.init();
     }
@@ -46,7 +46,13 @@ class OrderManager {
             button.textContent = category.name;
 
             button.addEventListener("click", () => {
-                this.fetchProductsByCategory(category.id);
+                if (category.subcategories && category.subcategories.length > 0) {
+                    this.categoryHistory.push(categories);
+                    this.currentCategoryPage = 0;
+                    this.updateCategoryMenu(category.subcategories);
+                } else {
+                    this.fetchProductsByCategory(category.id);
+                }
             });
 
             menuItem.appendChild(button);
@@ -54,6 +60,7 @@ class OrderManager {
         });
 
         this.addPaginationButton(menuBody, categories.length);
+        this.addBackButton(menuBody);
     }
 
     addPaginationButton(menuBody, totalCategories) {
@@ -82,6 +89,30 @@ class OrderManager {
             }
         } else if (existingButton) {
             existingButton.parentElement.remove();
+        }
+    }
+
+    addBackButton(menuBody) {
+        const existingBackButton = document.querySelector(".back-button");
+
+        if (this.categoryHistory.length > 0) {
+            if (!existingBackButton) {
+                const backButton = document.createElement("button");
+                backButton.className = "back-button";
+                backButton.textContent = "Назад";
+                backButton.addEventListener("click", () => {
+                    const previousCategories = this.categoryHistory.pop();
+                    this.currentCategoryPage = 0;
+                    this.updateCategoryMenu(previousCategories);
+                });
+
+                const menuItem = document.createElement("div");
+                menuItem.className = "menu-item";
+                menuItem.appendChild(backButton);
+                menuBody.insertBefore(menuItem, menuBody.firstChild);
+            }
+        } else if (existingBackButton) {
+            existingBackButton.parentElement.remove();
         }
     }
 

@@ -2,15 +2,9 @@
 from pydantic import BaseModel
 
 
-class Product(BaseModel):
+class ProductModel(BaseModel):
     name: str
     category_id: int
-    cost: int
-
-
-class ProductWithCategory(BaseModel):
-    name: str
-    category: str
     cost: int
 
 

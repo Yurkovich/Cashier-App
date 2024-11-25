@@ -3,10 +3,10 @@ from pydantic import BaseModel
 
 
 class WarehouseModel(BaseModel):
+    id: int
     barcode: int
     name: str
-    category: str
-    subcategory: str
+    category: int
     retail_price: float
     purchasing_price: float
     quantity: int
@@ -17,8 +17,7 @@ class WarehouseUpdateModel(BaseModel):
     id: int
     barcode: int
     name: str
-    category: str
-    subcategory: str
+    category: int
     retail_price: float
     purchasing_price: float
     quantity: int

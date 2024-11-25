@@ -239,7 +239,8 @@ button {
     height: 100%;
 }
 
-.menu-item button {
+.menu-body button,
+.back-button {
     padding: minmax(0.75em 1em);
     background-color: var(--main-bg-color);
     border: none;

@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", function () {
         navbarGroup.appendChild(searchButton.parentElement);
 
         searchButton.parentElement.classList.remove("active");
- 
+
         searchInput.style.display = "none";
         searchInput.value = "";
     });

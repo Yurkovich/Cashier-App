@@ -57,7 +57,8 @@ body {
 }
 
 .admin-products,
-.admin-categories {
+.admin-categories,
+.admin-warehouse {
     display: none;
     grid-template-columns: 1fr 0.5fr;
     padding: 1.5em;
@@ -103,7 +104,8 @@ input {
 }
 
 .products-table,
-.categories-table {
+.categories-table,
+.warehouse-table {
     width: 100%;
 }
 

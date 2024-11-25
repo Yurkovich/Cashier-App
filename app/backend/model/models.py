@@ -1,3 +1,4 @@
+
 from abc import ABC, abstractmethod
 import os
 from typing import Any, Dict, List, Optional
@@ -72,6 +73,11 @@ class Model(ABC):
     @abstractmethod
     async def get_by_barcode(barcode: int) -> List[Any]:
         raise NotImplementedError
+    
+    @staticmethod
+    @abstractmethod
+    async def get_by_parent_id(entity_id: int):
+        raise NotImplementedError
 
 
 class Product(Model, ABC):
@@ -115,8 +121,8 @@ class Product(Model, ABC):
         async with connection.cursor() as cursor:
             await cursor.execute(
                 '''UPDATE product
-                   SET name = ?, category_id = ?, cost = ?
-                   WHERE id = ?''',
+                    SET name = ?, category_id = ?, cost = ?
+                    WHERE id = ?''',
                 (product_data.name, product_data.category_id, product_data.cost, product_data.id)
             )
             await connection.commit()
@@ -188,45 +194,70 @@ class Product(Model, ABC):
 
 
 class Category(Model, ABC):
-    def __init__(self, name: str = None, id: int = None) -> None:
+    def __init__(self, name: str = None, id: int = None, parent_id: Optional[int] = None) -> None:
         self.name = name
         self.id = id
+        self.parent_id = parent_id
 
     @staticmethod
     async def add(category_data: CategoryCreate) -> None:
         connection = await DatabaseConnection().connect()
         async with connection.cursor() as cursor:
             await cursor.execute(
-                "INSERT INTO category (name) VALUES (?)",
-                (category_data.name,)
+                "INSERT INTO category (name, parent_id) VALUES (?, ?)",
+                (category_data.name, category_data.parent_id)
             )
             await connection.commit()
 
     @staticmethod
-    async def all() -> List[Dict[str, int | str]]:
+    async def all() -> List[Dict[str, int | str | None]]:
         connection = await DatabaseConnection().connect()
         async with connection.cursor() as cursor:
-            await cursor.execute(
-                "SELECT id, name FROM category"
-            )
+            await cursor.execute("SELECT id, name, parent_id FROM category WHERE")
             results = await cursor.fetchall()
             return [
-                    {
+                {
                     "id": row[0],
-                    "name": row[1]
-                    }
-                    for row in results
-                ]
+                    "name": row[1],
+                    "parent_id": row[2]
+                }
+                for row in results
+            ]
+        
+        
+    @staticmethod
+    async def all_nested() -> List[Dict]:
+        connection = await DatabaseConnection().connect()
+        async with connection.cursor() as cursor:
+            await cursor.execute("SELECT id, name, parent_id FROM category")
+            categories = await cursor.fetchall()
+
+        category_dict = {
+            category[0]: {"id": category[0], "name": category[1], "subcategories": []}
+            for category in categories
+        }
+
+        root_categories = [category_dict[category[0]] for category in categories if category[2] == 0]
+
+        def add_subcategories(category_id):
+            for category in categories:
+                if category[2] == category_id:
+                    subcategory = category_dict[category[0]]
+                    category_dict[category_id]["subcategories"].append(subcategory)
+                    add_subcategories(category[0])
+
+        for root_category in root_categories:
+            add_subcategories(root_category["id"])
+        return root_categories
+
 
     @staticmethod
     async def update(category_data: CategoryChange) -> None:
         connection = await DatabaseConnection().connect()
         async with connection.cursor() as cursor:
             await cursor.execute(
-                '''UPDATE category
-                   SET name = ?
-                   WHERE id = ?''',
-                (category_data.name, category_data.id)
+                "UPDATE category SET name = ?, parent_id = ? WHERE id = ?",
+                (category_data.name, category_data.parent_id, category_data.id)
             )
             await connection.commit()
 
@@ -234,28 +265,44 @@ class Category(Model, ABC):
     async def delete(category_id: int) -> bool:
         connection = await DatabaseConnection().connect()
         async with connection.cursor() as cursor:
-            await cursor.execute(
-                "DELETE FROM category WHERE id = ?",
-                (category_id,)
-            )
+            await cursor.execute("DELETE FROM category WHERE id = ?", (category_id,))
             await connection.commit()
             return cursor.rowcount > 0
 
     @staticmethod
-    async def get_by_id(category_id: int) -> Optional[Dict[str, int | str]]:
+    async def get_by_id(category_id: int) -> Optional[Dict[str, int | str | None]]:
         connection = await DatabaseConnection().connect()
         async with connection.cursor() as cursor:
             await cursor.execute(
-                "SELECT id, name FROM category WHERE id = ?",
+                "SELECT id, name, parent_id FROM category WHERE id = ?",
                 (category_id,)
             )
             result = await cursor.fetchone()
             if result:
                 return {
                     "id": result[0],
-                    "name": result[1]
-                    }
+                    "name": result[1],
+                    "parent_id": result[2]
+                }
             return None
+
+    @staticmethod
+    async def get_by_parent_id(parent_id: int) -> List[Dict[str, int | str | None]]:
+        connection = await DatabaseConnection().connect()
+        async with connection.cursor() as cursor:
+            await cursor.execute(
+                "SELECT id, name, parent_id FROM category WHERE parent_id = ?",
+                (parent_id,)
+            )
+            results = await cursor.fetchall()
+            return [
+                {
+                    "id": row[0],
+                    "name": row[1],
+                    "parent_id": row[2]
+                }
+                for row in results
+            ]
         
 
 class Warehouse(Model):
@@ -280,6 +327,7 @@ class Warehouse(Model):
                  warehouse_data.retail_price, warehouse_data.purchasing_price, warehouse_data.quantity, warehouse_data.display)
             )
             await connection.commit()
+
 
     @staticmethod
     async def all() -> List[Dict]:
@@ -425,5 +473,4 @@ class Warehouse(Model):
                 }
                 for row in results
             ]
-
         

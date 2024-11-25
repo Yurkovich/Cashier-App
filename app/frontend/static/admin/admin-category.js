@@ -160,23 +160,46 @@ class CategoryManager {
         });
 
         thead.appendChild(headerRow);
-
-        categories.forEach((category) => {
-            const row = document.createElement("tr");
-            const idCell = document.createElement("td");
-            idCell.textContent = category.id;
-            row.appendChild(idCell);
-
-            const nameCell = document.createElement("td");
-            nameCell.textContent = category.name;
-            row.appendChild(nameCell);
-
-            tbody.appendChild(row);
-        });
+        tbody.appendChild(this.createCategoryRows(categories));
 
         table.appendChild(thead);
         table.appendChild(tbody);
         containerDiv.appendChild(table);
+    }
+
+    // Функция для создания строк таблицы для каждой категории
+    createCategoryRows(categories, level = 0) {
+        const fragment = document.createDocumentFragment();
+
+        // Используем Set для отслеживания уникальности категорий
+        const uniqueCategories = new Set();
+
+        categories.forEach(category => {
+            if (!uniqueCategories.has(category.id)) {
+                uniqueCategories.add(category.id); // Добавляем ID категории в Set
+
+                const row = document.createElement("tr");
+
+                const idCell = document.createElement("td");
+                idCell.textContent = category.id;
+                row.appendChild(idCell);
+
+                const nameCell = document.createElement("td");
+                nameCell.textContent = category.name;
+                nameCell.style.paddingLeft = `${level * 20}px`; // Отступ для подкатегорий
+                row.appendChild(nameCell);
+
+                fragment.appendChild(row);
+
+                // Если есть подкатегории, вызываем функцию рекурсивно
+                if (category.subcategories && category.subcategories.length > 0) {
+                    const subcategoryRows = this.createCategoryRows(category.subcategories, level + 1);
+                    fragment.appendChild(subcategoryRows);
+                }
+            }
+        });
+
+        return fragment;
     }
 }
 
