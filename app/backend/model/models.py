@@ -358,10 +358,10 @@ class Warehouse(Model):
         async with connection.cursor() as cursor:
             await cursor.execute(
                 '''UPDATE warehouse
-                   SET barcode = ?, name = ?, category = ?, subcategory = ?, retail_price = ?, purchasing_price = ?, quantity = ?, display = ?
-                   WHERE id = ?''',
+                    SET barcode = ?, name = ?, category = ?, subcategory = ?, retail_price = ?, purchasing_price = ?, quantity = ?, display = ?
+                    WHERE id = ?''',
                 (warehouse_data.barcode, warehouse_data.name, warehouse_data.category, warehouse_data.subcategory, 
-                 warehouse_data.retail_price, warehouse_data.purchasing_price, warehouse_data.quantity, warehouse_data.display, warehouse_data.id)
+                warehouse_data.retail_price, warehouse_data.purchasing_price, warehouse_data.quantity, warehouse_data.display, warehouse_data.id)
             )
             await connection.commit()
 

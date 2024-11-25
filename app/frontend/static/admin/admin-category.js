@@ -22,10 +22,12 @@ class CategoryManager {
         }
 
         this.refreshCategoryTable();
+        this.populateParentCategories();
     }
 
     async addCategory() {
         const categoryName = document.getElementById("category-add-title").value;
+        const parentCategoryId = document.getElementById("category-add-parent").value;
 
         if (!categoryName) {
             alert("Введите название категории.");
@@ -38,12 +40,14 @@ class CategoryManager {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ name: categoryName }),
+                body: JSON.stringify({ name: categoryName, parent_id: parentCategoryId }),
             });
 
             if (response.ok) {
                 document.getElementById("category-add-title").value = "";
+                document.getElementById("category-add-parent").value = "";
                 this.refreshCategoryTable();
+                this.populateParentCategories();
             } else {
                 const errorData = await response.json();
                 alert(`Ошибка: ${errorData.detail || "Неизвестная ошибка"}`);
@@ -56,6 +60,7 @@ class CategoryManager {
     async handleChangeCategory() {
         const categoryId = document.getElementById("category-edit-id").value;
         const categoryName = document.getElementById("category-edit-title").value;
+        const parentCategoryId = document.getElementById("category-edit-parent").value;
 
         if (!categoryId || !categoryName) {
             alert("Введите ID и новое название категории.");
@@ -68,13 +73,15 @@ class CategoryManager {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ id: categoryId, name: categoryName }),
+                body: JSON.stringify({ id: categoryId, name: categoryName, parent_id: parentCategoryId }),
             });
 
             if (response.ok) {
                 document.getElementById("category-edit-id").value = "";
                 document.getElementById("category-edit-title").value = "";
+                document.getElementById("category-edit-parent").value = "";
                 this.refreshCategoryTable();
+                this.populateParentCategories();
             } else {
                 const errorData = await response.json();
                 alert(`Ошибка: ${errorData.detail || "Неизвестная ошибка"}`);
@@ -167,16 +174,14 @@ class CategoryManager {
         containerDiv.appendChild(table);
     }
 
-    // Функция для создания строк таблицы для каждой категории
     createCategoryRows(categories, level = 0) {
         const fragment = document.createDocumentFragment();
 
-        // Используем Set для отслеживания уникальности категорий
         const uniqueCategories = new Set();
 
         categories.forEach(category => {
             if (!uniqueCategories.has(category.id)) {
-                uniqueCategories.add(category.id); // Добавляем ID категории в Set
+                uniqueCategories.add(category.id);
 
                 const row = document.createElement("tr");
 
@@ -186,12 +191,11 @@ class CategoryManager {
 
                 const nameCell = document.createElement("td");
                 nameCell.textContent = category.name;
-                nameCell.style.paddingLeft = `${level * 20}px`; // Отступ для подкатегорий
+                nameCell.style.paddingLeft = `${level * 20}px`;
                 row.appendChild(nameCell);
 
                 fragment.appendChild(row);
 
-                // Если есть подкатегории, вызываем функцию рекурсивно
                 if (category.subcategories && category.subcategories.length > 0) {
                     const subcategoryRows = this.createCategoryRows(category.subcategories, level + 1);
                     fragment.appendChild(subcategoryRows);
@@ -200,6 +204,34 @@ class CategoryManager {
         });
 
         return fragment;
+    }
+
+    async populateParentCategories() {
+        const addParentSelector = document.getElementById("category-add-parent");
+        const editParentSelector = document.getElementById("category-edit-parent");
+        addParentSelector.innerHTML = '<option value="">Выберите родительскую категорию</option>';
+        editParentSelector.innerHTML = '<option value="">Выберите родительскую категорию</option>';
+
+        try {
+            const response = await fetch("/api/categories");
+            const data = await response.json();
+            if (data.length) {
+                function addCategories(categories, parentName = '') {
+                    categories.forEach(category => {
+                        const fullName = parentName ? `${parentName} > ${category.name}` : category.name;
+                        const option = new Option(fullName, category.id);
+                        addParentSelector.appendChild(option.cloneNode(true));
+                        editParentSelector.appendChild(option.cloneNode(true));
+                        if (category.subcategories.length) {
+                            addCategories(category.subcategories, fullName);
+                        }
+                    });
+                }
+                addCategories(data);
+            }
+        } catch (error) {
+            console.error("Ошибка при получении категорий:", error);
+        }
     }
 }
 

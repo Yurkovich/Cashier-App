@@ -66,14 +66,24 @@
                         <div class="categories-add">
                             <h2>Добавить категорию</h2>
                             <input type="text" id="category-add-title" placeholder="Название">
+                            <select id="category-add-parent">
+                                <option value="">Выберите родительскую категорию</option>
+                                <!-- Здесь будут добавлены опции для родительских категорий -->
+                            </select>
                             <button id="category-add-button">Добавить категорию</button>
                         </div>
+                        
                         <div class="categories-edit">
                             <h2>Изменить категорию</h2>
                             <input type="number" id="category-edit-id" placeholder="ID">
                             <input type="text" id="category-edit-title" placeholder="Новое название">
+                            <select id="category-edit-parent">
+                                <option value="">Выберите родительскую категорию</option>
+                                <!-- Здесь будут добавлены опции для родительских категорий -->
+                            </select>
                             <button id="category-edit-button">Изменить категорию</button>
                         </div>
+                        
                         <div class="categories-delete">
                             <h2>Удалить категорию</h2>
                             <input type="number" id="category-delete-id" placeholder="ID">

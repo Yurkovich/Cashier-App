@@ -185,16 +185,23 @@ class ProductManager {
     async categorySelector() {
         const addSelector = document.getElementById("product-add-category-select");
         const changeSelector = document.getElementById("product-edit-category-select");
-
+    
         try {
             const response = await fetch("/api/categories");
             const data = await response.json();
             if (data.length) {
-                data.forEach(category => {
-                    const option = new Option(category.name, category.id);
-                    addSelector.appendChild(option);
-                    changeSelector.appendChild(option.cloneNode(true));
-                });
+                function addCategories(categories, parentName = '') {
+                    categories.forEach(category => {
+                        const fullName = parentName ? `${parentName} > ${category.name}` : category.name;
+                        const option = new Option(fullName, category.id);
+                        addSelector.appendChild(option);
+                        changeSelector.appendChild(option.cloneNode(true));
+                        if (category.subcategories.length) {
+                            addCategories(category.subcategories, fullName);
+                        }
+                    });
+                }
+                addCategories(data);
             }
         } catch (error) {
             console.error("Ошибка при получении категорий:", error);

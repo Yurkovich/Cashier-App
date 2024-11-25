@@ -28,10 +28,8 @@ class Database:
                                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                                     name TEXT NOT NULL,
                                     category_id INTEGER NOT NULL,
-                                    subcategory_id INTEGER NOT NULL,
                                     cost INTEGER NOT NULL,
-                                    FOREIGN KEY (category_id) REFERENCES category (id) ON DELETE CASCADE ON UPDATE CASCADE,
-                                    FOREIGN KEY (subcategory_id) REFERENCES subcategory (id) ON DELETE CASCADE ON UPDATE CASCADE)
+                                    FOREIGN KEY (category_id) REFERENCES category (id) ON DELETE CASCADE ON UPDATE CASCADE)
                             ''')
 
             cursor.execute('''CREATE TABLE IF NOT EXISTS warehouse (
@@ -44,8 +42,7 @@ class Database:
                                     purchasing_price DECIMAL(10, 2) NOT NULL,
                                     quantity INTEGER NOT NULL,
                                     display INTEGER NOT NULL DEFAULT 0,
-                                    FOREIGN KEY (category_id) REFERENCES category (id) ON DELETE CASCADE ON UPDATE CASCADE,
-                                    FOREIGN KEY (subcategory_id) REFERENCES subcategory (id) ON DELETE CASCADE ON UPDATE CASCADE)
+                                    FOREIGN KEY (category_id) REFERENCES category (id) ON DELETE CASCADE ON UPDATE CASCADE)
                             ''')
         finally:
             conn.close()
