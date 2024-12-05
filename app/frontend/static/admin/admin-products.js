@@ -1,3 +1,4 @@
+
 import { generateProductTable } from "./navbar.js"
 
 class ProductManager {
@@ -13,8 +14,8 @@ class ProductManager {
         this.productUpdateName = document.getElementById("products__update-name");
         this.productUpdateCost = document.getElementById("products__update-cost");
 
-        this.productDeleteId = document.getElementById("products__delete-id")
-        this.productDeleteButton = document.getElementById("products__delete-button")
+        this.productDeleteId = document.getElementById("products__delete-id");
+        this.productDeleteButton = document.getElementById("products__delete-button");
 
         this.init();
     }
@@ -30,6 +31,58 @@ class ProductManager {
 
         if (this.productDeleteButton) {
             this.productDeleteButton.addEventListener("click", () => this.handleDeleteProduct());
+        }
+
+        if (this.productUpdateId) {
+            this.productUpdateId.addEventListener("input", () => this.trackUpdateProductId());
+        }
+
+    }
+
+    async trackUpdateProductId() {
+        const value = this.productUpdateId.value;
+    
+        if (value === '') {
+            this.productUpdateName.value = '';
+            this.productUpdateCategory.value = '0';
+            this.productUpdateCost.value = '';
+            this.productUpdateButton.disabled = true;
+            this.productUpdateButton.style.opacity = "0.7";
+            return;
+        }
+    
+        try {
+            const data = await this.getProductById(value);
+            if (data) {
+                this.productUpdateName.value = data.name || '';
+                this.productUpdateCategory.value = data.category_id || '0';
+                this.productUpdateCost.value = data.cost || '';
+                this.productUpdateButton.disabled = false;
+                this.productUpdateButton.style.opacity = "1";
+            } else {
+                throw new Error('Товар не найден');
+            }
+        } catch (error) {
+            this.productUpdateName.value = 'НЕСУЩЕСТВУЮЩИЙ ТОВАР';
+            this.productUpdateCategory.value = '0';
+            this.productUpdateCost.value = '';
+            this.productUpdateButton.disabled = true;
+            this.productUpdateButton.style.opacity = "0.7";
+            console.error('Ошибка при получении товара:', error);
+        }
+    }
+
+    async getProductById(productId) {
+        try {
+            const response = await fetch(`/api/products/${productId}`);
+            if (!response.ok) {
+                throw new Error(`Ошибка: ${response.status}`);
+            }
+            const product = await response.json();
+            return product;
+        } catch (error) {
+            console.error("Ошибка при получении продукта:", error);
+            return null;
         }
     }
 
@@ -110,7 +163,7 @@ class ProductManager {
             const response = await this.deleteProduct(data);
             if (response.ok) {
                 this.resetDeleteForm();
-                generateProductTable(document.querySelector(".table__product"))
+                generateProductTable(document.querySelector(".table__product"));
             } else {
                 throw new Error(`Ошибка: ${response.status}`);
             }
@@ -150,30 +203,28 @@ class ProductManager {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(data)
-        })
+        });
         return response;
     }
 
     resetAddForm() {
         this.productAddName.value = "";
         this.productAddCost.value = "";
-        this.productAddCategory.value = "";
+        this.productAddCategory.value = "0";
     }
 
     resetUpdateForm() {
         this.productUpdateId.value = "";
         this.productUpdateName.value = "";
-        this.productUpdateCategory.value = "";
+        this.productUpdateCategory.value = "0";
         this.productUpdateCost.value = "";
     }
 
     resetDeleteForm() {
         this.productDeleteId.value = "";
     }
-
-    
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    new ProductManager();
+    const productManager = new ProductManager();
 });

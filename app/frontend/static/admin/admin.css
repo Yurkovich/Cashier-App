@@ -21,8 +21,14 @@ body {
 
 .main {
     display: grid;
-    grid-template-columns: 1.5fr 5fr 2fr;
+    grid-template-columns: .75fr 5fr 2fr;
 }
+
+/* @media (max-width: 700px) {
+    .main {
+        grid-template-columns: 1fr 7.5fr;
+    }
+} */
 
 .aside {
     min-height: 100vh;
@@ -147,6 +153,13 @@ th {
     color: var(--color-white);
     background: var(--color-red);
     border-radius: 5px;
+
+    transition: all .5s;
+}
+
+.control__item button:hover {
+    color: var(--color-gray-dark);
+    background: rgb(39, 172, 73);
 }
 
 

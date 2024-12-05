@@ -142,7 +142,6 @@ async function handleDeleteCategory() {
     }
 }
 
-
 async function addCategory(data) {
     const response = await fetch("/api/categories", {
         method: "POST",
@@ -308,15 +307,6 @@ function refreshCategorySelects() {
     categorySelectIds.forEach(selectId => {
         populateCategorySelect(selectId);
     });
-}
-
-function fillUpdateForm() {
-    categoryUpdateId.addEventListener("change", async() => {
-        const id = categoryUpdateId.value;
-        const data = findCategoryById(id);
-
-        categoryUpdateName.value = data.name;
-    })
 }
 
 function resetAddForm() {
