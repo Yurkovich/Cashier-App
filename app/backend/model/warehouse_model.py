@@ -10,7 +10,6 @@ class WarehouseModel(BaseModel):
     retail_price: float
     purchasing_price: float
     quantity: int
-    display: int
 
 
 class WarehouseUpdateModel(BaseModel):
@@ -21,4 +20,3 @@ class WarehouseUpdateModel(BaseModel):
     retail_price: float
     purchasing_price: float
     quantity: int
-    display: int

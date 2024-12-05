@@ -37,11 +37,9 @@ class Database:
                                     barcode INTEGER NOT NULL,
                                     name TEXT NOT NULL,
                                     category_id INTEGER NOT NULL,
-                                    subcategory_id INTEGER NOT NULL,
                                     retail_price DECIMAL(10, 2) NOT NULL,
                                     purchasing_price DECIMAL(10, 2) NOT NULL,
                                     quantity INTEGER NOT NULL,
-                                    display INTEGER NOT NULL DEFAULT 0,
                                     FOREIGN KEY (category_id) REFERENCES category (id) ON DELETE CASCADE ON UPDATE CASCADE)
                             ''')
         finally:
