@@ -1,5 +1,6 @@
 
-import { refreshCategoryTable } from './admin-category.js';
+import { categoryManager } from './admin-category.js';
+
 
 document.addEventListener("DOMContentLoaded", () => {
     initNavbar();
@@ -53,7 +54,7 @@ function toggleContainer(type) {
         productContainer.style.display = "block";
         productControl.style.display = "grid";
     } else if (type === "category") {
-        refreshCategoryTable();
+        categoryManager.refreshCategoryTable();
         categoryContainer.style.display = "block";
         categoryControl.style.display = "grid";
     } else if (type === "warehouse") {
