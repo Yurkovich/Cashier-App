@@ -2,14 +2,14 @@
 from typing import List
 from fastapi import APIRouter, HTTPException
 
-from model.warehouse_model import WarehouseModel, WarehouseUpdateModel
+from model.warehouse_model import WarehouseCreateModel, WarehouseModel, WarehouseUpdateModel
 from model.models import Warehouse
 
 warehouse_router = APIRouter(tags=['Warehouse'])
 
 
-@warehouse_router.post("/api/warehouse", summary="Добавить товар на склад", response_model=WarehouseModel)
-async def add_item(item: WarehouseModel) -> WarehouseModel:
+@warehouse_router.post("/api/warehouse", summary="Добавить товар на склад", response_model=WarehouseCreateModel)
+async def add_item(item: WarehouseCreateModel) -> WarehouseCreateModel:
     try:
         await Warehouse.add(item)
         return item

@@ -80,6 +80,12 @@ body {
 
 /* ============================================ */
 
+.table__product,
+.table__warehouse,
+.table__category {
+    display: none;
+}
+
 .table-container {
     padding: 20px;
 }
@@ -156,10 +162,4 @@ th {
 
     transition: all .5s;
 }
-
-.control__item button:hover {
-    color: var(--color-gray-dark);
-    background: rgb(39, 172, 73);
-}
-
 

@@ -306,6 +306,8 @@ class CategoryManager {
             "products__update-category",
             "categories__add-category",
             "categories__update-category",
+            "warehouse__add-category",
+            "warehouse__update-category",
         ];
 
         categorySelectIds.forEach(selectId => this.populateCategorySelect(selectId));

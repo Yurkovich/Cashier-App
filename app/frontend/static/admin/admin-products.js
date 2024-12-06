@@ -1,6 +1,4 @@
 
-import { generateProductTable } from "./navbar.js"
-
 class ProductManager {
     constructor() {
         this.productAddButton = document.getElementById("products__add-button");
@@ -84,6 +82,66 @@ class ProductManager {
             console.error("Ошибка при получении продукта:", error);
             return null;
         }
+    }
+
+    async generateProductTable(container) {
+        container.innerHTML = `
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Название</th>
+                        <th>Категория</th>
+                        <th>Цена</th>
+                    </tr>
+                </thead>
+                <tbody id="product-table-body">
+                    <!-- Здесь будут строки таблицы с продуктами -->
+                </tbody>
+            </table>
+        `;
+    
+        fetch('/api/all_products')
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.getElementById('product-table-body');
+    
+                fetch('/api/categories')
+                    .then(response => response.json())
+                    .then(categories => {
+                        const categoryMap = new Map();
+    
+                        function addCategoriesToMap(categories) {
+                            categories.forEach(category => {
+                                categoryMap.set(category.id, category.name);
+                                if (category.subcategories && category.subcategories.length > 0) {
+                                    addCategoriesToMap(category.subcategories);
+                                }
+                            });
+                        }
+    
+                        addCategoriesToMap(categories);
+    
+                        data.forEach(product => {
+                            const categoryName = categoryMap.get(product.category_id) || 'Неизвестно';
+    
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${product.id}</td>
+                                <td>${product.name}</td>
+                                <td>${categoryName}</td>
+                                <td>${product.cost} ₽</td>
+                            `;
+                            tbody.appendChild(row);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error loading categories:', error);
+                    });
+            })
+            .catch(error => {
+                console.error('Error loading products:', error);
+            });
     }
 
     async handleAddProduct() {
@@ -225,6 +283,5 @@ class ProductManager {
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    const productManager = new ProductManager();
-});
+const productManager = new ProductManager();
+export { productManager };

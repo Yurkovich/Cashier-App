@@ -1,5 +1,7 @@
 
 import { categoryManager } from './admin-category.js';
+import { productManager } from './admin-products.js';
+import { warehouseManager } from './admin-warehouse.js'
 
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -30,7 +32,6 @@ function initNavbar() {
     }
 }
 
-
 function toggleContainer(type) {
     const productContainer = document.querySelector(".table__product");
     const categoryContainer = document.querySelector(".table__category");
@@ -50,7 +51,7 @@ function toggleContainer(type) {
 
 
     if (type === "product") {
-        generateProductTable(productContainer);
+        productManager.generateProductTable(productContainer);
         productContainer.style.display = "block";
         productControl.style.display = "grid";
     } else if (type === "category") {
@@ -58,70 +59,8 @@ function toggleContainer(type) {
         categoryContainer.style.display = "block";
         categoryControl.style.display = "grid";
     } else if (type === "warehouse") {
-        refreshWarehouseTable();
+        warehouseManager.refreshWarehouseTable();
         warehouseContainer.style.display = "block";
         warehouseControl.style.display = "grid";
     }
 }
-
-async function generateProductTable(container) {
-    container.innerHTML = `
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Название</th>
-                    <th>Категория</th>
-                    <th>Цена</th>
-                </tr>
-            </thead>
-            <tbody id="product-table-body">
-                <!-- Здесь будут строки таблицы с продуктами -->
-            </tbody>
-        </table>
-    `;
-
-    fetch('/api/all_products')
-        .then(response => response.json())
-        .then(data => {
-            const tbody = document.getElementById('product-table-body');
-
-            fetch('/api/categories')
-                .then(response => response.json())
-                .then(categories => {
-                    const categoryMap = new Map();
-
-                    function addCategoriesToMap(categories) {
-                        categories.forEach(category => {
-                            categoryMap.set(category.id, category.name);
-                            if (category.subcategories && category.subcategories.length > 0) {
-                                addCategoriesToMap(category.subcategories);
-                            }
-                        });
-                    }
-
-                    addCategoriesToMap(categories);
-
-                    data.forEach(product => {
-                        const categoryName = categoryMap.get(product.category_id) || 'Неизвестно';
-
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${product.id}</td>
-                            <td>${product.name}</td>
-                            <td>${categoryName}</td>
-                            <td>${product.cost}</td>
-                        `;
-                        tbody.appendChild(row);
-                    });
-                })
-                .catch(error => {
-                    console.error('Error loading categories:', error);
-                });
-        })
-        .catch(error => {
-            console.error('Error loading products:', error);
-        });
-}
-
-export {generateProductTable}

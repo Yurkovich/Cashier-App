@@ -306,10 +306,10 @@ class Category(Model, ABC):
         
 
 class Warehouse(Model):
-    def __init__(self, barcode: int, name: str, category: int, retail_price: float, purchasing_price: float, quantity: int):
+    def __init__(self, barcode: int, name: str, category_id: int, retail_price: float, purchasing_price: float, quantity: int):
         self.barcode = barcode
         self.name = name
-        self.category = category
+        self.category_id = category_id
         self.retail_price = retail_price
         self.purchasing_price = purchasing_price
         self.quantity = quantity
@@ -319,12 +319,12 @@ class Warehouse(Model):
         connection = await DatabaseConnection().connect()
         async with connection.cursor() as cursor:
             await cursor.execute(
-                "INSERT INTO warehouse (barcode, name, category, retail_price, purchasing_price, quantity) "
+                "INSERT INTO warehouse (barcode, name, category_id, retail_price, purchasing_price, quantity) "
                 "VALUES (?, ?, ?, ?, ?, ?)",
                 (
                     warehouse_data.barcode,
                     warehouse_data.name,
-                    warehouse_data.category,
+                    warehouse_data.category_id,
                     warehouse_data.retail_price,
                     warehouse_data.purchasing_price,
                     warehouse_data.quantity,
@@ -337,12 +337,12 @@ class Warehouse(Model):
         connection = await DatabaseConnection().connect()
         async with connection.cursor() as cursor:
             await cursor.execute(
-                "SELECT id, barcode, name, category, retail_price, purchasing_price, quantity FROM warehouse"
+                "SELECT id, barcode, name, category_id, retail_price, purchasing_price, quantity FROM warehouse"
             )
             results = await cursor.fetchall()
             return [
                 dict(zip(
-                    ["id", "barcode", "name", "category", "retail_price", "purchasing_price", "quantity"],
+                    ["id", "barcode", "name", "category_id", "retail_price", "purchasing_price", "quantity"],
                     row
                 )) for row in results
             ]
@@ -353,12 +353,12 @@ class Warehouse(Model):
         async with connection.cursor() as cursor:
             await cursor.execute(
                 '''UPDATE warehouse
-                   SET barcode = ?, name = ?, category = ?, retail_price = ?, purchasing_price = ?, quantity = ?
+                   SET barcode = ?, name = ?, category_id = ?, retail_price = ?, purchasing_price = ?, quantity = ?
                    WHERE id = ?''',
                 (
                     warehouse_data.barcode,
                     warehouse_data.name,
-                    warehouse_data.category,
+                    warehouse_data.category_id,
                     warehouse_data.retail_price,
                     warehouse_data.purchasing_price,
                     warehouse_data.quantity,
@@ -380,29 +380,29 @@ class Warehouse(Model):
         connection = await DatabaseConnection().connect()
         async with connection.cursor() as cursor:
             await cursor.execute(
-                "SELECT id, barcode, name, category, retail_price, purchasing_price, quantity "
+                "SELECT id, barcode, name, category_id, retail_price, purchasing_price, quantity "
                 "FROM warehouse WHERE id = ?",
                 (warehouse_id,)
             )
             result = await cursor.fetchone()
             return dict(zip(
-                ["id", "barcode", "name", "category", "retail_price", "purchasing_price", "quantity"],
+                ["id", "barcode", "name", "category_id", "retail_price", "purchasing_price", "quantity"],
                 result
             )) if result else None
 
     @staticmethod
-    async def get_by_category(category: int) -> List[Dict]:
+    async def get_by_category(category_id: int) -> List[Dict]:
         connection = await DatabaseConnection().connect()
         async with connection.cursor() as cursor:
             await cursor.execute(
-                "SELECT id, barcode, name, category, retail_price, purchasing_price, quantity "
-                "FROM warehouse WHERE category = ?",
-                (category,)
+                "SELECT id, barcode, name, category_id, retail_price, purchasing_price, quantity "
+                "FROM warehouse WHERE category_id = ?",
+                (category_id,)
             )
             results = await cursor.fetchall()
             return [
                 dict(zip(
-                    ["id", "barcode", "name", "category", "retail_price", "purchasing_price", "quantity"],
+                    ["id", "barcode", "name", "category_id", "retail_price", "purchasing_price", "quantity"],
                     row
                 )) for row in results
             ]
@@ -412,12 +412,12 @@ class Warehouse(Model):
         connection = await DatabaseConnection().connect()
         async with connection.cursor() as cursor:
             await cursor.execute(
-                "SELECT id, barcode, name, category, retail_price, purchasing_price, quantity "
+                "SELECT id, barcode, name, category_id, retail_price, purchasing_price, quantity "
                 "FROM warehouse WHERE barcode = ?",
                 (barcode,)
             )
             result = await cursor.fetchone()
             return dict(zip(
-                ["id", "barcode", "name", "category", "retail_price", "purchasing_price", "quantity"],
+                ["id", "barcode", "name", "category_id", "retail_price", "purchasing_price", "quantity"],
                 result
             )) if result else None
