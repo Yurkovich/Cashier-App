@@ -34,6 +34,9 @@
                         <li class="nav__item">
                             <button class="nav__button nav__button--warehouse">Склад</button>
                         </li>
+                        <li class="nav__item">
+                            <button class="nav__button nav__button--delivery open-button">Поставки</button>
+                        </li>
                     </ul>
                 </nav>
             </aside>
@@ -47,6 +50,9 @@
                 </div>
                 <div class="table__warehouse">
                     <!-- Здесь будет генерироваться таблица со складом -->
+                </div>
+                <div class="talbe__delivery">
+                    <!-- Здесь будет генерироваться таблица с поставками -->
                 </div>
             </div>
 
@@ -238,11 +244,33 @@
 
                 </div>
             </div>
+
+            <div class="delivery__modal">
+                <div class="delivery__modal-title">
+                    Внесение поставки
+                </div>
+                <div class="delivery__modal-close">
+                    <button class="delivery__close-button">
+                        X
+                    </button>
+                </div>
+                <div class="delivery__modal-inner">
+                    <input type="number" id="delivery__modal-scan" name="delivery__modal-scan" placeholder="Баркод">
+                </div>
+            </div>
+            <div class="delivery__modal-overlay"></div>
         </main>
+        
 
         <script type="module" src="../static/admin/navbar.js"></script>
         <script type="module" src="../static/admin/admin-category.js"></script>
         <script type="module" src="../static/admin/admin-products.js"></script>
         <script type="module" src="../static/admin/admin-warehouse.js"></script>
+        <script src="../static/admin/admin-delivery.js"></script>
+        <script>
+            
+        </script>
+            
+            
     </body>
 </html>

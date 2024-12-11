@@ -142,6 +142,19 @@ th {
     margin-bottom: 15px;
 }
 
+.control__list .control__item:not(:first-child) {
+    overflow: hidden;
+    height: 0;
+    opacity: 0;
+    transition: height 0.3s ease, opacity 0.3s ease;
+    display: none;
+}
+
+.control__list .control__item.visible {
+    height: auto;
+    opacity: 1;
+}
+
 .control__item {
     padding: 5px;
 }
@@ -163,3 +176,75 @@ th {
     transition: all .5s;
 }
 
+.control__item h3 {
+    cursor: pointer;
+}
+
+
+/* =========================== */
+
+.delivery__modal {
+    width: 30vw;
+    color: var(--color-white);
+    background: var(--color-gray-light);
+    padding: 40px 10px;
+    border: 2px solid var(--color-gray-dark);
+    border-radius: 10px;
+    position: absolute;
+    top: 35%;
+    left: 35%;
+    z-index: 2;
+    opacity: 0;
+    transition: all .2s;
+    visibility: hidden;
+}
+
+.modal--open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.delivery__modal-title {
+    font-size: 24px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.delivery__modal-close {
+    position: absolute;
+    right: 0;
+    top: 0;
+    padding: 15px;
+}
+
+.delivery__close-button {
+    font-size: 20px;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 100px;
+    background: var(--color-gray-dark);
+    color: var(--color-white);
+}
+
+.delivery__modal-inner {
+    margin-top: 20px;
+    font-size: 18px;
+}
+
+.delivery__modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+    opacity: 0;
+    visibility: hidden;
+    transition: all .2s;
+}
+
+.modal__overlay--open {
+    visibility: visible;
+    opacity: 1;
+}

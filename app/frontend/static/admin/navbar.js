@@ -9,9 +9,16 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function initNavbar() {
+    const mainNavButton = document.querySelector(".nav__button--main")
     const productsNavButton = document.querySelector(".nav__button--product");
     const categoriesNavButton = document.querySelector(".nav__button--category");
     const warehouseNavButton = document.querySelector(".nav__button--warehouse");
+
+    if (mainNavButton) {
+        mainNavButton.addEventListener("click", () => {
+            toggleContainer("main")
+        })
+    }
 
     if (productsNavButton) {
         productsNavButton.addEventListener("click", () => {

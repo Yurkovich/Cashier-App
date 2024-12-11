@@ -167,8 +167,8 @@ class WarehouseManager {
             this.warehouseUpdatePurchasing.value = '';
             this.warehouseUpdateQuantity.value = '';
 
-            this.categoryUpdateButton.disabled = true;
-            this.categoryUpdateButton.style.opacity = "0.7";
+            this.warehouseUpdateButton.disabled = true;
+            this.warehouseUpdateButton.style.opacity = "0.7";
             console.error('Ошибка при получении njdfhf:', error);
         }
     }
