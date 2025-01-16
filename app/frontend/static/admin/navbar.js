@@ -1,23 +1,23 @@
 
 import { categoryManager } from './admin-category.js';
 import { productManager } from './admin-products.js';
-import { warehouseManager } from './admin-warehouse.js'
-
+import { warehouseManager } from './admin-warehouse.js';
 
 document.addEventListener("DOMContentLoaded", () => {
     initNavbar();
+    restoreLastTab();
 });
 
 function initNavbar() {
-    const mainNavButton = document.querySelector(".nav__button--main")
+    const mainNavButton = document.querySelector(".nav__button--main");
     const productsNavButton = document.querySelector(".nav__button--product");
     const categoriesNavButton = document.querySelector(".nav__button--category");
     const warehouseNavButton = document.querySelector(".nav__button--warehouse");
 
     if (mainNavButton) {
         mainNavButton.addEventListener("click", () => {
-            toggleContainer("main")
-        })
+            toggleContainer("main");
+        });
     }
 
     if (productsNavButton) {
@@ -56,7 +56,6 @@ function toggleContainer(type) {
     categoryControl.style.display = "none";
     warehouseControl.style.display = "none";
 
-
     if (type === "product") {
         productManager.generateProductTable(productContainer);
         productContainer.style.display = "block";
@@ -70,4 +69,11 @@ function toggleContainer(type) {
         warehouseContainer.style.display = "block";
         warehouseControl.style.display = "grid";
     }
+
+    localStorage.setItem("activeTab", type);
+}
+
+function restoreLastTab() {
+    const lastTab = localStorage.getItem("activeTab") || "main";
+    toggleContainer(lastTab);
 }

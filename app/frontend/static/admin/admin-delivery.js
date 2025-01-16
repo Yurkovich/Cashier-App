@@ -104,6 +104,7 @@ async function submitDelivery() {
 
         console.log("Товар успешно добавлен");
         warehouseManager.refreshWarehouseTable();
+        resetInputs();
     } catch (error) {
         console.error("Ошибка сети:", error);
     }

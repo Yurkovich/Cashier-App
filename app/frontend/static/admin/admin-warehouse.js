@@ -50,14 +50,13 @@ class WarehouseManager {
         const warehouse = await this.fetchWarehouse();
         this.generateWarehouseTable(warehouse);
     }
-
-    async generateWarehouseTable() {
-        const warehouseContainer = document.querySelector('.table__warehouse');
-        if (!warehouseContainer) {
+    
+    async generateWarehouseTable(warehouse) {
+        if (!this.warehouseContainer) {
             console.error('Element with class "table__warehouse" not found');
             return;
         }
-        
+    
         this.warehouseContainer.innerHTML = `
             <table>
                 <thead>
@@ -67,31 +66,21 @@ class WarehouseManager {
                         <th>Название товара</th>
                         <th>Категория</th>
                         <th>Закупочная стоимость</th>
-                        <th>Розничная стомость</th>
+                        <th>Розничная стоимость</th>
                         <th>Количество</th>
                     </tr>
                 </thead>
-                <tbody id="warehouse-table-body">
-                    <!-- Здесь будут строки таблицы со складом -->
-                </tbody>
+                <tbody id="warehouse-table-body"></tbody>
             </table>
         `;
     
+        const tbody = document.getElementById('warehouse-table-body');
+        if (!tbody) {
+            console.error('Element with ID "warehouse-table-body" not found');
+            return;
+        }
+    
         try {
-            const response = await fetch('/api/all_warehouse');
-            const warehouse = await response.json();
-    
-            if (!Array.isArray(warehouse) || warehouse.length === 0) {
-                warehouseContainer.innerHTML = `<p>Данные о складе не найдены.</p>`;
-                return;
-            }
-    
-            const tbody = document.getElementById('warehouse-table-body');
-            if (!tbody) {
-                console.error('Element with ID "warehouse-table-body" not found');
-                return;
-            }
-    
             const categoryResponse = await fetch('/api/categories');
             const categories = await categoryResponse.json();
             const categoryMap = new Map();
@@ -106,6 +95,8 @@ class WarehouseManager {
             }
     
             addCategoriesToMap(categories);
+    
+            tbody.innerHTML = '';
     
             warehouse.forEach(item => {
                 const row = document.createElement('tr');
@@ -124,9 +115,10 @@ class WarehouseManager {
             });
         } catch (error) {
             console.error('Error generating warehouse table:', error);
-            warehouseContainer.innerHTML = `<p>Ошибка загрузки данных о складе.</p>`;
+            this.warehouseContainer.innerHTML = `<p>Ошибка загрузки данных о складе.</p>`;
         }
     }
+    
     
 
     async trackUpdateId() {

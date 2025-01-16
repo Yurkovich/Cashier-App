@@ -197,6 +197,7 @@ th {
 .delivery__modal-window {
     position: relative;
     background: var(--color-gray-light);
+    border: 1px solid var(--color-gray-dark);
     border-radius: 20px;
     max-width: 428px;
     padding: 20px;
