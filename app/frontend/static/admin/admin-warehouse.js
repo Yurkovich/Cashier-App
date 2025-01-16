@@ -78,7 +78,7 @@ class WarehouseManager {
         `;
     
         try {
-            const response = await fetch('/api/warehouse');
+            const response = await fetch('/api/all_warehouse');
             const warehouse = await response.json();
     
             if (!Array.isArray(warehouse) || warehouse.length === 0) {
@@ -290,7 +290,7 @@ class WarehouseManager {
 
     async findItemById(id) {
         try {
-            const response = await fetch(`/api/warehouse/${id}`, {
+            const response = await fetch(`/api/warehouse/item_id/${id}`, {
                 method: "GET",
                 headers: { "Content-Type": "application/json" }
             });
@@ -309,7 +309,7 @@ class WarehouseManager {
 
     async fetchWarehouse() {
         try {
-            const response = await fetch("/api/warehouse");
+            const response = await fetch("/api/all_warehouse");
             if (!response.ok) {
                 throw new Error(`Ошибка HTTP: ${response.status}`);
             }
@@ -343,6 +343,10 @@ class WarehouseManager {
     resetDeleteForm() {
         this.warehouseDeleteId.value = '';
     }
+
+    // =====================================
+
+    
 }
 
 const warehouseManager = new WarehouseManager();

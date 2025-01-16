@@ -333,7 +333,7 @@ class Warehouse(Model):
             await connection.commit()
 
     @staticmethod
-    async def all() -> List[Dict]:
+    async def all() -> List[dict]:
         connection = await DatabaseConnection().connect()
         async with connection.cursor() as cursor:
             await cursor.execute(
@@ -341,10 +341,16 @@ class Warehouse(Model):
             )
             results = await cursor.fetchall()
             return [
-                dict(zip(
-                    ["id", "barcode", "name", "category_id", "retail_price", "purchasing_price", "quantity"],
-                    row
-                )) for row in results
+                {
+                "id": row[0],
+                "barcode": row[1],
+                "name": row[2],
+                "category_id": row[3],
+                "retail_price": row[4],
+                "purchasing_price": row[5],
+                "quantity": row[6],
+                }
+                for row in results
             ]
 
     @staticmethod
@@ -376,19 +382,67 @@ class Warehouse(Model):
             return cursor.rowcount > 0
 
     @staticmethod
-    async def get_by_id(warehouse_id: int) -> Optional[Dict]:
+    async def get_by_id(warehouse_id: int) -> Optional[dict]:
         connection = await DatabaseConnection().connect()
         async with connection.cursor() as cursor:
             await cursor.execute(
-                "SELECT id, barcode, name, category_id, retail_price, purchasing_price, quantity "
-                "FROM warehouse WHERE id = ?",
+                "SELECT id, barcode, name, category_id, retail_price, purchasing_price, quantity FROM warehouse WHERE id = ?",
                 (warehouse_id,)
             )
             result = await cursor.fetchone()
-            return dict(zip(
-                ["id", "barcode", "name", "category_id", "retail_price", "purchasing_price", "quantity"],
-                result
-            )) if result else None
+            if result:
+                return {
+                    "id": result[0],
+                    "barcode": result[1],
+                    "name": result[2],
+                    "category_id": result[3],
+                    "retail_price": result[4],
+                    "purchasing_price": result[5],
+                    "quantity": result[6],
+                }
+            return None
+        
+    @staticmethod
+    async def get_by_barcode(barcode: int) -> Optional[dict]:
+        connection = await DatabaseConnection().connect()
+        async with connection.cursor() as cursor:
+            await cursor.execute(
+                "SELECT id, barcode, name, category_id, retail_price, purchasing_price, quantity FROM warehouse WHERE barcode = ?",
+                (barcode,)
+            )
+            result = await cursor.fetchone()
+            if result:
+                return {
+                    "id": result[0],
+                    "barcode": result[1],
+                    "name": result[2],
+                    "category_id": result[3],
+                    "retail_price": result[4],
+                    "purchasing_price": result[5],
+                    "quantity": result[6],
+                }
+            return None
+        
+    @staticmethod
+    async def get_by_name(item_name: str) -> Optional[dict]:
+        connection = await DatabaseConnection().connect()
+        async with connection.cursor() as cursor:
+            await cursor.execute(
+                "SELECT id, barcode, name, category_id, retail_price, purchasing_price, quantity FROM warehouse WHERE name = ?",
+                (item_name,)
+            )
+            result = await cursor.fetchone()
+            if result:
+                return {
+                    "id": result[0],
+                    "barcode": result[1],
+                    "name": result[2],
+                    "category_id": result[3],
+                    "retail_price": result[4],
+                    "purchasing_price": result[5],
+                    "quantity": result[6],
+                }
+            return None
 
     @staticmethod
     async def get_by_category(category_id: int) -> List[Dict]:
@@ -406,18 +460,3 @@ class Warehouse(Model):
                     row
                 )) for row in results
             ]
-
-    @staticmethod
-    async def get_by_barcode(barcode: int) -> Optional[Dict]:
-        connection = await DatabaseConnection().connect()
-        async with connection.cursor() as cursor:
-            await cursor.execute(
-                "SELECT id, barcode, name, category_id, retail_price, purchasing_price, quantity "
-                "FROM warehouse WHERE barcode = ?",
-                (barcode,)
-            )
-            result = await cursor.fetchone()
-            return dict(zip(
-                ["id", "barcode", "name", "category_id", "retail_price", "purchasing_price", "quantity"],
-                result
-            )) if result else None

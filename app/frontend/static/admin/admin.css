@@ -24,12 +24,6 @@ body {
     grid-template-columns: .75fr 5fr 2fr;
 }
 
-/* @media (max-width: 700px) {
-    .main {
-        grid-template-columns: 1fr 7.5fr;
-    }
-} */
-
 .aside {
     min-height: 100vh;
     height: 100%;
@@ -77,6 +71,7 @@ body {
 .nav__item:hover .nav__button {
     background-color: var(--color-red);
 }
+
 
 /* ============================================ */
 
@@ -184,19 +179,27 @@ th {
 /* =========================== */
 
 .delivery__modal {
-    width: 30vw;
-    color: var(--color-white);
-    background: var(--color-gray-light);
-    padding: 40px 10px;
-    border: 2px solid var(--color-gray-dark);
-    border-radius: 10px;
-    position: absolute;
-    top: 35%;
-    left: 35%;
-    z-index: 2;
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    background: #00000071;
+    padding: 15px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
     opacity: 0;
-    transition: all .2s;
     visibility: hidden;
+    transition: all .6s;
+}
+
+.delivery__modal-window {
+    position: relative;
+    background: var(--color-gray-light);
+    border-radius: 20px;
+    max-width: 428px;
+    padding: 20px;
 }
 
 .modal--open {
@@ -212,23 +215,41 @@ th {
 
 .delivery__modal-close {
     position: absolute;
-    right: 0;
-    top: 0;
-    padding: 15px;
+    right: 17px;
+    top: 10px;
+    max-width: 32px;
+    max-height: 32px;
 }
 
 .delivery__close-button {
-    font-size: 20px;
-    font-weight: 700;
-    padding: 5px 10px;
-    border-radius: 100px;
-    background: var(--color-gray-dark);
-    color: var(--color-white);
+    cursor: pointer;
+}
+
+.delivery__close-button svg,
+.delivery__close-button path {
+    max-width: 32px;
+    max-height: 32px;
+    fill: var(--color-white);
 }
 
 .delivery__modal-inner {
     margin-top: 20px;
     font-size: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.delivery__modal-inner input,
+.delivery__modal-inner select,
+.delivery__modal-inner button {
+    padding: 10px 15px;
+    border-radius: 5px;
+}
+
+.delivery__modal-inner button {
+    background-color: var(--color-red);
+    color: var(--color-white);
 }
 
 .delivery__modal-overlay {

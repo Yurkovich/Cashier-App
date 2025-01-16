@@ -3,7 +3,6 @@ from pydantic import BaseModel
 
 
 class WarehouseModel(BaseModel):
-    id: int
     barcode: int
     name: str
     category_id: int

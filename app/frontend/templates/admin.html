@@ -1,276 +1,302 @@
 <!DOCTYPE html>
 <html lang="ru">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        <title>Админ-Панель</title>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        <link href="./static/admin/reset.css" rel="stylesheet">
-        <link rel="stylesheet" href="./static/admin/admin.css"/>
+    <title>Админ-Панель</title>
 
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+    <link href="./static/admin/reset.css" rel="stylesheet">
+    <link rel="stylesheet" href="./static/admin/admin.css" />
 
-        <link rel="icon" type="image/x-icon" href="./static/favicon.ico">
-    </head>
-    <body>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
+        rel="stylesheet">
 
-        <main class="main">
-            <aside class="aside">
-                <h2 class="aside__title">Админ-панель</h2>
-                <nav class="nav">
-                    <ul class="nav__list">
-                        <li class="nav__item">
-                            <button class="nav__button nav__button--main">Главная</button>
-                        </li>
-                        <li class="nav__item">
-                            <button class="nav__button nav__button--product">Товары</button>
-                        </li>
-                        <li class="nav__item">
-                            <button class="nav__button nav__button--category">Категории</button>
-                        </li>
-                        <li class="nav__item">
-                            <button class="nav__button nav__button--warehouse">Склад</button>
-                        </li>
-                        <li class="nav__item">
-                            <button class="nav__button nav__button--delivery open-button">Поставки</button>
-                        </li>
-                    </ul>
-                </nav>
-            </aside>
+    <link rel="icon" type="image/x-icon" href="./static/favicon.ico">
+</head>
 
-            <div class="table-container">
-                <div class="table__product">
-                    <!-- Здесь будет генерироваться таблица с товарами -->
-                </div>
-                <div class="table__category">
-                    <!-- Здесь будет генерироваться таблица с категориями -->
-                </div>
-                <div class="table__warehouse">
-                    <!-- Здесь будет генерироваться таблица со складом -->
-                </div>
-                <div class="talbe__delivery">
-                    <!-- Здесь будет генерироваться таблица с поставками -->
-                </div>
+<body>
+
+    <main class="main">
+        <aside class="aside">
+            <h2 class="aside__title">Админ-панель</h2>
+            <nav class="nav">
+                <ul class="nav__list">
+                    <li class="nav__item">
+                        <button class="nav__button nav__button--main">Главная</button>
+                    </li>
+                    <li class="nav__item">
+                        <button class="nav__button nav__button--product">Товары</button>
+                    </li>
+                    <li class="nav__item">
+                        <button class="nav__button nav__button--category">Категории</button>
+                    </li>
+                    <li class="nav__item">
+                        <button class="nav__button nav__button--warehouse">Склад</button>
+                    </li>
+                    <li class="nav__item">
+                        <button class="nav__button nav__button--delivery open-button">Поставки</button>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <div class="table-container">
+            <div class="table__product">
+                <!-- Здесь будет генерироваться таблица с товарами -->
+            </div>
+            <div class="table__category">
+                <!-- Здесь будет генерироваться таблица с категориями -->
+            </div>
+            <div class="table__warehouse">
+                <!-- Здесь будет генерироваться таблица со складом -->
+            </div>
+            <div class="talbe__delivery">
+                <!-- Здесь будет генерироваться таблица с поставками -->
+            </div>
+        </div>
+
+        <div class="control">
+            <div class="products">
+
+                <ul class="control__list">
+                    <li class="control__item">
+                        <h3>Добавить продукт</h3>
+                    </li>
+                    <li class="control__item">
+                        <select id="products__add-category" name="products__add-category">
+                            <option value="">Выберите родительскую категорию</option>
+                        </select>
+                    </li>
+                    <li class="control__item">
+                        <input type="text" id="products__add-name" name="products__add-name" placeholder="Название">
+                    </li>
+                    <li class="control__item">
+                        <input type="number" id="products__add-cost" name="products__add-cost" placeholder="Стоимость">
+                    </li>
+                    <li class="control__item">
+                        <button id="products__add-button">Добавить</button>
+                    </li>
+                </ul>
+
+                <ul class="control__list">
+                    <li class="control__item">
+                        <h3>Обновить продукт</h3>
+                    </li>
+                    <li class="control__item">
+                        <input type="number" id="products__update-id" name="products__update-id" placeholder="ID">
+                    </li>
+                    <li class="control__item">
+                        <input type="text" id="products__update-name" name="products__update-name"
+                            placeholder="Название">
+                    </li>
+                    <li class="control__item">
+                        <select id="products__update-category" name="products__update-category"></select>
+                    </li>
+                    <li class="control__item">
+                        <input type="number" id="products__update-cost" name="products__update-cost"
+                            placeholder="Стоимость">
+                    </li>
+                    <li class="control__item">
+                        <button id="products__update-button">Изменить</button>
+                    </li>
+                </ul>
+
+                <ul class="control__list">
+                    <li class="control__item">
+                        <h3>Удалить продукт</h3>
+                    </li>
+                    <li class="control__item">
+                        <input type="number" id="products__delete-id" placeholder="ID">
+                    </li>
+                    <li class="control__item">
+                        <button id="products__delete-button">Удалить</button>
+                    </li>
+                </ul>
+
             </div>
 
-            <div class="control">
-                <div class="products">
+            <div class="categories">
 
-                    <ul class="control__list">
-                        <li class="control__item">
-                            <h3>Добавить продукт</h3>
-                        </li>
-                        <li class="control__item">
-                            <select id="products__add-category" name="products__add-category">
-                                <option value="">Выберите родительскую категорию</option>
-                            </select>
-                        </li>
-                        <li class="control__item">
-                            <input type="text" id="products__add-name" name="products__add-name" placeholder="Название">
-                        </li>
-                        <li class="control__item">
-                            <input type="number" id="products__add-cost" name="products__add-cost" placeholder="Стоимость">
-                        </li>
-                        <li class="control__item">
-                            <button id="products__add-button">Добавить</button>
-                        </li>
-                    </ul>
+                <ul class="control__list">
+                    <li class="control__item">
+                        <h3>Добавить категорию</h3>
+                    </li>
+                    <li class="control__item">
+                        <select id="categories__add-category" name="categories__add-category">
+                            <option value="">Выберите родительскую категорию</option>
+                        </select>
+                    </li>
+                    <li class="control__item">
+                        <input type="text" id="categories__add-name" name="categories__add-name" placeholder="Название">
+                    </li>
+                    <li class="control__item">
+                        <button id="categories__add-button">Добавить</button>
+                    </li>
+                </ul>
 
-                    <ul class="control__list">
-                        <li class="control__item">
-                            <h3>Обновить продукт</h3>
-                        </li>
-                        <li class="control__item">
-                            <input type="number" id="products__update-id" name="products__update-id" placeholder="ID">
-                        </li>
-                        <li class="control__item">
-                            <input type="text" id="products__update-name" name="products__update-name" placeholder="Название">
-                        </li>
-                        <li class="control__item">
-                            <select id="products__update-category" name="products__update-category"></select>
-                        </li>
-                        <li class="control__item">
-                            <input type="number" id="products__update-cost" name="products__update-cost" placeholder="Стоимость">
-                        </li>
-                        <li class="control__item">
-                            <button id="products__update-button">Изменить</button>
-                        </li>
-                    </ul>
+                <ul class="control__list">
+                    <li class="control__item">
+                        <h3>Обновить категорию</h3>
+                    </li>
+                    <li class="control__item">
+                        <input type="number" id="categories__update-id" name="categories__update-id" placeholder="ID">
+                    </li>
+                    <li class="control__item">
+                        <select id="categories__update-category" name="categories__update-category">
+                            <option value="">Выберите родительскую категорию</option>
+                        </select>
+                    </li>
+                    <li class="control__item">
+                        <input type="text" id="categories__update-name" name="categories__update-name"
+                            placeholder="Название">
+                    </li>
+                    <li class="control__item">
+                        <button id="categories__update-button">Обновить</button>
+                    </li>
+                </ul>
 
-                    <ul class="control__list">
-                        <li class="control__item">
-                            <h3>Удалить продукт</h3>
-                        </li>
-                        <li class="control__item">
-                            <input type="number" id="products__delete-id" placeholder="ID">
-                        </li>
-                        <li class="control__item">
-                            <button id="products__delete-button">Удалить</button>
-                        </li>
-                    </ul>
+                <ul class="control__list">
+                    <li class="control__item">
+                        <h3>Удалить категорию</h3>
+                    </li>
+                    <li class="control__item">
+                        <input type="number" id="categories__delete-id" name="categories__delete-id" placeholder="ID">
+                    </li>
+                    <li class="control__item">
+                        <button id="categories__delete-button">Удалить</button>
+                    </li>
+                </ul>
 
-                </div>
-
-                <div class="categories">
-
-                    <ul class="control__list">
-                        <li class="control__item">
-                            <h3>Добавить категорию</h3>
-                        </li>
-                        <li class="control__item">
-                            <select id="categories__add-category" name="categories__add-category">
-                                <option value="">Выберите родительскую категорию</option>
-                            </select>
-                        </li>
-                        <li class="control__item">
-                            <input type="text" id="categories__add-name" name="categories__add-name" placeholder="Название">
-                        </li>
-                        <li class="control__item">
-                            <button id="categories__add-button">Добавить</button>
-                        </li>
-                    </ul>
-                    
-                    <ul class="control__list">
-                        <li class="control__item">
-                            <h3>Обновить категорию</h3>
-                        </li>
-                        <li class="control__item">
-                            <input type="number" id="categories__update-id" name="categories__update-id" placeholder="ID">
-                        </li>
-                        <li class="control__item">
-                            <select id="categories__update-category" name="categories__update-category">
-                                <option value="">Выберите родительскую категорию</option>
-                            </select>
-                        </li>
-                        <li class="control__item">
-                            <input type="text" id="categories__update-name" name="categories__update-name" placeholder="Название">
-                        </li>
-                        <li class="control__item">
-                            <button id="categories__update-button">Обновить</button>
-                        </li>
-                    </ul>
-                    
-                    <ul class="control__list">
-                        <li class="control__item">
-                            <h3>Удалить категорию</h3>
-                        </li>
-                        <li class="control__item">
-                            <input type="number" id="categories__delete-id" name="categories__delete-id" placeholder="ID">
-                        </li>
-                        <li class="control__item">
-                            <button id="categories__delete-button">Удалить</button>
-                        </li>
-                    </ul>
-
-                </div>
-
-                <div class="warehouse">
-
-                    <ul class="control__list">
-                        <li class="control__item">
-                            <h3>Добавить товар</h3>
-                        </li>
-                        <li class="control__item">
-                            <select id="warehouse__add-category" name="warehouse__add-category">
-                                <option value="">Выберите родительскую категорию</option>
-                            </select>
-                        </li>
-                        <li class="control__item">
-                            <input type="number" id="warehouse__add-barcode" name="warehouse__add-barcode" placeholder="Баркод">
-                        </li>
-                        <li class="control__item">
-                            <input type="text" id="warehouse__add-name" name="warehouse__add-name" placeholder="Название">
-                        </li>
-                        <li class="control__item">
-                            <input type="number" id="warehouse__add-retail" name="warehouse__add-retail" placeholder="Закупочная цена">
-                        </li>
-                        <li class="control__item">
-                            <input type="number" id="warehouse__add-purchasing" name="warehouse__add-purchasing" placeholder="Розничная цена">
-                        </li>
-                        <li class="control__item">
-                            <input type="number" id="warehouse__add-quantity" name="warehouse__add-quantity" placeholder="Количество">
-                        </li>
-                        <li class="control__item">
-                            <button id="warehouse__add-button">Добавить</button>
-                        </li>
-                    </ul>
-
-                    <ul class="control__list">
-                        <li class="control__item">
-                            <h3>Обновить товар</h3>
-                        </li>
-                        <li class="control__item">
-                            <input type="number" id="warehouse__update-id" name="warehouse__update-id" placeholder="ID">
-                        </li>
-                        <li class="control__item">
-                            <select id="warehouse__update-category" name="warehouse__update-category">
-                                <option value="">Выберите родительскую категорию</option>
-                            </select>
-                        </li>
-                        <li class="control__item">
-                            <input type="number" id="warehouse__update-barcode" name="warehouse__update-barcode" placeholder="Баркод">
-                        </li>
-                        <li class="control__item">
-                            <input type="text" id="warehouse__update-name" name="warehouse__update-name" placeholder="Название">
-                        </li>
-                        <li class="control__item">
-                            <input type="number" id="warehouse__update-retail" name="warehouse__update-retail" placeholder="Закупочная цена">
-                        </li>
-                        <li class="control__item">
-                            <input type="number" id="warehouse__update-purchasing" name="warehouse__update-purchasing" placeholder="Розничная цена">
-                        </li>
-                        <li class="control__item">
-                            <input type="number" id="warehouse__update-quantity" name="warehouse__update-quantity" placeholder="Количество">
-                        </li>
-                        <li class="control__item">
-                            <button id="warehouse__update-button">Обновить</button>
-                        </li>
-                    </ul>
-
-                    <ul class="control__list">
-                        <li class="control__item">
-                            <h3>Удалить товар</h3>
-                        </li>
-                        <li class="control__item">
-                            <input type="number" id="warehouse__delete-id" placeholder="ID">
-                        </li>
-                        <li class="control__item">
-                            <button id="warehouse__delete-button">Удалить</button>
-                        </li>
-                    </ul>
-
-                </div>
             </div>
 
-            <div class="delivery__modal">
+            <div class="warehouse">
+
+                <ul class="control__list">
+                    <li class="control__item">
+                        <h3>Добавить товар</h3>
+                    </li>
+                    <li class="control__item">
+                        <select id="warehouse__add-category" name="warehouse__add-category">
+                            <option value="">Выберите родительскую категорию</option>
+                        </select>
+                    </li>
+                    <li class="control__item">
+                        <input type="number" id="warehouse__add-barcode" name="warehouse__add-barcode"
+                            placeholder="Баркод">
+                    </li>
+                    <li class="control__item">
+                        <input type="text" id="warehouse__add-name" name="warehouse__add-name" placeholder="Название">
+                    </li>
+                    <li class="control__item">
+                        <input type="number" id="warehouse__add-retail" name="warehouse__add-retail"
+                            placeholder="Закупочная цена">
+                    </li>
+                    <li class="control__item">
+                        <input type="number" id="warehouse__add-purchasing" name="warehouse__add-purchasing"
+                            placeholder="Розничная цена">
+                    </li>
+                    <li class="control__item">
+                        <input type="number" id="warehouse__add-quantity" name="warehouse__add-quantity"
+                            placeholder="Количество">
+                    </li>
+                    <li class="control__item">
+                        <button id="warehouse__add-button">Добавить</button>
+                    </li>
+                </ul>
+
+                <ul class="control__list">
+                    <li class="control__item">
+                        <h3>Обновить товар</h3>
+                    </li>
+                    <li class="control__item">
+                        <input type="number" id="warehouse__update-id" name="warehouse__update-id" placeholder="ID">
+                    </li>
+                    <li class="control__item">
+                        <select id="warehouse__update-category" name="warehouse__update-category">
+                            <option value="">Выберите родительскую категорию</option>
+                        </select>
+                    </li>
+                    <li class="control__item">
+                        <input type="number" id="warehouse__update-barcode" name="warehouse__update-barcode"
+                            placeholder="Баркод">
+                    </li>
+                    <li class="control__item">
+                        <input type="text" id="warehouse__update-name" name="warehouse__update-name"
+                            placeholder="Название">
+                    </li>
+                    <li class="control__item">
+                        <input type="number" id="warehouse__update-retail" name="warehouse__update-retail"
+                            placeholder="Закупочная цена">
+                    </li>
+                    <li class="control__item">
+                        <input type="number" id="warehouse__update-purchasing" name="warehouse__update-purchasing"
+                            placeholder="Розничная цена">
+                    </li>
+                    <li class="control__item">
+                        <input type="number" id="warehouse__update-quantity" name="warehouse__update-quantity"
+                            placeholder="Количество">
+                    </li>
+                    <li class="control__item">
+                        <button id="warehouse__update-button">Обновить</button>
+                    </li>
+                </ul>
+
+                <ul class="control__list">
+                    <li class="control__item">
+                        <h3>Удалить товар</h3>
+                    </li>
+                    <li class="control__item">
+                        <input type="number" id="warehouse__delete-id" placeholder="ID">
+                    </li>
+                    <li class="control__item">
+                        <button id="warehouse__delete-button">Удалить</button>
+                    </li>
+                </ul>
+
+            </div>
+        </div>
+
+        <div class="delivery__modal">
+            <div class="delivery__modal-window">
                 <div class="delivery__modal-title">
-                    Внесение поставки
+                    Поставка
                 </div>
-                <div class="delivery__modal-close">
-                    <button class="delivery__close-button">
-                        X
-                    </button>
-                </div>
+                <a class="delivery__modal-close delivery__close-button">
+                    <?xml version="1.0" encoding="utf-8"?>
+                    <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path opacity="0.4"
+                            d="M16.19 2H7.81C4.17 2 2 4.17 2 7.81V16.18C2 19.83 4.17 22 7.81 22H16.18C19.82 22 21.99 19.83 21.99 16.19V7.81C22 4.17 19.83 2 16.19 2Z"
+                            fill="#292D32" />
+                        <path
+                            d="M13.0594 12.0001L15.3594 9.70011C15.6494 9.41011 15.6494 8.93011 15.3594 8.64011C15.0694 8.35011 14.5894 8.35011 14.2994 8.64011L11.9994 10.9401L9.69937 8.64011C9.40937 8.35011 8.92937 8.35011 8.63938 8.64011C8.34938 8.93011 8.34938 9.41011 8.63938 9.70011L10.9394 12.0001L8.63938 14.3001C8.34938 14.5901 8.34938 15.0701 8.63938 15.3601C8.78938 15.5101 8.97937 15.5801 9.16937 15.5801C9.35937 15.5801 9.54937 15.5101 9.69937 15.3601L11.9994 13.0601L14.2994 15.3601C14.4494 15.5101 14.6394 15.5801 14.8294 15.5801C15.0194 15.5801 15.2094 15.5101 15.3594 15.3601C15.6494 15.0701 15.6494 14.5901 15.3594 14.3001L13.0594 12.0001Z"
+                            fill="#292D32" />
+                    </svg>
+                </a>
                 <div class="delivery__modal-inner">
-                    <input type="number" id="delivery__modal-scan" name="delivery__modal-scan" placeholder="Баркод">
+                    <input type="number" id="delivery__modal-quantity" placeholder="Количество">
+                    <input type="text" id="delivery__modal-name" placeholder="Название">
+                    <select id="delivery__modal-category"></select>
+                    <input type="number" id="delivery__modal-price" placeholder="Розничная цена">
+                    <input type="number" id="delivery__modal-cost" placeholder="Закупочная цена">
+                    <button id="delivery__modal-submit">Сохранить</button>
                 </div>
             </div>
-            <div class="delivery__modal-overlay"></div>
-        </main>
-        
+        </div>
+    </main>
 
-        <script type="module" src="../static/admin/navbar.js"></script>
-        <script type="module" src="../static/admin/admin-category.js"></script>
-        <script type="module" src="../static/admin/admin-products.js"></script>
-        <script type="module" src="../static/admin/admin-warehouse.js"></script>
-        <script src="../static/admin/admin-delivery.js"></script>
-        <script>
-            
-        </script>
-            
-            
-    </body>
+
+    <script type="module" src="../static/admin/navbar.js"></script>
+    <script type="module" src="../static/admin/admin-category.js"></script>
+    <script type="module" src="../static/admin/admin-products.js"></script>
+    <script type="module" src="../static/admin/admin-warehouse.js"></script>
+    <script type="module" src="../static/admin/admin-delivery.js"></script>
+
+
+</body>
+
 </html>
