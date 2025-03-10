@@ -1,115 +1,184 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Cashier App</title>
-        <link rel="stylesheet" href="./static/index/styles.css" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link
-            href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
-            rel="stylesheet"
-        />
-        <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
-    </head>
-    <body>
-        <div class="grid-container">
-            <div class="navbar">
-                <div class="navbar-back">
-                    <button>Назад</button>
-                </div>
 
-                <div class="navbar-edit">
-                    <button>Редактировать</button>
-                </div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
+        rel="stylesheet">
+    <link href="../static/index/reset.css" rel="stylesheet">
+    <link href="../static/index/style.css" rel="stylesheet">
+    <title>Cashier App</title>
+</head>
 
-                <div class="navbar-group">
-                    <div class="navbar-guests">
-                        <button id="guests-button">Гости</button>
-                    </div>
-                
-                    <div class="navbar-notifications">
-                        <button id="notifications-button">Уведомления</button>
-                    </div>
-                
-                    <div class="navbar-search">
-                        <button id="search-button">Поиск</button>
-                        <input type="text" id="search-input" style="display: none; width: 0; transition: width 0.3s;" />
-                    </div>
-                </div>
-            </div>
+<body class="body">
+    <div class="wrapper">
+        <div class="container">
+            <header class="header">
+                <ul class="header__list">
+                    <li class="header__item">
+                        <a class="header__link" href="#">
+                            Назад
+                        </a>
+                    </li>
+                    <li class="header__item">
+                        <button class="header__button header__edit">
+                            <p>Редактировать</p>
+                            <p id="current-time"></p>
+                        </button>
+                    </li>
+                    <li class="header__item">
+                        <button class="header__button button">
+                            Гости
+                        </button>
+                    </li>
+                    <li class="header__item">
+                        <button class="header__button button">
 
-            <div class="container">
-                <div class="order-area">
-                    <div class="order-header">
-                        <div class="prev-order">
-                            <button>〈</button>
+                            <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+                            <svg width="800px" height="800px" viewBox="-1.5 0 20 20" version="1.1"
+                                xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+
+                                <title>notification_bell [#1397]</title>
+                                <desc>Created with Sketch.</desc>
+                                <defs>
+
+                                </defs>
+                                <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                    <g id="Dribbble-Light-Preview" transform="translate(-181.000000, -720.000000)"
+                                        fill="#000000">
+                                        <g id="icons" transform="translate(56.000000, 160.000000)">
+                                            <path
+                                                d="M137.75,574 L129.25,574 L129.25,568 C129.25,565.334 131.375,564 133.498937,564 L133.501063,564 C135.625,564 137.75,565.334 137.75,568 L137.75,574 Z M134.5625,577 C134.5625,577.552 134.0865,578 133.5,578 C132.9135,578 132.4375,577.552 132.4375,577 L132.4375,576 L134.5625,576 L134.5625,577 Z M140.9375,574 C140.351,574 139.875,573.552 139.875,573 L139.875,568 C139.875,564.447 137.359,562.475 134.5625,562.079 L134.5625,561 C134.5625,560.448 134.0865,560 133.5,560 C132.9135,560 132.4375,560.448 132.4375,561 L132.4375,562.079 C129.641,562.475 127.125,564.447 127.125,568 L127.125,573 C127.125,573.552 126.649,574 126.0625,574 C125.476,574 125,574.448 125,575 C125,575.552 125.476,576 126.0625,576 L130.3125,576 L130.3125,577 C130.3125,578.657 131.739438,580 133.5,580 C135.260563,580 136.6875,578.657 136.6875,577 L136.6875,576 L140.9375,576 C141.524,576 142,575.552 142,575 C142,574.448 141.524,574 140.9375,574 L140.9375,574 Z"
+                                                id="notification_bell-[#1397]">
+
+                                            </path>
+                                        </g>
+                                    </g>
+                                </g>
+                            </svg>
+
+                        </button>
+                    </li>
+                    <li class="header__item">
+                        <button class="header__button button">
+                            <?xml version="1.0" encoding="iso-8859-1"?>
+                            <svg fill="#000000" height="800px" width="800px" version="1.1" id="Layer_1"
+                                xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                viewBox="0 0 512 512" xml:space="preserve">
+                                <g>
+                                    <g>
+                                        <path d="M270.746,117.149c-20.516-20.514-47.79-31.812-76.802-31.811c-12.854,0-23.273,10.42-23.273,23.273
+			c0.002,12.854,10.42,23.273,23.274,23.273c16.578,0,32.163,6.454,43.886,18.178c11.723,11.723,18.178,27.308,18.178,43.885
+			c-0.002,12.853,10.418,23.274,23.271,23.274c0.002,0,0.002,0,0.002,0c12.851,0,23.271-10.418,23.273-23.271
+			C302.556,164.939,291.26,137.663,270.746,117.149z" />
+                                    </g>
+                                </g>
+                                <g>
+                                    <g>
+                                        <path
+                                            d="M505.183,472.272L346.497,313.586c25.921-32.979,41.398-74.536,41.398-119.639C387.894,87.005,300.89,0,193.946,0
+			c-0.003,0,0,0-0.003,0C142.14,0,93.434,20.175,56.806,56.804C20.173,93.437,0,142.141,0,193.947
+			C0,300.89,87.004,387.894,193.946,387.894c45.103,0,86.661-15.476,119.639-41.396L472.27,505.184
+			c4.544,4.544,10.501,6.816,16.457,6.816c5.956,0,11.913-2.271,16.455-6.817C514.273,496.096,514.273,481.359,505.183,472.272z
+			 M193.946,341.349c-81.276,0-147.4-66.124-147.4-147.402c0-39.373,15.332-76.389,43.172-104.229
+			c27.84-27.842,64.855-43.172,104.228-43.172c81.279,0,147.403,66.124,147.403,147.402S275.225,341.349,193.946,341.349z" />
+                                    </g>
+                                </g>
+                            </svg>
+                        </button>
+                    </li>
+                </ul>
+            </header>
+
+            <main class="main">
+
+                <section class="order">
+
+                    <div class="order__header">
+                        <button class="order__prev">
+                            Назад
+                        </button>
+                        <button class="order__cur">
+                            Текущий
+                        </button>
+                        <button class="order__next">
+                            Дальше
+                        </button>
+                    </div>
+
+                    <div class="order__body">
+                        <div class="order__info">
+                            <p>Заказ</p>
+                            <span></span>
+                            <p id="total-cost">0 ₽</p>
                         </div>
 
-                        <div class="curr-oreder">
-                            <button>Заказ</button>
-                        </div>
-
-                        <div class="next-order">
-                            <button>〉</button>
-                        </div>
+                        <ul class="order__list">
+                            <!-- <li class="order__item">
+                                <p class="order__item-name">Нагенсы</p>
+                                <p class="order__item-amount">1</p>
+                                <p class="order__item-price">199 ₽</p>
+                            </li> -->
+                        </ul>
                     </div>
 
-                    <div class="order-body">
-                        <div class="order-info">
-                            <div>Заказ</div>
-                            <div id="total-amount">0 ₽</div>
-                        </div>
-                        <div class="order-guest">Гость 1</div>
-                        <div id="order-items">
-                            <!-- Элементы заказа будут добавляться сюда -->
-                        </div>
-                    </div>
+                </section>
 
-                    <div class="order-footer">
-                        <div class="order-footer-buttons">
-                            <button class="scroll-up">Вверх</button>
-                            <button class="scroll-down">Вниз</button>
-                            <button class="add-guest">+Гость</button>
-                        </div>
-                    </div>
-                </div>
+                <section class="category">
 
-                <div class="menu-area">
-                    <div class="menu-header">
-                        <div>Меню</div>
-                    </div>
+                    <h3 class="category__title">Меню</h3>
 
-                    <div class="menu-body">
-                        <!-- Генерация категорий -->
-                    </div>
-                </div>
+                    <ul class="category__list">
+                        <!-- Здесь генерируются категории -->
+                    </ul>
 
-                <div class="position-area">
-                    <div class="position-header">
-                        <div>Категория</div>
-                    </div>
+                </section>
 
-                    <div class="position-body">
-                        <!-- Генерация продуктов -->
-                    </div>
-                </div>
-            </div>
-            <div class="footer-container">
-                <div class="order-payment">
-                    <button>Оплата</button>
-                </div>
-                <div class="menu-footer">
-                    <div><button>Скидка</button></div>
-                    <div><button>Код</button></div>
-                </div>
-                <div class="position-footer">
-                    <button>Сохранить</button>
-                </div>
-            </div>
+                <section class="menu">
+                    <h3 class="menu__title">Горячее</h3>
+
+                    <ul class="menu__list">
+
+                        <!-- <li class="menu__item">
+                            <button class="menu__button">
+                                <p id="product">Крылышки барбекю</p>
+                                <span id="price">319 ₽</span>
+                            </button>
+                        </li> -->
+
+                    </ul>
+                </section>
+
+            </main>
+
+            <footer class="footer">
+                <ul class="footer__list">
+                    <li class="footer__item">
+                        <a class="footer__payment" href="#">Оплата</a>
+                    </li>
+                    <li class="footer__item">
+                        <button class="footer__discount">Скидки</button>
+                    </li>
+                    <li class="footer__item">
+                        <button class="footer__code">Код</button>
+                    </li>
+                    <li class="footer__item">
+                        <button class="footer__save">Сохранить заказ</button>
+                    </li>
+                </ul>
+            </footer>
+
         </div>
-        <script src="./static/index/navbar.js"></script>
-        <script src="./static/index/index.js"></script>
-    </body>
+    </div>
+    <script src="../static/index/timer.js"></script>
+    <script src="../static/index/category.js"></script>
+    <script src="../static/index/product.js"></script>
+    <script src="../static/index/script.js"></script>
+</body>
+
+
+
 </html>

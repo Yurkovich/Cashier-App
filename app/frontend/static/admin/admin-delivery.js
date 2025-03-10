@@ -121,6 +121,7 @@ function resetForm() {
 }
 
 function resetInputs() {
+    barcodeInput = '';
     nameInput.value = '';
     quantityInput.value = '';
     categorySelect.value = 0;
