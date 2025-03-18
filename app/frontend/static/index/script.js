@@ -3,17 +3,16 @@ class OrderManager {
         this.orderData = {};
         this.totalCostElement = document.querySelector(totalCostElementSelector);
         this.orderList = document.querySelector(orderListSelector);
-        this.isEditing = false; // Флаг режима редактирования
-        this.editButton = document.querySelector('.header__edit'); // Кнопка редактирования
+        this.isEditing = false;
+        this.editButton = document.querySelector('.header__edit');
+        this.checkScrollability();
     }
 
-    // Обновление общей стоимости заказа
     updateTotalCost() {
         const totalCost = Object.values(this.orderData).reduce((sum, item) => sum + item.totalCost, 0);
         this.totalCostElement.textContent = `${totalCost} ₽`;
     }
 
-    // Создание элемента заказа
     createOrderItem(productName, quantity, price) {
         const li = document.createElement('li');
         li.className = 'order__item';
@@ -25,11 +24,12 @@ class OrderManager {
         return li;
     }
 
-    // Удаление элемента заказа
     removeOrderItem(li, productName) {
-        delete this.orderData[productName]; // Удаляем данные из объекта
-        li.remove(); // Удаляем элемент из DOM
-        this.updateTotalCost(); // Пересчитываем общую стоимость
+        delete this.orderData[productName];
+        li.remove();
+
+        this.checkScrollability();
+        this.updateTotalCost();
     }
 
     updateOrderItem(li, quantity, totalCost) {
@@ -40,69 +40,104 @@ class OrderManager {
         priceElement.textContent = `${totalCost} ₽`;
     }
 
-    // Добавление функциональности смахивания
+    checkScrollability() {
+        const items = this.orderList.querySelectorAll('.order__item');
+        if (items.length > 9) {
+            this.orderList.classList.add('scrollable');
+        } else {
+            this.orderList.classList.remove('scrollable');
+        }
+    }
+
     enableSwipeToRemove() {
+        this.swipeHandlers = [];
+
         Array.from(this.orderList.children).forEach((item) => {
             let startX = 0;
             let currentX = 0;
 
-            item.addEventListener('mousedown', (e) => {
-                startX = e.clientX; // Начальная позиция курсора
-                item.style.transition = 'none'; // Отключаем анимацию для плавного движения
-            });
+            const handleMouseDown = (e) => {
+                startX = e.clientX;
+                item.style.transition = 'none';
+            };
 
-            item.addEventListener('mousemove', (e) => {
+            const handleMouseMove = (e) => {
                 if (startX !== 0) {
                     currentX = e.clientX;
-                    const deltaX = currentX - startX; // Разница между текущей и начальной позицией
-                    item.style.transform = `translateX(${deltaX}px)`; // Перемещаем элемент
+                    const deltaX = currentX - startX;
+                    item.style.transform = `translateX(${deltaX}px)`;
                 }
-            });
+            };
 
-            item.addEventListener('mouseup', () => {
+            const handleMouseUp = () => {
                 if (startX !== 0) {
                     const productName = item.querySelector('.order__item-name').textContent.trim();
-                    const threshold = 100; // Пороговое значение для удаления (в пикселях)
+                    const threshold = 100;
                     const deltaX = currentX - startX;
 
                     if (Math.abs(deltaX) > threshold) {
-                        // Если смещение больше порогового значения, удаляем элемент
                         this.removeOrderItem(item, productName);
                     } else {
-                        // Иначе возвращаем элемент на место
                         item.style.transform = 'translateX(0)';
                     }
 
-                    item.style.transition = 'transform 0.3s ease'; // Включаем анимацию
-                    startX = 0; // Сбрасываем начальную позицию
+                    item.style.transition = 'transform 0.3s ease';
+                    startX = 0;
                 }
-            });
+            };
 
-            item.addEventListener('mouseleave', () => {
+            const handleMouseLeave = () => {
                 if (startX !== 0) {
                     item.style.transform = 'translateX(0)';
                     item.style.transition = 'transform 0.3s ease';
                     startX = 0;
                 }
+            };
+
+            item.addEventListener('mousedown', handleMouseDown);
+            item.addEventListener('mousemove', handleMouseMove);
+            item.addEventListener('mouseup', handleMouseUp);
+            item.addEventListener('mouseleave', handleMouseLeave);
+
+            this.swipeHandlers.push({
+                item,
+                handleMouseDown,
+                handleMouseMove,
+                handleMouseUp,
+                handleMouseLeave,
             });
         });
     }
 
-    // Переключение режима редактирования
+    disableSwipeToRemove() {
+        if (this.swipeHandlers) {
+            this.swipeHandlers.forEach(({ item, handleMouseDown, handleMouseMove, handleMouseUp, handleMouseLeave }) => {
+                item.removeEventListener('mousedown', handleMouseDown);
+                item.removeEventListener('mousemove', handleMouseMove);
+                item.removeEventListener('mouseup', handleMouseUp);
+                item.removeEventListener('mouseleave', handleMouseLeave);
+
+                item.style.transition = '';
+                item.style.transform = '';
+            });
+
+            this.swipeHandlers = [];
+        }
+    }
+
     toggleEditMode() {
         this.isEditing = !this.isEditing;
 
         if (this.isEditing) {
-            this.editButton.classList.add('is-active'); // Добавляем класс is-active
-            this.enableSwipeToRemove(); // Включаем функциональность смахивания
+            this.editButton.classList.add('is-active');
+            this.enableSwipeToRemove();
         } else {
-            this.editButton.classList.remove('is-active'); // Удаляем класс is-active
+            this.editButton.classList.remove('is-active');
+            this.disableSwipeToRemove();
         }
     }
 
-    // Инициализация обработчиков событий
     init() {
-        // Обработка кликов по кнопкам добавления товаров
         document.addEventListener('click', (event) => {
             const button = event.target.closest('.menu__button');
             if (button) {
@@ -128,17 +163,17 @@ class OrderManager {
 
                     const newOrderItem = this.createOrderItem(productName, 1, price);
                     this.orderList.prepend(newOrderItem);
+
+                    this.checkScrollability();
                 }
 
                 this.updateTotalCost();
             }
         });
 
-        // Обработка клика по кнопке "Редактировать"
         this.editButton.addEventListener('click', () => this.toggleEditMode());
     }
 }
 
-// Инициализация менеджера заказов
 const orderManager = new OrderManager('#total-cost', '.order__list');
 orderManager.init();

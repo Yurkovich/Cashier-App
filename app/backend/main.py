@@ -8,10 +8,13 @@ from routes.product_router import product_router
 from routes.category_router import category_router
 from routes.warehouse_router import warehouse_router
 
-templates = Jinja2Templates(directory="app/frontend/templates")
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+templates = Jinja2Templates(directory=str(BASE_DIR / "frontend/templates"))
 app = FastAPI()
 
-app.mount("/static", StaticFiles(directory="./app/frontend/static"), name="static")
+app.mount("/static", StaticFiles(directory=str(BASE_DIR / "frontend/static")), name="static")
 
 app.include_router(url_router)
 app.include_router(product_router)
