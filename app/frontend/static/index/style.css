@@ -46,6 +46,7 @@ button, a {
     margin: 0 auto;
     padding: 15px;
     
+    position: relative;
 }
 
 .wrapper {
@@ -64,12 +65,6 @@ button, a {
 }
 
 
-.header__button svg,
-.header__button path {
-    max-width: 24px;
-    max-height: 24px;
-    fill: var(--white);
-}
 
 .is-active {
     background-color: rgb(11, 208, 143);
@@ -78,6 +73,27 @@ button, a {
 
 .is-active:hover {
     background-color: rgb(10, 160, 110)!important;
+}
+
+.modal {
+    display: none;
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal img {
+    max-width: 25vw;
+}
+
+.modal--show {
+    display: block;
 }
 
 
@@ -122,6 +138,13 @@ button, a {
     align-items: center;
     justify-content: space-between;
     padding: 0 var(--large-gap);
+}
+
+.header__button svg,
+.header__button path {
+    max-width: 24px;
+    max-height: 24px;
+    fill: var(--white);
 }
 
 
@@ -340,7 +363,8 @@ button, a {
 .menu__button {
     display: flex;
     flex-direction: column;
-    gap: var(--large-gap);
+    /* gap: var(--large-gap); */
+    justify-content: space-around;
     
     transition: background-color 0.3s ease;
 }
@@ -390,6 +414,8 @@ button, a {
 
 .footer__payment {
     background-color: rgb(11, 208, 143);
+    display: flex;
+    gap: var(--large-gap);
 }
 
 .footer__payment:hover {
@@ -430,5 +456,23 @@ button, a {
     .order__list.scrollable {
         overflow-y: auto;
         max-height: 540px;
+    }
+}
+
+@media (max-width: 770px) {
+    body {
+        font-size: 12px;
+    }
+}
+
+@media (max-height: 460px) {
+    body {
+        font-size: 10px;
+    }
+}
+
+@media (max-height: 460px) {
+    .order__list {
+        grid-template-rows: none;
     }
 }

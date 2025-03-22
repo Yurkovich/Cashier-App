@@ -2,6 +2,7 @@ class OrderManager {
     constructor(totalCostElementSelector, orderListSelector) {
         this.orderData = {};
         this.totalCostElement = document.querySelector(totalCostElementSelector);
+        this.footerPaymentAmountElement = document.querySelector('.footer__payment-amount'); // Новый элемент
         this.orderList = document.querySelector(orderListSelector);
         this.isEditing = false;
         this.editButton = document.querySelector('.header__edit');
@@ -10,7 +11,11 @@ class OrderManager {
 
     updateTotalCost() {
         const totalCost = Object.values(this.orderData).reduce((sum, item) => sum + item.totalCost, 0);
+
         this.totalCostElement.textContent = `${totalCost} ₽`;
+        if (this.footerPaymentAmountElement) {
+            this.footerPaymentAmountElement.textContent = `${totalCost} ₽`;
+        }
     }
 
     createOrderItem(productName, quantity, price) {

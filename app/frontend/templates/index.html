@@ -4,12 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../static/favicon.ico" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
         rel="stylesheet">
     <link href="../static/index/reset.css" rel="stylesheet">
     <link href="../static/index/style.css" rel="stylesheet">
+    <link href="../static/index/adaptive.css" rel="stylesheet" >
     <title>Cashier App</title>
 </head>
 
@@ -19,7 +21,7 @@
             <header class="header">
                 <ul class="header__list">
                     <li class="header__item">
-                        <a class="header__link" href="#">
+                        <a class="header__link" href="/admin">
                             Назад
                         </a>
                     </li>
@@ -157,7 +159,10 @@
             <footer class="footer">
                 <ul class="footer__list">
                     <li class="footer__item">
-                        <a class="footer__payment" href="#">Оплата</a>
+                        <a class="footer__payment" href="#">
+                            <p>Оплата</p>
+                            <span class="footer__payment-amount">0 ₽</span>
+                        </a>
                     </li>
                     <li class="footer__item">
                         <button class="footer__discount">Скидки</button>
@@ -171,11 +176,18 @@
                 </ul>
             </footer>
 
+            <div class="modal">
+                <a href="https://www.tinkoff.ru/rm/r_yKKsiJOHyS.HhaUxpSlnc/f9R4274436">
+                    <img src="../static/img/qr.jpg" alt="QR">
+                </a>
+            </div>
+
         </div>
     </div>
     <script src="../static/index/timer.js"></script>
-    <script src="../static/index/category.js"></script>
+    <script  src="../static/index/category.js"></script>
     <script src="../static/index/product.js"></script>
+    <script src="../static/index/pay.js"></script>
     <script src="../static/index/script.js"></script>
 </body>
 

@@ -1,0 +1,27 @@
+.container {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    height: 100vh;
+    gap: var(--large-gap);
+}
+
+.header {
+    grid-column: 1 / -1;
+}
+
+.main {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: 1fr;
+    gap: var(--large-gap);
+}
+
+.footer {
+    grid-column: 1 / -1;
+}
+
+.order__body {
+    flex: 1;
+    overflow-y: auto;
+}
