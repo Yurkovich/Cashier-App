@@ -1,17 +1,26 @@
 
-from abc import ABC, abstractmethod
 import os
-from typing import Any, Dict, List, Optional
 import aiosqlite
+from abc import ABC, abstractmethod
+from typing import Any, Dict, List, Optional
+
 from dotenv import load_dotenv
+from config import BASE_DIR
 
 from model.warehouse_model import WarehouseModel, WarehouseUpdateModel
 from model.category_model import CategoryChange, CategoryCreate
 from model.product_model import ProductChange, ProductCreate
 
-load_dotenv(dotenv_path='app/backend/config.env')
-db_path = os.getenv('DB_PATH')
 
+dotenv_path = BASE_DIR / "backend" / "config.env"
+if not dotenv_path.exists():
+    raise FileNotFoundError(f"Файл .env не найден по пути: {dotenv_path}")
+load_dotenv(dotenv_path=dotenv_path)
+
+db_path_env = os.getenv('DB_PATH')
+if not db_path_env:
+    raise ValueError("Переменная DB_PATH не найдена в файле .env")
+db_path = BASE_DIR / db_path_env
 
 class DatabaseConnection:
     _instance = None

@@ -2,16 +2,24 @@
 import os
 import sqlite3
 from dotenv import load_dotenv
+from config import BASE_DIR
 
-load_dotenv(dotenv_path='app/backend/config.env')
-db_path = os.getenv('DB_PATH')
+dotenv_path = BASE_DIR / "backend" / "config.env"
+if not dotenv_path.exists():
+    raise FileNotFoundError(f"Файл .env не найден по пути: {dotenv_path}")
+load_dotenv(dotenv_path=dotenv_path)
+
+db_path_env = os.getenv('DB_PATH')
+if not db_path_env:
+    raise ValueError("Переменная DB_PATH не найдена в файле .env")
+db_path = BASE_DIR / db_path_env
 
 class Database:
     def __init__(self) -> None:
         pass
     
     def get_connection(self):
-        return sqlite3.connect(db_path)
+        return sqlite3.connect(str(db_path))
 
     def create_table(self):
         conn = self.get_connection()
