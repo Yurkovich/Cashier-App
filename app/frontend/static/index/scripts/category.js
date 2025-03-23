@@ -1,3 +1,4 @@
+
 async function fetchCategories() {
     try {
         const response = await fetch('/api/categories');
@@ -15,6 +16,8 @@ async function fetchCategories() {
 let categoryHistory = [];
 let currentCategories = [];
 let currentPage = 0;
+
+const menuTitleElement = document.querySelector('.menu__title');
 
 function getAllCategoryIds(category) {
     let ids = [category.id];
@@ -35,6 +38,13 @@ function createCategoryList(categories, parentElement) {
 
     parentElement.innerHTML = '';
 
+    if (categoryHistory.length === 0) {
+        menuTitleElement.textContent = 'Все товары';
+    } else {
+        const currentCategoryName = categoryHistory[categoryHistory.length - 1]?.categories?.[0]?.name || 'Все товары';
+        menuTitleElement.textContent = currentCategoryName;
+    }
+
     if (categoryHistory.length > 0 || currentPage > 0) {
         const backButton = document.createElement('button');
         backButton.className = 'category__back-button';
@@ -53,18 +63,21 @@ function createCategoryList(categories, parentElement) {
                 const previousState = categoryHistory.pop();
                 currentPage = previousState?.currentPage || 0;
                 createCategoryList(previousState?.categories || currentCategories, parentElement);
-        
+
                 if (categoryHistory.length === 1) {
                     const categoryIds = JSON.parse(categoryHistory[0].dataCategory);
                     const filteredProducts = filterProductsByCategories(allProducts, categoryIds);
                     generateProductList(filteredProducts);
-                }
-                else if (categoryHistory.length === 0) {
+                } else if (categoryHistory.length === 0) {
                     generateProductList(allProducts);
                 }
+
+                menuTitleElement.textContent = categoryHistory.length > 0
+                    ? categoryHistory[categoryHistory.length - 1]?.categories?.[0]?.name || 'Все товары'
+                    : 'Все товары';
             }
         });
-        
+
         const backItem = document.createElement('li');
         backItem.className = 'category__item';
         backItem.appendChild(backButton);
@@ -91,8 +104,8 @@ function createCategoryList(categories, parentElement) {
                 });
                 currentPage = 0;
                 createCategoryList(category.subcategories, parentElement);
-            } else {
-                console.log(`Выбрана категория: ${category.name}`);
+
+                menuTitleElement.textContent = category.name;
             }
         });
 
@@ -121,4 +134,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const categoryList = document.querySelector('.category__list');
     currentCategories = await fetchCategories();
     createCategoryList(currentCategories, categoryList);
+
+    if (menuTitleElement) {
+        menuTitleElement.textContent = 'Все товары';
+    }
 });
