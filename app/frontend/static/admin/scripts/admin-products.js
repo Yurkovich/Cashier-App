@@ -5,50 +5,37 @@ class ProductManager {
         this.productAddCategory = document.getElementById("products__add-category");
         this.productAddName = document.getElementById("products__add-name");
         this.productAddCost = document.getElementById("products__add-cost");
-
         this.productUpdateButton = document.getElementById("products__update-button");
         this.productUpdateId = document.getElementById("products__update-id");
         this.productUpdateCategory = document.getElementById("products__update-category");
         this.productUpdateName = document.getElementById("products__update-name");
         this.productUpdateCost = document.getElementById("products__update-cost");
-
         this.productDeleteId = document.getElementById("products__delete-id");
         this.productDeleteButton = document.getElementById("products__delete-button");
-
         this.init();
     }
-
+    
     init() {
         if (this.productAddButton) {
             this.productAddButton.addEventListener("click", () => this.handleAddProduct());
         }
-
         if (this.productUpdateButton) {
             this.productUpdateButton.addEventListener("click", () => this.handleUpdateProduct());
         }
-
         if (this.productDeleteButton) {
             this.productDeleteButton.addEventListener("click", () => this.handleDeleteProduct());
         }
-
         if (this.productUpdateId) {
             this.productUpdateId.addEventListener("input", () => this.trackUpdateProductId());
         }
-
     }
-
+    
     async trackUpdateProductId() {
         const value = this.productUpdateId.value;
-    
         if (value === '') {
-            this.productUpdateName.value = '';
-            this.productUpdateCategory.value = '0';
-            this.productUpdateCost.value = '';
-            this.productUpdateButton.disabled = true;
-            this.productUpdateButton.style.opacity = "0.7";
+            this.resetUpdateForm();
             return;
         }
-    
         try {
             const data = await this.getProductById(value);
             if (data) {
@@ -69,7 +56,7 @@ class ProductManager {
             console.error('Ошибка при получении товара:', error);
         }
     }
-
+    
     async getProductById(productId) {
         try {
             const response = await fetch(`/api/products/${productId}`);
@@ -100,71 +87,66 @@ class ProductManager {
                 </tbody>
             </table>
         `;
-    
-        fetch('/api/all_products')
-            .then(response => response.json())
-            .then(data => {
-                const tbody = document.getElementById('product-table-body');
-    
+        try {
+            const [productsResponse, categoriesResponse] = await Promise.all([
+                fetch('/api/all_products'),
                 fetch('/api/categories')
-                    .then(response => response.json())
-                    .then(categories => {
-                        const categoryMap = new Map();
-    
-                        function addCategoriesToMap(categories) {
-                            categories.forEach(category => {
-                                categoryMap.set(category.id, category.name);
-                                if (category.subcategories && category.subcategories.length > 0) {
-                                    addCategoriesToMap(category.subcategories);
-                                }
-                            });
-                        }
-    
-                        addCategoriesToMap(categories);
-    
-                        data.forEach(product => {
-                            const categoryName = categoryMap.get(product.category_id) || 'Неизвестно';
-    
-                            const row = document.createElement('tr');
-                            row.innerHTML = `
-                                <td>${product.id}</td>
-                                <td>${product.name}</td>
-                                <td>${categoryName}</td>
-                                <td>${product.cost} ₽</td>
-                            `;
-                            tbody.appendChild(row);
-                        });
-                    })
-                    .catch(error => {
-                        console.error('Error loading categories:', error);
-                    });
-            })
-            .catch(error => {
-                console.error('Error loading products:', error);
+            ]);
+            
+            const products = await productsResponse.json();
+            const categories = await categoriesResponse.json();
+            
+            const categoryMap = new Map();
+            function addCategoriesToMap(categories) {
+                categories.forEach(category => {
+                    categoryMap.set(category.id, category.name);
+                    if (category.subcategories && category.subcategories.length > 0) {
+                        addCategoriesToMap(category.subcategories);
+                    }
+                });
+            }
+            addCategoriesToMap(categories);
+
+            const tbody = document.getElementById('product-table-body');
+            products.forEach(product => {
+                const categoryName = categoryMap.get(product.category_id) || 'Неизвестно';
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${product.id}</td>
+                    <td>${product.name}</td>
+                    <td>${categoryName}</td>
+                    <td>${product.cost} ₽</td>
+                `;
+                tbody.appendChild(row);
             });
+        } catch(error) {
+            console.error('Ошибка при загрузке данных для таблицы:', error);
+        }
     }
 
     async handleAddProduct() {
         const category = this.productAddCategory.value;
         const name = this.productAddName.value.trim();
         const cost = parseFloat(this.productAddCost.value);
-
         if (!this.validateFields(name, cost, category)) {
             alert("Пожалуйста, заполните все поля корректно.");
             return;
         }
-
         const data = {
             category_id: category,
             name: name,
             cost: cost
         };
-
         try {
             const response = await this.addProduct(data);
             if (response.ok) {
                 this.resetAddForm();
-                generateProductTable(document.querySelector(".table__product"));
+                const productTableContainer = document.querySelector(".table__product");
+                if (productTableContainer) {
+                    await this.generateProductTable(productTableContainer);
+                } else {
+                    console.warn("Контейнер таблицы продуктов не найден");
+                }
             } else {
                 throw new Error(`Ошибка: ${response.status}`);
             }
@@ -183,24 +165,26 @@ class ProductManager {
         const name = this.productUpdateName.value.trim();
         const category = this.productUpdateCategory.value;
         const cost = parseFloat(this.productUpdateCost.value.trim());
-
         if (!this.validateFields(name, cost, category)) {
             alert("Пожалуйста, заполните все поля корректно.");
             return;
         }
-
         const data = {
             id: id,
             name: name,
             category_id: category,
             cost: cost
         };
-
         try {
             const response = await this.updateProduct(data);
             if (response.ok) {
                 this.resetUpdateForm();
-                generateProductTable(document.querySelector(".table__product"));
+                const productTableContainer = document.querySelector(".table__product");
+                if (productTableContainer) {
+                    await this.generateProductTable(productTableContainer);
+                } else {
+                    console.warn("Контейнер таблицы продуктов не найден");
+                }
             } else {
                 throw new Error(`Ошибка: ${response.status}`);
             }
@@ -212,16 +196,19 @@ class ProductManager {
 
     async handleDeleteProduct() {
         const id = this.productDeleteId.value.trim();
-
         const data = {
             id: id,
         };
-
         try {
             const response = await this.deleteProduct(data);
             if (response.ok) {
                 this.resetDeleteForm();
-                generateProductTable(document.querySelector(".table__product"));
+                const productTableContainer = document.querySelector(".table__product");
+                if (productTableContainer) {
+                    await this.generateProductTable(productTableContainer);
+                } else {
+                    console.warn("Контейнер таблицы продуктов не найден");
+                }
             } else {
                 throw new Error(`Ошибка: ${response.status}`);
             }
@@ -239,7 +226,6 @@ class ProductManager {
             },
             body: JSON.stringify(data)
         });
-
         return response;
     }
 
