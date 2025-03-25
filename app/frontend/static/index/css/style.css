@@ -64,8 +64,6 @@ button, a {
     gap: var(--large-gap)
 }
 
-
-
 .is-active {
     background-color: rgb(11, 208, 143);
     transition: background-color .3s ease;
@@ -76,16 +74,19 @@ button, a {
 }
 
 .modal {
-    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    background: #00000071;
+    padding: 15px;
 
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    opacity: 0;
+    visibility: hidden;
+    transition: all .3s;
 }
 
 .modal img {
@@ -93,9 +94,40 @@ button, a {
 }
 
 .modal--show {
-    display: block;
+    visibility: visible;
+    opacity: 1;
 }
 
+.modal__window {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 1;
+
+    position: relative;
+    background: var(--dark-gray);
+    border-radius: var(--border-radius);
+    padding: 20px 15px;
+    gap: var(--large-gap);
+
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal__window button {
+    padding: 10px 8px;
+    border-radius: var(--border-radius);
+    transition: background-color .3s ease;
+}
+
+.modal__window button:hover {
+    background-color: var(--hover);
+}
+
+.modal__buttons {
+    display: flex;
+    flex-direction: column;
+    gap: var(--large-gap);
+}
 
 /* =================================== */
 /* =================================== */

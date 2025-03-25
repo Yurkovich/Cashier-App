@@ -4,6 +4,7 @@ class OrderManager {
         this.orderData = {};
         this.totalCostElement = document.querySelector(totalCostElementSelector);
         this.footerPaymentAmountElement = document.querySelector('.footer__payment-amount');
+        this.calculatorTotalCostElement = document.querySelector('.calculator__total-cost');
         this.orderList = document.querySelector(orderListSelector);
         this.isEditing = false;
         this.editButton = document.querySelector('.header__edit');
@@ -16,6 +17,9 @@ class OrderManager {
         this.totalCostElement.textContent = `${totalCost} ₽`;
         if (this.footerPaymentAmountElement) {
             this.footerPaymentAmountElement.textContent = `${totalCost} ₽`;
+        }
+        if (this.calculatorTotalCostElement) {
+            this.calculatorTotalCostElement.textContent = `${totalCost} ₽`;
         }
     }
 
@@ -242,7 +246,6 @@ class OrderPaginationManager {
     saveOrder() {
         const { items, totalCost } = this.collectOrderData();
 
-        // Находим максимальный ID в текущем массиве заказов
         const maxId = this.orders.reduce((max, order) => Math.max(max, order.id), 0);
         const orderId = maxId + 1;
 

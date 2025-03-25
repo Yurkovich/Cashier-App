@@ -1,10 +1,5 @@
+
 const button = document.querySelector('.header__button');
-
-button.addEventListener('click', () => {
-console.log('Hello');
-    });
-
-    
 
 function updateTime() {
     const now = new Date();

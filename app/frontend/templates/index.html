@@ -12,6 +12,7 @@
     <link href="../static/index/css/reset.css" rel="stylesheet">
     <link href="../static/index/css/style.css" rel="stylesheet">
     <link href="../static/index/css/adaptive.css" rel="stylesheet" >
+    <link href="../static/index/css/calculator.css" rel="stylesheet" >
     <title>Cashier App</title>
 </head>
 
@@ -177,14 +178,77 @@
             </footer>
 
             <div class="modal">
-                <a href="https://www.tinkoff.ru/rm/r_yKKsiJOHyS.HhaUxpSlnc/f9R4274436">
-                    <img src="../static/img/qr.jpg" alt="QR">
-                </a>
+                <div class="modal__window">
+                    <div class="modal__buttons">
+                        <button class="modal__cash">Наличные</button>
+                        <button class="modal__noncash">Безналичная оплата</button>
+                        <button class="modal__sbp">СБП</button>
+                    </div>
+                    <div class="calculator">
+                        <div class="calculator__info">
+                            <p>К оплате: <span class="calculator__total-cost">0 ₽</span></p>
+                            <p>Cдача: <span class="calculator__change">0 ₽</span></p>
+                        </div>
+                        <div class="calculator__field">
+                            <input type="text" placeholder="0">
+                        </div>
+                        <div class="calculator__functions-1">
+                            <button data-action="clear">C</button>
+                            <button data-action="divide">÷</button>
+                            <button data-action="multiply">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-x"
+                                    viewBox="0 0 16 16">
+                                    <path
+                                        d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
+                                </svg>
+                            </button>
+                            <button data-action="erase">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor"
+                                    class="bi bi-eraser-fill" viewBox="0 0 16 16">
+                                    <path
+                                        d="M8.086 2.207a2 2 0 0 1 2.828 0l3.879 3.879a2 2 0 0 1 0 2.828l-5.5 5.5A2 2 0 0 1 7.879 15H5.12a2 2 0 0 1-1.414-.586l-2.5-2.5a2 2 0 0 1 0-2.828l6.879-6.879zm.66 11.34L3.453 8.254 1.914 9.793a1 1 0 0 0 0 1.414l2.5 2.5a1 1 0 0 0 .707.293H7.88a1 1 0 0 0 .707-.293l.16-.16z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="calculator__numbers">
+                            <button data-action="number">9</button>
+                            <button data-action="number">8</button>
+                            <button data-action="number">7</button>
+                            <button data-action="number">6</button>
+                            <button data-action="number">5</button>
+                            <button data-action="number">4</button>
+                            <button data-action="number">3</button>
+                            <button data-action="number">2</button>
+                            <button data-action="number">1</button>
+                            <button class="calculator__numbers-0" data-action="number">0</button>
+                        </div>
+                        <div class="calculator__functions-2">
+                            <button data-action="subtract">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor"
+                                    class="bi bi-dash" viewBox="0 0 16 16">
+                                    <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z" />
+                                </svg>
+                            </button>
+                            <button data-action="add">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor"
+                                    class="bi bi-plus" viewBox="0 0 16 16">
+                                    <path
+                                        d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                                </svg>
+                            </button>
+                            <button class="calculator__result" data-action="calculate">=</button>
+                        </div>
+                        <div class="calculator__payment">
+                            <button class="calculator__payment-button" data-action="pay">Оплачен</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </div>
     </div>
     <script src="../static/index/scripts/timer.js"></script>
+    <script src="../static/index/scripts/calculator.js"></script>
     <script  src="../static/index/scripts/category.js"></script>
     <script src="../static/index/scripts/product.js"></script>
     <script src="../static/index/scripts/pay.js"></script>
