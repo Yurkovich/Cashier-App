@@ -173,8 +173,6 @@ python app/backend/main.py
 ## API
 ### Эндпоинты для админ-панели
 
-## API
-
 ### **1. Product (Товары)**
 
 | Метод   | URL                          | Описание                                      |
