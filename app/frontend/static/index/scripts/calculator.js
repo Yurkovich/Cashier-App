@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     alert('Ошибка в выражении');
                 }
             } else if (action === 'pay') {
-                alert(`Оплачено: ${currentInput}`);
+                closeModal();
             }
 
             updateDisplay();
@@ -63,6 +63,30 @@ document.addEventListener('DOMContentLoaded', () => {
             .replace(/÷/g, '/');
         return eval(formattedExpression);
     }
+
+    calculatorField.addEventListener('keydown', (event) => {
+        const key = event.key;
+
+        if (/^[0-9.,]$/.test(key) || ['Backspace', 'Delete', 'Enter'].includes(key)) {
+            event.preventDefault();
+
+            if (/^[0-9]$/.test(key)) {
+                currentInput += key;
+            } else if (key === '.' || key === ',') {
+                if (!currentInput.includes('.')) {
+                    currentInput += '.';
+                }
+            } else if (key === 'Backspace' || key === 'Delete') {
+                currentInput = currentInput.slice(0, -1);
+            } else if (key === 'Enter') {
+
+            }
+
+            updateDisplay();
+        } else {
+            event.preventDefault();
+        }
+    });
 
     const modal = document.querySelector('.modal');
     const openButton = document.querySelector('.footer__payment');

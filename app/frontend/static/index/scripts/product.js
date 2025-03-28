@@ -19,8 +19,9 @@ async function fetchProducts() {
 
 function generateProductList(products) {
     const menuList = document.querySelector('.menu__list');
-    
     menuList.innerHTML = '';
+
+    const productsToDisplay = pageNumber > 1 ? productsPerPage - 1 : productsPerPage;
 
     if (pageNumber > 1) {
         const backButtonItem = document.createElement('li');
@@ -40,7 +41,7 @@ function generateProductList(products) {
     }
 
     const startIndex = (pageNumber - 1) * productsPerPage;
-    const endIndex = startIndex + productsPerPage;
+    const endIndex = startIndex + productsToDisplay;
     const currentProducts = products.slice(startIndex, endIndex);
 
     currentProducts.forEach(product => {
@@ -62,7 +63,6 @@ function generateProductList(products) {
         button.appendChild(productPrice);
 
         li.appendChild(button);
-
         menuList.appendChild(li);
     });
 
@@ -98,16 +98,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     categoryList.addEventListener('click', (event) => {
         const button = event.target.closest('.category__button');
         if (!button) return;
-    
+
         pageNumber = 1;
 
         if (button.textContent.trim() === 'Назад') {
-            if (categoryHistory.length === 0) {
-                generateProductList(allProducts);
-            }
+            generateProductList(allProducts);
             return;
         }
-    
+
         const categoryIds = JSON.parse(button.dataset.category);
         const filteredProducts = filterProductsByCategories(allProducts, categoryIds);
         generateProductList(filteredProducts);

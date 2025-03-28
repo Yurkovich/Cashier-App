@@ -153,21 +153,33 @@ class OrderManager {
 
     init() {
         document.addEventListener('click', (event) => {
+            // Проверяем, является ли целевой элемент или его родитель кнопкой пагинации
+            const isPaginationButton = event.target.closest('.order__prev, .order__next');
+            if (isPaginationButton) {
+                return; // Прекращаем выполнение обработчика для кнопок пагинации
+            }
+    
             const button = event.target.closest('.menu__button');
             if (button) {
                 const productName = button.querySelector('#product')?.textContent.trim();
-                const priceText = button.querySelector('#price')?.textContent.trim();
+                const priceElement = button.querySelector('#price');
+                const priceText = priceElement?.textContent?.trim();
+                if (!priceText) {
+                    console.error('Цена не найдена для товара:', productName);
+                    return;
+                }
                 const price = parseInt(priceText.replace(' ₽', ''), 10);
-
+                if (isNaN(price)) {
+                    console.error('Некорректная цена:', priceText);
+                    return;
+                }
                 if (productName && price) {
                     if (this.orderData[productName]) {
                         this.orderData[productName].quantity += 1;
                         this.orderData[productName].totalCost = this.orderData[productName].quantity * price;
-
                         const existingItem = Array.from(this.orderList.children).find(
                             (item) => item.querySelector('.order__item-name')?.textContent === productName
                         );
-
                         if (existingItem) {
                             this.updateOrderItem(existingItem, this.orderData[productName].quantity, this.orderData[productName].totalCost);
                         }
@@ -177,18 +189,14 @@ class OrderManager {
                             price: price,
                             totalCost: price,
                         };
-
                         const newOrderItem = this.createOrderItem(productName, 1, price);
                         this.orderList.prepend(newOrderItem);
-
                         this.checkScrollability();
                     }
-
                     this.updateTotalCost();
                 }
             }
         });
-
         this.editButton.addEventListener('click', () => this.toggleEditMode());
     }
 

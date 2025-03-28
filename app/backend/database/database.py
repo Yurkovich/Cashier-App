@@ -52,3 +52,21 @@ class Database:
                             ''')
         finally:
             conn.close()
+
+    def reset_table(self, table_name):
+        conn = self.get_connection()
+        try:
+            cursor = conn.cursor()
+
+            cursor.execute(f"DELETE FROM {table_name};")
+
+            cursor.execute(f"DELETE FROM sqlite_sequence WHERE name = '{table_name}';")
+
+            conn.commit()
+        finally:
+            conn.close()
+
+    def reset_all_tables(self):
+        self.reset_table("category")
+        self.reset_table("product")
+        self.reset_table("warehouse")

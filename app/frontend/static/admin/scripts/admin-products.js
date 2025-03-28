@@ -254,7 +254,6 @@ class ProductManager {
     resetAddForm() {
         this.productAddName.value = "";
         this.productAddCost.value = "";
-        this.productAddCategory.value = "0";
     }
 
     resetUpdateForm() {
