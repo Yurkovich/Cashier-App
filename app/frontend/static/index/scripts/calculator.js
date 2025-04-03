@@ -124,10 +124,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    cashButton.addEventListener('click', () => {
-        calculator.style.display = 'grid';
-    });
-
     openButton.addEventListener('click', openModal);
 
     updateDisplay();

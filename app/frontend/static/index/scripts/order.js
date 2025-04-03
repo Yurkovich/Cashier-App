@@ -153,10 +153,9 @@ class OrderManager {
 
     init() {
         document.addEventListener('click', (event) => {
-            // Проверяем, является ли целевой элемент или его родитель кнопкой пагинации
             const isPaginationButton = event.target.closest('.order__prev, .order__next');
             if (isPaginationButton) {
-                return; // Прекращаем выполнение обработчика для кнопок пагинации
+                return;
             }
     
             const button = event.target.closest('.menu__button');

@@ -10,6 +10,7 @@ from config import BASE_DIR
 from model.warehouse_model import WarehouseModel, WarehouseUpdateModel
 from model.category_model import CategoryChange, CategoryCreate
 from model.product_model import ProductChange, ProductCreate
+from model.discount_model import DiscountCodeModel, DiscountSpecialModel
 
 
 dotenv_path = BASE_DIR / "backend" / "config.env"
@@ -469,3 +470,117 @@ class Warehouse(Model):
                     row
                 )) for row in results
             ]
+
+
+class DiscountCode(Model, ABC):
+    def __init__(self, code: str, percent: int, quantity: int) -> None:
+        self.code = code
+        self.percent = percent
+        self.quantity = quantity
+
+    @staticmethod
+    async def add(discount_data: DiscountCodeModel) -> None:
+        connection = await DatabaseConnection().connect()
+        async with connection.cursor() as cursor:
+            await cursor.execute(
+                "INSERT INTO discount_code (code, percent, quantity) VALUES (?, ?, ?)",
+                (discount_data.code, discount_data.percent, discount_data.quantity)
+            )
+            await connection.commit()
+
+    @staticmethod
+    async def all() -> List[dict]:
+        connection = await DatabaseConnection().connect()
+        async with connection.cursor() as cursor:
+            await cursor.execute(
+                "SELECT id, code, percent, quantity FROM discount_code"
+            )
+            results = await cursor.fetchall()
+            return [
+                {
+                    "id": row[0],
+                    "code": row[1],
+                    "percent": row[2],
+                    "quantity": row[3]
+                }
+                for row in results
+            ]
+
+    @staticmethod
+    async def update(discount_data: DiscountCodeModel) -> None:
+        connection = await DatabaseConnection().connect()
+        async with connection.cursor() as cursor:
+            await cursor.execute(
+                '''UPDATE discount_code
+                   SET code = ?, percent = ?, quantity = ?
+                   WHERE id = ?''',
+                (discount_data.code, discount_data.percent, discount_data.quantity, discount_data.id)
+            )
+            await connection.commit()
+
+    @staticmethod
+    async def delete(discount_id: int) -> bool:
+        connection = await DatabaseConnection().connect()
+        async with connection.cursor() as cursor:
+            await cursor.execute(
+                "DELETE FROM discount_code WHERE id = ?",
+                (discount_id,)
+            )
+            await connection.commit()
+            return cursor.rowcount > 0
+        
+
+class DiscountSpecial(Model, ABC):
+    def __init__(self, name: str, percent: int) -> None:
+        self.name = name
+        self.percent = percent
+
+    @staticmethod
+    async def add(special_data: DiscountSpecialModel) -> None:
+        connection = await DatabaseConnection().connect()
+        async with connection.cursor() as cursor:
+            await cursor.execute(
+                "INSERT INTO discount_special (name, percent) VALUES (?, ?)",
+                (special_data.name, special_data.percent)
+            )
+            await connection.commit()
+
+    @staticmethod
+    async def all() -> List[Dict]:
+        connection = await DatabaseConnection().connect()
+        async with connection.cursor() as cursor:
+            await cursor.execute(
+                "SELECT id, name, percent FROM discount_special"
+            )
+            results = await cursor.fetchall()
+            return [
+                {
+                    "id": row[0],
+                    "name": row[1],
+                    "percent": row[2]
+                }
+                for row in results
+            ]
+
+    @staticmethod
+    async def update(special_data: DiscountSpecialModel) -> None:
+        connection = await DatabaseConnection().connect()
+        async with connection.cursor() as cursor:
+            await cursor.execute(
+                '''UPDATE discount_special
+                   SET name = ?, percent = ?
+                   WHERE id = ?''',
+                (special_data.name, special_data.percent, special_data.id)
+            )
+            await connection.commit()
+
+    @staticmethod
+    async def delete(special_id: int) -> bool:
+        connection = await DatabaseConnection().connect()
+        async with connection.cursor() as cursor:
+            await cursor.execute(
+                "DELETE FROM discount_special WHERE id = ?",
+                (special_id,)
+            )
+            await connection.commit()
+            return cursor.rowcount > 0

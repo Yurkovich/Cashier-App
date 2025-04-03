@@ -36,6 +36,9 @@
                         <button class="nav__button nav__button--category">Категории</button>
                     </li>
                     <li class="nav__item">
+                        <button class="nav__button nav__button--discount">Скидки</button>
+                    </li>
+                    <li class="nav__item">
                         <button class="nav__button nav__button--warehouse">Склад</button>
                     </li>
                     <li class="nav__item">
@@ -56,6 +59,9 @@
             </div>
             <div class="table__category">
                 <!-- Здесь будет генерироваться таблица с категориями -->
+            </div>
+            <div class="table__discount">
+                <!-- Здесь будут генерироваться таблицы со скидками -->
             </div>
             <div class="table__warehouse">
                 <!-- Здесь будет генерироваться таблица со складом -->
@@ -264,6 +270,111 @@
                 </ul>
 
             </div>
+
+            <div class="discount">
+
+                <ul class="control__list">
+                    <li class="control__item">
+                        <h3>Добавить скидку</h3>
+                    </li>
+                    <li class="control__item">
+                        <select id="discount__add-type" name="discount__add-type">
+                            <option value="">Выберите тип скидки</option>
+                            <option value="promo">Промокод</option>
+                            <option value="special">Специальная скидка</option>
+                        </select>
+                    </li>
+
+                    <li class="control__item promo-fields">
+                        <input type="text" id="discount__add-code" name="discount__add-code"
+                            placeholder="Код промокода">
+                    </li>
+                    <li class="control__item promo-fields">
+                        <input type="number" id="discount__add-percent" name="discount__add-percent"
+                            placeholder="Процент скидки">
+                    </li>
+                    <li class="control__item promo-fields">
+                        <input type="number" id="discount__add-quantity" name="discount__add-quantity"
+                            placeholder="Количество использований">
+                    </li>
+
+                    <li class="control__item special-fields">
+                        <input type="text" id="discount__add-name" name="discount__add-name"
+                            placeholder="Название специальной скидки">
+                    </li>
+                    <li class="control__item special-fields">
+                        <input type="number" id="discount__add-special-percent" name="discount__add-special-percent"
+                            placeholder="Процент скидки">
+                    </li>
+
+                    <li class="control__item">
+                        <button id="discount__add-button" disabled>Добавить</button>
+                    </li>
+                </ul>
+
+                <ul class="control__list">
+                    <li class="control__item">
+                        <h3>Обновить скидку</h3>
+                    </li>
+                    <li class="control__item">
+                        <select id="discount__update-type" name="discount__update-type">
+                            <option value="">Выберите тип скидки</option>
+                            <option value="promo">Промокод</option>
+                            <option value="special">Специальная скидка</option>
+                        </select>
+                    </li>
+                    <li class="control__item">
+                        <input type="number" id="discount__update-id" name="discount__update-id" placeholder="ID">
+                    </li>
+                    
+                    <li class="control__item promo-update-fields">
+                        <input type="text" id="discount__update-code" name="discount__update-code"
+                            placeholder="Код промокода">
+                    </li>
+                    <li class="control__item promo-update-fields">
+                        <input type="number" id="discount__update-percent" name="discount__update-percent"
+                            placeholder="Процент скидки">
+                    </li>
+                    <li class="control__item promo-update-fields">
+                        <input type="number" id="discount__update-quantity" name="discount__update-quantity"
+                            placeholder="Количество использований">
+                    </li>
+
+                    <li class="control__item special-update-fields">
+                        <input type="text" id="discount__update-name" name="discount__update-name"
+                            placeholder="Название специальной скидки">
+                    </li>
+                    <li class="control__item special-update-fields">
+                        <input type="number" id="discount__update-special-percent"
+                            name="discount__update-special-percent" placeholder="Процент скидки">
+                    </li>
+
+                    <li class="control__item">
+                        <button id="discount__update-button" disabled>Изменить</button>
+                    </li>
+                </ul>
+
+                <ul class="control__list">
+                    <li class="control__item">
+                        <h3>Удалить скидку</h3>
+                    </li>
+                    <li class="control__item">
+                        <select id="discount__delete-type" name="discount__delete-type">
+                            <option value="">Выберите тип скидки</option>
+                            <option value="promo">Промокод</option>
+                            <option value="special">Специальная скидка</option>
+                        </select>
+                    </li>
+                    <li class="control__item">
+                        <input type="number" id="discount__delete-id" placeholder="ID">
+                    </li>
+                    <li class="control__item">
+                        <button id="discount__delete-button" disabled>Удалить</button>
+                    </li>
+                </ul>
+
+            </div>
+
         </div>
 
         <div class="delivery__modal">
@@ -301,6 +412,7 @@
     <script type="module" src="../static/admin/scripts/admin-products.js"></script>
     <script type="module" src="../static/admin/scripts/admin-warehouse.js"></script>
     <script type="module" src="../static/admin/scripts/admin-delivery.js"></script>
+    <script type="module" src="../static/admin/scripts/admin-discount.js"></script>
 
 
 </body>

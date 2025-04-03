@@ -1,0 +1,23 @@
+
+.discount-code__body {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    align-items: center;
+    justify-content: center;
+}
+
+.discount-code__button {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.discount-code__button.selected {
+    background-color: green;
+    color: white;
+}
+
+.discount-code__button.selected:hover {
+    background-color: rgb(1, 146, 1);
+}

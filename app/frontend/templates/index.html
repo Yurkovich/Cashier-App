@@ -13,6 +13,7 @@
     <link href="../static/index/css/style.css" rel="stylesheet">
     <link href="../static/index/css/adaptive.css" rel="stylesheet" >
     <link href="../static/index/css/calculator.css" rel="stylesheet" >
+    <link href="../static/index/css/discount.css" rel="stylesheet" >
     <title>Cashier App</title>
 </head>
 
@@ -169,7 +170,7 @@
                         <button class="footer__discount">Скидки</button>
                     </li>
                     <li class="footer__item">
-                        <button class="footer__code">Код</button>
+                        <button class="footer__code">Промокод</button>
                     </li>
                     <li class="footer__item">
                         <button class="footer__save">Сохранить заказ</button>
@@ -245,15 +246,26 @@
                 </div>
             </div>
 
+            <div class="discount-code__modal modal">
+                <div class="discount-code__window modal__window">
+                    <div class="discount-code__body">
+                        <!-- Генерация кнопок со скидками -->
+                    </div>
+                    <button class="discount-code__accept">Применить</button>
+                    <button class="discount-code__decline">Убрать скидку</button>
+                </div>
+            </div>
+
         </div>
     </div>
-    <script src="../static/index/scripts/timer.js"></script>
+    <script src="../static/index/scripts/time.js"></script>
     <script src="../static/index/scripts/calculator.js"></script>
     <script  src="../static/index/scripts/category.js"></script>
     <script src="../static/index/scripts/product.js"></script>
     <script src="../static/index/scripts/pay.js"></script>
     <!-- <script src="../static/index/script.js"></script> -->
     <script src="../static/index/scripts/order.js"></script>
+    <script src="../static/index/scripts/discount.js"></script>
 </body>
 
 

@@ -78,7 +78,8 @@ body {
 
 .table__product,
 .table__warehouse,
-.table__category {
+.table__category,
+.table__discount {
     display: none;
 }
 
@@ -132,7 +133,8 @@ th {
 
 .products,
 .categories,
-.warehouse {
+.warehouse,
+.discount {
     display: none;
 }
 

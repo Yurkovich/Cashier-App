@@ -50,6 +50,19 @@ class Database:
                                     quantity INTEGER NOT NULL,
                                     FOREIGN KEY (category_id) REFERENCES category (id) ON DELETE CASCADE ON UPDATE CASCADE)
                             ''')
+            
+            cursor.execute('''CREATE TABLE IF NOT EXISTS discount_code (
+                                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                    code TEXT NOT NULL,
+                                    percent INTEGER NOT NULL,
+                                    quantity INTEGER NOT NULL);
+                            ''')
+            
+            cursor.execute('''CREATE TABLE IF NOT EXISTS discount_special (
+                                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                    name TEXT NOT NULL,
+                                    percent INTEGER NOT NULL);
+                            ''')
         finally:
             conn.close()
 
