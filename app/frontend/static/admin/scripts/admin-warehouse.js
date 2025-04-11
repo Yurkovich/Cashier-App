@@ -1,3 +1,4 @@
+import { categoryCache } from './category-cache.js';
 
 class WarehouseManager {
     constructor() {
@@ -48,43 +49,34 @@ class WarehouseManager {
 
     async refreshWarehouseTable() {
         const warehouse = await this.fetchWarehouse();
-        this.generateWarehouseTable(warehouse);
+        this.generateWarehouseTable(this.warehouseContainer);
     }
     
-    async generateWarehouseTable(warehouse) {
-        if (!this.warehouseContainer) {
-            console.error('Element with class "table__warehouse" not found');
-            return;
-        }
-    
-        this.warehouseContainer.innerHTML = `
+    async generateWarehouseTable(container) {
+        container.innerHTML = `
             <table>
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Баркод</th>
-                        <th>Название товара</th>
-                        <th>Категория</th>
-                        <th>Закупочная стоимость</th>
-                        <th>Розничная стоимость</th>
-                        <th>Количество</th>
+                        <th data-sort="id" class="sortable">ID <span class="sort-icon">↕</span></th>
+                        <th data-sort="product" class="sortable">Товар <span class="sort-icon">↕</span></th>
+                        <th data-sort="category" class="sortable">Категория <span class="sort-icon">↕</span></th>
+                        <th data-sort="quantity" class="sortable">Количество <span class="sort-icon">↕</span></th>
                     </tr>
                 </thead>
-                <tbody id="warehouse-table-body"></tbody>
+                <tbody id="warehouse-table-body">
+                </tbody>
             </table>
         `;
-    
-        const tbody = document.getElementById('warehouse-table-body');
-        if (!tbody) {
-            console.error('Element with ID "warehouse-table-body" not found');
-            return;
-        }
-    
+
         try {
-            const categoryResponse = await fetch('/api/categories');
-            const categories = await categoryResponse.json();
+            const [productsResponse, categories] = await Promise.all([
+                fetch('/api/products'),
+                categoryCache.getCategories()
+            ]);
+            
+            const products = await productsResponse.json();
+            
             const categoryMap = new Map();
-    
             function addCategoriesToMap(categories) {
                 categories.forEach(category => {
                     categoryMap.set(category.id, category.name);
@@ -93,33 +85,61 @@ class WarehouseManager {
                     }
                 });
             }
-    
             addCategoriesToMap(categories);
-    
-            tbody.innerHTML = '';
-    
-            warehouse.forEach(item => {
-                const row = document.createElement('tr');
-    
-                row.innerHTML = `
-                    <td>${item.id}</td>
-                    <td>${item.barcode || 'Неизвестно'}</td>
-                    <td>${item.name || 'Неизвестно'}</td>
-                    <td>${categoryMap.get(item.category_id) || 'Неизвестно'}</td>
-                    <td>${item.retail_price || 0} ₽</td>
-                    <td>${item.purchasing_price || 0} ₽</td>
-                    <td>${item.quantity || 0} ед.</td>
-                `;
-    
-                tbody.appendChild(row);
+
+            const productsWithCategoryNames = products.map(product => ({
+                ...product,
+                categoryName: categoryMap.get(product.category_id) || 'Неизвестно'
+            }));
+
+            productsWithCategoryNames.sort((a, b) => a.id - b.id);
+
+            const tbody = document.getElementById('warehouse-table-body');
+            this.renderWarehouseRows(tbody, productsWithCategoryNames);
+
+            const sortableHeaders = container.querySelectorAll('th.sortable');
+            sortableHeaders.forEach(header => {
+                header.addEventListener('click', () => {
+                    const sortKey = header.dataset.sort;
+                    const currentOrder = header.querySelector('.sort-icon').textContent;
+                    const newOrder = currentOrder === '↑' ? '↓' : '↑';
+                    
+                    sortableHeaders.forEach(h => h.querySelector('.sort-icon').textContent = '↕');
+                    header.querySelector('.sort-icon').textContent = newOrder;
+                    
+                    productsWithCategoryNames.sort((a, b) => {
+                        const aValue = a[sortKey];
+                        const bValue = b[sortKey];
+                        const modifier = newOrder === '↑' ? 1 : -1;
+                        
+                        if (typeof aValue === 'string') {
+                            return modifier * aValue.localeCompare(bValue);
+                        }
+                        return modifier * (aValue - bValue);
+                    });
+                    
+                    this.renderWarehouseRows(tbody, productsWithCategoryNames);
+                });
             });
         } catch (error) {
-            console.error('Error generating warehouse table:', error);
-            this.warehouseContainer.innerHTML = `<p>Ошибка загрузки данных о складе.</p>`;
+            console.error("Ошибка при загрузке данных:", error);
+            container.innerHTML = '<p>Ошибка при загрузке данных</p>';
         }
     }
-    
-    
+
+    renderWarehouseRows(tbody, products) {
+        tbody.innerHTML = '';
+        products.forEach(product => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${product.id}</td>
+                <td>${product.name}</td>
+                <td>${product.categoryName}</td>
+                <td>${product.quantity || 0}</td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
 
     async trackUpdateId() {
         const value = this.warehouseUpdateId.value;
@@ -301,7 +321,7 @@ class WarehouseManager {
 
     async fetchWarehouse() {
         try {
-            const response = await fetch("/api/all_warehouse");
+            const response = await fetch("/api/warehouse");
             if (!response.ok) {
                 throw new Error(`Ошибка HTTP: ${response.status}`);
             }
@@ -335,9 +355,6 @@ class WarehouseManager {
     resetDeleteForm() {
         this.warehouseDeleteId.value = '';
     }
-
-    // =====================================
-
     
 }
 

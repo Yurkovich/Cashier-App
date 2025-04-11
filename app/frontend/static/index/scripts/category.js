@@ -1,14 +1,20 @@
-
 async function fetchCategories() {
     try {
-        const response = await fetch('/api/categories');
+        const response = await fetch('/api/categories/nested');
         if (!response.ok) {
-            throw new Error('Ошибка при загрузке категорий');
+            throw new Error(`Ошибка при загрузке категорий: ${response.status}`);
         }
         const categories = await response.json();
+        if (!Array.isArray(categories)) {
+            throw new Error('Неверный формат данных категорий');
+        }
         return categories;
     } catch (error) {
-        console.error(error);
+        console.error('Ошибка при загрузке категорий:', error);
+        const categoryList = document.querySelector('.category__list');
+        if (categoryList) {
+            categoryList.innerHTML = '<li class="category__item"><p>Ошибка при загрузке категорий</p></li>';
+        }
         return [];
     }
 }

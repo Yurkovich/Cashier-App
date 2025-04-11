@@ -1,11 +1,10 @@
-
-from config import BASE_DIR
+from app.backend.config import BASE_DIR
 
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
-templates = Jinja2Templates(directory=str(BASE_DIR / "frontend/templates"))
+templates = Jinja2Templates(directory=str(BASE_DIR / "app/frontend/templates"))
 
 url_router = APIRouter(tags=['Read pages'])
 

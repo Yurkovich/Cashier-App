@@ -1,85 +1,41 @@
 
 import os
-import sqlite3
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
 from dotenv import load_dotenv
-from config import BASE_DIR
+from app.backend.config import BASE_DIR
 
-dotenv_path = BASE_DIR / "backend" / "config.env"
+dotenv_path = BASE_DIR / ".env"
 if not dotenv_path.exists():
-    raise FileNotFoundError(f"Файл .env не найден по пути: {dotenv_path}")
+    raise FileNotFoundError(f".env file not found at path: {dotenv_path}")
 load_dotenv(dotenv_path=dotenv_path)
 
-db_path_env = os.getenv('DB_PATH')
-if not db_path_env:
-    raise ValueError("Переменная DB_PATH не найдена в файле .env")
-db_path = BASE_DIR / db_path_env
+db_name = os.getenv('DB_NAME')
+db_user = os.getenv('DB_USER')
+db_password = os.getenv('DB_PASSWORD')
+db_host = os.getenv('DB_HOST')
+db_port = os.getenv('DB_PORT')
 
-class Database:
-    def __init__(self) -> None:
-        pass
+if not all([db_name, db_user, db_password, db_host, db_port]):
+    raise ValueError("Not all PostgreSQL connection variables are specified in .env file")
+
+DATABASE_URL = f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}?client_encoding=utf8"
+
+engine = create_engine(DATABASE_URL)
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+Base = declarative_base()
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+def init_db():
+    from app.backend.model.sqlalchemy_models import Base
+    Base.metadata.create_all(bind=engine)
     
-    def get_connection(self):
-        return sqlite3.connect(str(db_path))
-
-    def create_table(self):
-        conn = self.get_connection()
-        try:
-            cursor = conn.cursor()
-            cursor.execute('''CREATE TABLE IF NOT EXISTS category (
-                                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                    name TEXT NOT NULL,
-                                    parent_id INTEGER,
-                                    FOREIGN KEY (parent_id) REFERENCES category (id) ON DELETE CASCADE ON UPDATE CASCADE)
-                            ''')
-            
-            cursor.execute('''CREATE TABLE IF NOT EXISTS product (
-                                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                    name TEXT NOT NULL,
-                                    category_id INTEGER NOT NULL,
-                                    cost INTEGER NOT NULL,
-                                    FOREIGN KEY (category_id) REFERENCES category (id) ON DELETE CASCADE ON UPDATE CASCADE)
-                            ''')
-
-            cursor.execute('''CREATE TABLE IF NOT EXISTS warehouse (
-                                    id INTEGER PRIMARY KEY,
-                                    barcode INTEGER NOT NULL,
-                                    name TEXT NOT NULL,
-                                    category_id INTEGER NOT NULL,
-                                    retail_price DECIMAL(10, 2) NOT NULL,
-                                    purchasing_price DECIMAL(10, 2) NOT NULL,
-                                    quantity INTEGER NOT NULL,
-                                    FOREIGN KEY (category_id) REFERENCES category (id) ON DELETE CASCADE ON UPDATE CASCADE)
-                            ''')
-            
-            cursor.execute('''CREATE TABLE IF NOT EXISTS discount_code (
-                                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                    code TEXT NOT NULL,
-                                    percent INTEGER NOT NULL,
-                                    quantity INTEGER NOT NULL);
-                            ''')
-            
-            cursor.execute('''CREATE TABLE IF NOT EXISTS discount_special (
-                                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                    name TEXT NOT NULL,
-                                    percent INTEGER NOT NULL);
-                            ''')
-        finally:
-            conn.close()
-
-    def reset_table(self, table_name):
-        conn = self.get_connection()
-        try:
-            cursor = conn.cursor()
-
-            cursor.execute(f"DELETE FROM {table_name};")
-
-            cursor.execute(f"DELETE FROM sqlite_sequence WHERE name = '{table_name}';")
-
-            conn.commit()
-        finally:
-            conn.close()
-
-    def reset_all_tables(self):
-        self.reset_table("category")
-        self.reset_table("product")
-        self.reset_table("warehouse")

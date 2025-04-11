@@ -1,66 +1,60 @@
 
-from typing import List
-from fastapi import APIRouter, HTTPException
+from typing import Dict, List
+from fastapi import APIRouter, HTTPException, Depends
+from sqlalchemy.orm import Session
 
-from model.warehouse_model import WarehouseCreateModel, WarehouseUpdateModel
-from model.models import Warehouse
+from app.backend.database.database import get_db
+from app.backend.crud import WarehouseCRUD
+from app.backend.schemas import WarehouseCreate, WarehouseUpdate, WarehouseInDB
 
 warehouse_router = APIRouter(tags=['Warehouse'])
 
 
-@warehouse_router.post("/api/warehouse", summary="Добавить товар на склад")
-async def add_item(item: WarehouseCreateModel) -> WarehouseCreateModel:
-    try:
-        await Warehouse.add(item)
-        return item
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@warehouse_router.get("/api/all_warehouse", summary="Получить все товары", response_model=list[dict])
-async def get_all_warehouse() -> list[dict]:
-    items = await Warehouse.all()
-    if not isinstance(items, list):
-        raise HTTPException(status_code=500, detail="Ошибка получения товаров: некорректный формат данных")
+@warehouse_router.get("/api/warehouse", response_model=List[WarehouseInDB])
+async def get_warehouse_items(db: Session = Depends(get_db)):
+    items = await WarehouseCRUD.get_all(db)
     return items
-    
-
-@warehouse_router.get("/api/warehouse/barcode/{barcode}", summary="Получить товар по баркоду")
-async def get_item_by_barcode(barcode: int) -> dict:
-    item = await Warehouse.get_by_barcode(barcode)
-    if item:
-        return item
-    raise HTTPException(status_code=404, detail="Item not found")
 
 
-@warehouse_router.get("/api/warehouse/item_id/{item_id}", summary="Получить товар по ID")
-async def get_item_by_id(item_id: int) -> dict:
-    item = await Warehouse.get_by_id(item_id)
-    if item:
-        return item
-    raise HTTPException(status_code=404, detail="Item not found")
+@warehouse_router.get("/api/warehouse/{warehouse_id}", response_model=WarehouseInDB)
+async def get_warehouse_item(warehouse_id: int, db: Session = Depends(get_db)):
+    item = await WarehouseCRUD.get_by_id(db, warehouse_id)
+    if item is None:
+        raise HTTPException(status_code=404, detail="Warehouse item not found")
+    return item
 
 
-@warehouse_router.get("/api/warehouse/{item_name}", summary="Получить товар по имени")
-async def get_item_by_name(item_name: str) -> dict:
-    item = await Warehouse.get_by_name(item_name)
-    if item:
-        return item
-    raise HTTPException(status_code=404, detail="Item not found")
+@warehouse_router.get("/api/warehouse/barcode/{barcode}", response_model=WarehouseInDB)
+async def get_warehouse_item_by_barcode(barcode: int, db: Session = Depends(get_db)):
+    item = await WarehouseCRUD.get_by_barcode(db, barcode)
+    if item is None:
+        raise HTTPException(status_code=404, detail="Warehouse item not found")
+    return item
 
 
-@warehouse_router.put("/api/warehouse", summary="Обновить товар на складе")
-async def update_item(item: WarehouseUpdateModel) -> WarehouseUpdateModel:
-    try:
-        await Warehouse.update(item)
-        return item
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+@warehouse_router.get("/api/warehouse/category/{category_id}", response_model=List[WarehouseInDB])
+async def get_warehouse_items_by_category(category_id: int, db: Session = Depends(get_db)):
+    items = await WarehouseCRUD.get_by_category(db, category_id)
+    return items
 
 
-@warehouse_router.delete("/api/warehouse/{item_id}", summary="Удалить товар со склада")
-async def delete_item(item_id: int):
-    success = await Warehouse.delete(item_id)
-    if success:
-        return {"status": "deleted"}
-    raise HTTPException(status_code=404, detail="Item not found")
+@warehouse_router.post("/api/warehouse", response_model=WarehouseInDB)
+async def create_warehouse_item(item: WarehouseCreate, db: Session = Depends(get_db)):
+    new_item = await WarehouseCRUD.create(db, item)
+    return new_item
+
+
+@warehouse_router.put("/api/warehouse/{warehouse_id}", response_model=WarehouseInDB)
+async def update_warehouse_item(warehouse_id: int, item: WarehouseUpdate, db: Session = Depends(get_db)):
+    updated_item = await WarehouseCRUD.update(db, warehouse_id, item)
+    if updated_item is None:
+        raise HTTPException(status_code=404, detail="Warehouse item not found")
+    return updated_item
+
+
+@warehouse_router.delete("/api/warehouse/{warehouse_id}")
+async def delete_warehouse_item(warehouse_id: int, db: Session = Depends(get_db)):
+    success = await WarehouseCRUD.delete(db, warehouse_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Warehouse item not found")
+    return {"message": "Warehouse item deleted successfully"}

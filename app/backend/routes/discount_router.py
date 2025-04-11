@@ -1,87 +1,82 @@
 
 from typing import Dict, List
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
+from sqlalchemy.orm import Session
 
-from model.discount_model import DiscountCodeModel, DiscountCodeCreate, DiscountSpecialModel, DiscountSpecialCreate
-from model.models import DiscountCode, DiscountSpecial
+from app.backend.database.database import get_db
+from app.backend.crud import DiscountCodeCRUD, DiscountSpecialCRUD
+from app.backend.schemas import (
+    DiscountCodeCreate, DiscountCodeUpdate, DiscountCodeInDB,
+    DiscountSpecialCreate, DiscountSpecialUpdate, DiscountSpecialInDB
+)
 
+discount_router = APIRouter(tags=['Discount'])
 
-discount_code_router = APIRouter(tags=['Discount Code'])
-discount_special_router = APIRouter(tags=['Discount Special'])
+@discount_router.get("/api/discount-codes", response_model=List[DiscountCodeInDB])
+async def get_discount_codes(db: Session = Depends(get_db)):
+    codes = await DiscountCodeCRUD.get_all(db)
+    return codes
 
+@discount_router.get("/api/discount-codes/{discount_id}", response_model=DiscountCodeInDB)
+async def get_discount_code(discount_id: int, db: Session = Depends(get_db)):
+    code = await DiscountCodeCRUD.get_by_id(db, discount_id)
+    if code is None:
+        raise HTTPException(status_code=404, detail="Discount code not found")
+    return code
 
-@discount_code_router.get("/api/discount_code", summary="Получить все скидки", response_model=List[Dict])
-async def get_code_list() -> List[Dict]:
-    try:
-        codes = await DiscountCode.all()
-        return codes
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    
-    
-@discount_code_router.post("/api/discount_code", summary="Добавить скидочный код", response_model=DiscountCodeCreate)
-async def create_code(code: DiscountCodeCreate) -> DiscountCodeCreate:
-    try:
-        await DiscountCode.add(code)
-        return code
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    
+@discount_router.get("/api/discount-codes/code/{code}", response_model=DiscountCodeInDB)
+async def get_discount_code_by_code(code: str, db: Session = Depends(get_db)):
+    discount_code = await DiscountCodeCRUD.get_by_code(db, code)
+    if discount_code is None:
+        raise HTTPException(status_code=404, detail="Discount code not found")
+    return discount_code
 
-@discount_code_router.put("/api/discount_code", summary="Изменить скидочный код по ID", response_model=DiscountCodeModel)
-async def update_product(code: DiscountCodeModel) -> DiscountCodeModel:
-    try:
-        await DiscountCode.update(code)
-        return code
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+@discount_router.post("/api/discount-codes", response_model=DiscountCodeInDB)
+async def create_discount_code(discount: DiscountCodeCreate, db: Session = Depends(get_db)):
+    new_code = await DiscountCodeCRUD.create(db, discount)
+    return new_code
 
+@discount_router.put("/api/discount-codes/{discount_id}", response_model=DiscountCodeInDB)
+async def update_discount_code(discount_id: int, discount: DiscountCodeUpdate, db: Session = Depends(get_db)):
+    updated_code = await DiscountCodeCRUD.update(db, discount_id, discount)
+    if updated_code is None:
+        raise HTTPException(status_code=404, detail="Discount code not found")
+    return updated_code
 
-@discount_code_router.delete("/api/discount_code/{code_id}", summary="Удалить скидочный код по ID", status_code=204)
-async def delete_code(code_id: int) -> None:
-    try:
-        success = await DiscountCode.delete(code_id)
-        if not success:
-            raise HTTPException(status_code=404, detail="Скидочный код не найден")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    
-    
-# ==============================
+@discount_router.delete("/api/discount-codes/{discount_id}")
+async def delete_discount_code(discount_id: int, db: Session = Depends(get_db)):
+    success = await DiscountCodeCRUD.delete(db, discount_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Discount code not found")
+    return {"message": "Discount code deleted successfully"}
 
+@discount_router.get("/api/discount-specials", response_model=List[DiscountSpecialInDB])
+async def get_discount_specials(db: Session = Depends(get_db)):
+    specials = await DiscountSpecialCRUD.get_all(db)
+    return specials
 
-@discount_special_router.get("/api/discount_special", summary="Получить все специальные скидки", response_model=List[Dict])
-async def get_special_list() -> List[Dict]:
-    try:
-        specials = await DiscountSpecial.all()
-        return specials
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+@discount_router.get("/api/discount-specials/{discount_id}", response_model=DiscountSpecialInDB)
+async def get_discount_special(discount_id: int, db: Session = Depends(get_db)):
+    special = await DiscountSpecialCRUD.get_by_id(db, discount_id)
+    if special is None:
+        raise HTTPException(status_code=404, detail="Discount special not found")
+    return special
 
+@discount_router.post("/api/discount-specials", response_model=DiscountSpecialInDB)
+async def create_discount_special(discount: DiscountSpecialCreate, db: Session = Depends(get_db)):
+    new_special = await DiscountSpecialCRUD.create(db, discount)
+    return new_special
 
-@discount_special_router.post("/api/discount_special", summary="Добавить специальную скидку", response_model=DiscountSpecialCreate)
-async def create_special(special: DiscountSpecialCreate) -> DiscountSpecialCreate:
-    try:
-        await DiscountSpecial.add(special)
-        return special
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+@discount_router.put("/api/discount-specials/{discount_id}", response_model=DiscountSpecialInDB)
+async def update_discount_special(discount_id: int, discount: DiscountSpecialUpdate, db: Session = Depends(get_db)):
+    updated_special = await DiscountSpecialCRUD.update(db, discount_id, discount)
+    if updated_special is None:
+        raise HTTPException(status_code=404, detail="Discount special not found")
+    return updated_special
 
-
-@discount_special_router.put("/api/discount_special", summary="Изменить специальную скидку по ID", response_model=DiscountSpecialModel)
-async def update_special(special: DiscountSpecialModel) -> DiscountSpecialModel:
-    try:
-        await DiscountSpecial.update(special)
-        return special
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@discount_special_router.delete("/api/discount_special/{special_id}", summary="Удалить специальную скидку по ID", status_code=204)
-async def delete_special(special_id: int) -> None:
-    try:
-        success = await DiscountSpecial.delete(special_id)
-        if not success:
-            raise HTTPException(status_code=404, detail="Специальная скидка не найдена")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+@discount_router.delete("/api/discount-specials/{discount_id}")
+async def delete_discount_special(discount_id: int, db: Session = Depends(get_db)):
+    success = await DiscountSpecialCRUD.delete(db, discount_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Discount special not found")
+    return {"message": "Discount special deleted successfully"}

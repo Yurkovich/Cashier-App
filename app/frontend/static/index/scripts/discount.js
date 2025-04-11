@@ -1,4 +1,3 @@
-
 const modal = document.querySelector('.discount-code__modal');
 const openButton = document.querySelector('.footer__discount');
 
@@ -6,6 +5,7 @@ function openModal(event) {
     event.preventDefault();
     modal.classList.add('modal--show');
     document.body.classList.add('body--opened-modal');
+    discountCodeManager.loadDiscountCodes();
 
     document.addEventListener('keydown', handleKeyDown);
     modal.addEventListener('click', handleClickOutside);
@@ -36,59 +36,112 @@ openButton.addEventListener('click', openModal);
 
 class DiscountCodeManager {
     constructor() {
-        this.discountCodeBody = document.querySelector(".discount-code__body");
+        this.discountModal = document.querySelector('.discount-code__modal');
+        this.discountButtonsContainer = document.querySelector('.discount-code__buttons');
+        this.applyButton = document.querySelector('.discount-code__apply');
+        this.removeButton = document.querySelector('.discount-code__remove');
+        this.discountCodes = [];
+        this.selectedDiscount = null;
         this.init();
-    }
-
-    init() {
-        if (this.discountCodeBody) {
-            this.loadDiscountCodes();
-        } else {
-            console.error("Контейнер .discount-code__body не найден");
-        }
     }
 
     async loadDiscountCodes() {
         try {
-            const response = await fetch("/api/discount_special");
+            const response = await fetch('/api/discount-specials');
             if (!response.ok) {
-                throw new Error(`Ошибка: ${response.status}`);
+                throw new Error(`Ошибка при загрузке скидок: ${response.status}`);
             }
-            const discountCodes = await response.json();
-            this.renderDiscountButtons(discountCodes);
+            this.discountCodes = await response.json();
+            this.renderDiscountButtons();
         } catch (error) {
-            console.error("Ошибка при загрузке скидок:", error);
+            console.error('Ошибка при загрузке скидок:', error);
         }
     }
 
-    renderDiscountButtons(discountCodes) {
-        this.discountCodeBody.innerHTML = "";
-
-        if (!Array.isArray(discountCodes) || discountCodes.length === 0) {
-            this.discountCodeBody.innerHTML = "<p>Скидки отсутствуют</p>";
+    renderDiscountButtons() {
+        if (!this.discountButtonsContainer) {
+            console.error('Discount buttons container not found!');
             return;
         }
 
-        discountCodes.forEach(discount => {
-            const button = document.createElement("button");
-            button.className = "discount-code__button";
+        this.discountButtonsContainer.innerHTML = '';
+        
+        if (this.discountCodes.length === 0) {
+            return;
+        }
 
-            const name = document.createElement("p");
-            name.className = "discount-code__name";
-            name.textContent = discount.name || "Без названия";
+        this.discountCodes.forEach(discount => {
+            const button = document.createElement('button');
+            button.className = 'discount-code__button';
+            button.textContent = `${discount.name} (${discount.percent}%)`;
+            button.dataset.discountId = discount.id;
+            button.dataset.percent = discount.percent;
 
-            const percent = document.createElement("p");
-            percent.className = "discount-code__percent";
-            percent.textContent = `${discount.percent}%`;
+            button.addEventListener('click', () => {
+                this.selectDiscount(discount);
+            });
 
-            button.appendChild(name);
-            button.appendChild(percent);
+            this.discountButtonsContainer.appendChild(button);
+        });
+    }
 
-            this.discountCodeBody.appendChild(button);
+    selectDiscount(discount) {
+        this.selectedDiscount = discount;
+        const buttons = this.discountButtonsContainer.querySelectorAll('.discount-code__button');
+        buttons.forEach(button => {
+            button.classList.remove('is-active');
+            if (button.dataset.discountId === discount.id.toString()) {
+                button.classList.add('is-active');
+            }
+        });
+    }
+
+    openModal() {
+        if (this.discountModal) {
+            this.discountModal.classList.add('is-active');
+            this.loadDiscountCodes();
+        }
+    }
+
+    closeModal() {
+        if (this.discountModal) {
+            this.discountModal.classList.remove('is-active');
+            this.selectedDiscount = null;
+            const buttons = this.discountButtonsContainer.querySelectorAll('.discount-code__button');
+            buttons.forEach(button => button.classList.remove('is-active'));
+        }
+    }
+
+    applyDiscount() {
+        if (this.selectedDiscount && window.orderPaginationManager) {
+            window.orderPaginationManager.orderManager.applyDiscount(this.selectedDiscount.percent);
+            this.closeModal();
+        }
+    }
+
+    removeDiscount() {
+        if (window.orderPaginationManager) {
+            window.orderPaginationManager.orderManager.applyDiscount(0);
+        }
+    }
+
+    init() {
+        if (this.applyButton) {
+            this.applyButton.addEventListener('click', () => this.applyDiscount());
+        }
+
+        if (this.removeButton) {
+            this.removeButton.addEventListener('click', () => this.removeDiscount());
+        }
+
+        document.addEventListener('click', (event) => {
+            if (this.discountModal && 
+                !this.discountModal.contains(event.target) && 
+                !event.target.closest('.footer__discount')) {
+                this.closeModal();
+            }
         });
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    const discountCodeManager = new DiscountCodeManager();
-});
+const discountCodeManager = new DiscountCodeManager();

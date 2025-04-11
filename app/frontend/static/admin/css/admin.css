@@ -124,6 +124,33 @@ th {
     background-color: #d14b4a;
 }
 
+/* Стили для сортируемых заголовков таблиц */
+th.sortable {
+    cursor: pointer;
+    position: relative;
+    padding-right: 20px;
+}
+
+th.sortable:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.sort-icon {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.8em;
+    color: #666;
+}
+
+th[data-direction="asc"] .sort-icon {
+    color: #007bff;
+}
+
+th[data-direction="desc"] .sort-icon {
+    color: #007bff;
+}
 
 /* =========================================== */
 

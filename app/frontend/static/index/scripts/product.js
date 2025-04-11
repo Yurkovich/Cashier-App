@@ -1,18 +1,24 @@
-
 let allProducts = [];
 let pageNumber = 1;
 const productsPerPage = 14;
 
 async function fetchProducts() {
     try {
-        const response = await fetch('/api/all_products');
+        const response = await fetch('/api/products');
         if (!response.ok) {
-            throw new Error('Ошибка при загрузке товаров');
+            throw new Error(`Ошибка при загрузке товаров: ${response.status}`);
         }
         const products = await response.json();
+        if (!Array.isArray(products)) {
+            throw new Error('Неверный формат данных товаров');
+        }
         return products;
     } catch (error) {
-        console.error(error);
+        console.error('Ошибка при загрузке товаров:', error);
+        const menuList = document.querySelector('.menu__list');
+        if (menuList) {
+            menuList.innerHTML = '<li class="menu__item"><p>Ошибка при загрузке товаров</p></li>';
+        }
         return [];
     }
 }

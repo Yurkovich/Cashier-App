@@ -1,4 +1,3 @@
-
 class OrderManager {
     constructor(totalCostElementSelector, orderListSelector) {
         this.orderData = {};
@@ -8,11 +7,15 @@ class OrderManager {
         this.orderList = document.querySelector(orderListSelector);
         this.isEditing = false;
         this.editButton = document.querySelector('.header__edit');
+        this.discount = 0;
         this.checkScrollability();
+        this.discountButtonsContainer = document.querySelector('.discount-code__buttons');
     }
 
     updateTotalCost() {
-        const totalCost = Object.values(this.orderData).reduce((sum, item) => sum + item.totalCost, 0);
+        const subtotal = Object.values(this.orderData).reduce((sum, item) => sum + item.totalCost, 0);
+        const discountAmount = (subtotal * this.discount) / 100;
+        const totalCost = subtotal - discountAmount;
 
         this.totalCostElement.textContent = `${totalCost} ₽`;
         if (this.footerPaymentAmountElement) {
@@ -29,7 +32,7 @@ class OrderManager {
         li.innerHTML = `
             <p class="order__item-name">${productName}</p>
             <p class="order__item-amount">${quantity}</p>
-            <p class="order__item-price">${price} ₽</p>
+            <p class="order__item-price">${quantity * price} ₽</p>
         `;
         return li;
     }
@@ -202,6 +205,7 @@ class OrderManager {
     clearOrderData() {
         this.orderData = {};
         this.orderList.innerHTML = '';
+        this.discount = 0;
         this.updateTotalCost();
     }
 
@@ -222,17 +226,59 @@ class OrderManager {
         this.checkScrollability();
         this.updateTotalCost();
     }
+
+    applyDiscount(discountPercent) {
+        this.discount = discountPercent;
+        this.updateTotalCost();
+    }
 }
 
 class OrderPaginationManager {
     constructor(totalCostElementSelector, orderListSelector) {
         this.orderManager = new OrderManager(totalCostElementSelector, orderListSelector);
-        this.orders = JSON.parse(localStorage.getItem('orders')) || [];
+        this.orders = [];
         this.currentOrderIndex = -1;
         this.initPagination();
         this.initSaveButton();
         this.initDeleteOrder();
         this.orderManager.init();
+        this.loadOrdersFromServer();
+    }
+
+    async loadOrdersFromServer() {
+        try {
+            const response = await fetch('/api/orders');
+            if (!response.ok) {
+                throw new Error(`Ошибка при загрузке заказов: ${response.status}`);
+            }
+            const orders = await response.json();
+            this.orders = orders;
+            
+            if (this.orders.length > 0) {
+                this.loadOrder(this.orders.length - 1);
+            } else {
+                this.orderManager.clearOrderData();
+                this.currentOrderIndex = -1;
+                this.updateOrderHeader();
+            }
+        } catch (error) {
+            console.error('Ошибка при загрузке заказов:', error);
+        }
+    }
+
+    async getProductIdByName(productName) {
+        try {
+            const response = await fetch('/api/products');
+            if (!response.ok) {
+                throw new Error(`Ошибка при загрузке продуктов: ${response.status}`);
+            }
+            const products = await response.json();
+            const product = products.find(p => p.name === productName);
+            return product ? product.id : null;
+        } catch (error) {
+            console.error('Ошибка при поиске продукта:', error);
+            return null;
+        }
     }
 
     collectOrderData() {
@@ -242,47 +288,90 @@ class OrderPaginationManager {
             price: data.price,
         }));
 
-        const totalCost = Object.values(this.orderManager.orderData).reduce((sum, item) => sum + item.totalCost, 0);
+        const subtotal = Object.values(this.orderManager.orderData).reduce((sum, item) => sum + item.totalCost, 0);
+        const discountAmount = (subtotal * this.orderManager.discount) / 100;
+        const totalCost = subtotal - discountAmount;
 
         return {
             items,
             totalCost,
+            discount: this.orderManager.discount,
         };
     }
 
-    saveOrder() {
-        const { items, totalCost } = this.collectOrderData();
+    async saveOrder() {
+        const { items, totalCost, discount } = this.collectOrderData();
 
-        const maxId = this.orders.reduce((max, order) => Math.max(max, order.id), 0);
-        const orderId = maxId + 1;
-
-        if (this.currentOrderIndex === -1 || this.currentOrderIndex >= this.orders.length) {
-            const newOrder = {
-                id: orderId,
-                items,
-                totalCost,
+        const orderItems = await Promise.all(items.map(async (item) => {
+            const productId = await this.getProductIdByName(item.name);
+            return {
+                product_id: productId,
+                quantity: item.quantity,
+                price: item.price,
             };
+        }));
 
-            this.orders.push(newOrder);
-            this.currentOrderIndex = this.orders.length - 1;
-        } else {
-            this.orders[this.currentOrderIndex] = {
-                id: this.orders[this.currentOrderIndex].id,
-                items,
-                totalCost,
-            };
+        const orderData = {
+            total_cost: totalCost,
+            discount: discount,
+            items: orderItems,
+        };
+
+        try {
+            const isEditing = this.currentOrderIndex !== -1 && 
+                            this.orders.length > 0 && 
+                            this.orders[this.currentOrderIndex]?.id;
+            
+            const orderId = isEditing ? this.orders[this.currentOrderIndex].id : null;
+            
+            const response = await fetch(isEditing ? `/api/orders/${orderId}` : '/api/orders', {
+                method: isEditing ? 'PUT' : 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(orderData),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Ошибка при сохранении заказа: ${response.status}`);
+            }
+
+            const savedOrder = await response.json();
+            alert('Заказ успешно сохранен!');
+            
+            await this.loadOrdersFromServer();
+            
+            const savedOrderIndex = this.orders.findIndex(order => order.id === savedOrder.id);
+            
+            if (savedOrderIndex !== -1) {
+                this.loadOrder(savedOrderIndex);
+            } else {
+                this.orderManager.clearOrderData();
+                this.currentOrderIndex = -1;
+                this.updateOrderHeader();
+            }
+        } catch (error) {
+            console.error('Ошибка при сохранении заказа:', error);
+            alert('Ошибка при сохранении заказа: ' + error.message);
         }
-
-        localStorage.setItem('orders', JSON.stringify(this.orders));
-        this.updateOrderHeader();
-        alert('Заказ успешно сохранен!');
     }
 
     loadOrder(index) {
         if (index >= 0 && index < this.orders.length) {
             this.currentOrderIndex = index;
             const order = this.orders[index];
-            this.orderManager.populateOrderData(order);
+            
+            const formattedOrder = {
+                items: order.items.map(item => ({
+                    name: item.product_name,
+                    quantity: item.quantity,
+                    price: item.price,
+                })),
+            };
+            
+            this.orderManager.populateOrderData(formattedOrder);
+            this.orderManager.discount = order.discount || 0;
+            this.orderManager.updateTotalCost();
             this.updateOrderHeader();
         } else {
             this.orderManager.clearOrderData();
@@ -325,7 +414,7 @@ class OrderPaginationManager {
         }
     }
 
-    deleteCurrentOrder() {
+    async deleteCurrentOrder() {
         if (this.currentOrderIndex === -1 || this.currentOrderIndex >= this.orders.length) {
             alert('Нет выбранного заказа для удаления.');
             return;
@@ -333,21 +422,35 @@ class OrderPaginationManager {
 
         const confirmDelete = confirm('Вы уверены, что хотите удалить этот заказ?');
         if (confirmDelete) {
-            this.orders.splice(this.currentOrderIndex, 1);
-            localStorage.setItem('orders', JSON.stringify(this.orders));
+            const orderId = this.orders[this.currentOrderIndex].id;
+            
+            try {
+                const response = await fetch(`/api/orders/${orderId}`, {
+                    method: 'DELETE',
+                });
 
-            if (this.orders.length === 0) {
-                this.currentOrderIndex = -1;
-                this.orderManager.clearOrderData();
-                this.updateOrderHeader();
-            } else if (this.currentOrderIndex >= this.orders.length) {
-                this.currentOrderIndex = this.orders.length - 1;
-                this.loadOrder(this.currentOrderIndex);
-            } else {
-                this.loadOrder(this.currentOrderIndex);
+                if (!response.ok) {
+                    throw new Error(`Ошибка при удалении заказа: ${response.status}`);
+                }
+
+                await this.loadOrdersFromServer();
+                
+                if (this.orders.length === 0) {
+                    this.currentOrderIndex = -1;
+                    this.orderManager.clearOrderData();
+                    this.updateOrderHeader();
+                } else if (this.currentOrderIndex >= this.orders.length) {
+                    this.currentOrderIndex = this.orders.length - 1;
+                    this.loadOrder(this.currentOrderIndex);
+                } else {
+                    this.loadOrder(this.currentOrderIndex);
+                }
+
+                alert('Заказ успешно удален!');
+            } catch (error) {
+                console.error('Ошибка при удалении заказа:', error);
+                alert('Ошибка при удалении заказа: ' + error.message);
             }
-
-            alert('Заказ успешно удален!');
         }
     }
 
@@ -367,3 +470,5 @@ class OrderPaginationManager {
 }
 
 const orderPaginationManager = new OrderPaginationManager('#total-cost', '.order__list');
+
+window.orderPaginationManager = orderPaginationManager;

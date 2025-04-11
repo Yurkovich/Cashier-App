@@ -104,18 +104,14 @@ class DiscountManager {
 
     async getDiscountById(discountId, type) {
         const endpoint = type === "promo" 
-            ? "/api/discount_code" 
-            : "/api/discount_special";
+            ? `/api/discount-codes/${discountId}` 
+            : `/api/discount-specials/${discountId}`;
         try {
             const response = await fetch(endpoint);
             if (!response.ok) {
                 throw new Error(`Ошибка: ${response.status}`);
             }
-            const discounts = await response.json();
-            const discount = discounts.find(discount => discount.id == discountId);
-            if (!discount) {
-                throw new Error("Скидка не найдена");
-            }
+            const discount = await response.json();
             return { ...discount, type };
         } catch (error) {
             console.error("Ошибка при получении скидки:", error);
@@ -124,55 +120,97 @@ class DiscountManager {
     }
 
     async generateDiscountTable(container) {
-        if (!container) {
-            console.error("Контейнер для таблицы скидок не найден");
-            return;
-        }
         container.innerHTML = `
             <table>
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Тип</th>
-                        <th>Код/Название</th>
-                        <th>Процент</th>
-                        <th>Количество</th>
+                        <th data-sort="id" class="sortable">ID <span class="sort-icon">↕</span></th>
+                        <th data-sort="type" class="sortable">Тип <span class="sort-icon">↕</span></th>
+                        <th data-sort="name" class="sortable">Название <span class="sort-icon">↕</span></th>
+                        <th data-sort="percent" class="sortable">Процент <span class="sort-icon">↕</span></th>
+                        <th data-sort="quantity" class="sortable">Количество <span class="sort-icon">↕</span></th>
                     </tr>
                 </thead>
                 <tbody id="discount-table-body">
                 </tbody>
             </table>
         `;
+
         try {
-            const [specialResponse, codeResponse] = await Promise.all([
-                fetch("/api/discount_special"),
-                fetch("/api/discount_code")
+            const [codesResponse, specialsResponse] = await Promise.all([
+                fetch('/api/discount-codes'),
+                fetch('/api/discount-specials')
             ]);
-            if (!specialResponse.ok || !codeResponse.ok) {
-                throw new Error("Ошибка при загрузке данных о скидках");
+
+            if (!codesResponse.ok || !specialsResponse.ok) {
+                throw new Error('Ошибка при загрузке данных о скидках');
             }
-            const specialDiscounts = await specialResponse.json();
-            const codeDiscounts = await codeResponse.json();
-            const allDiscounts = [
-                ...specialDiscounts.map(discount => ({ ...discount, type: "special" })),
-                ...codeDiscounts.map(discount => ({ ...discount, type: "promo" }))
+
+            const codes = await codesResponse.json();
+            const specials = await specialsResponse.json();
+
+            const discounts = [
+                ...codes.map(code => ({
+                    ...code,
+                    type: 'Промокод',
+                    name: code.code,
+                    quantity: code.quantity || 0
+                })),
+                ...specials.map(special => ({
+                    ...special,
+                    type: 'Специальная скидка',
+                    quantity: 0
+                }))
             ];
-            const tbody = document.getElementById("discount-table-body");
-            tbody.innerHTML = "";
-            allDiscounts.forEach(discount => {
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td>${discount.id}</td>
-                    <td>${discount.type === "promo" ? "Промокод" : "Специальная скидка"}</td>
-                    <td>${discount.type === "promo" ? discount.code : discount.name}</td>
-                    <td>${discount.percent}%</td>
-                    <td>${discount.type === "promo" ? discount.quantity : "-"}</td>
-                `;
-                tbody.appendChild(row);
+
+            discounts.sort((a, b) => a.id - b.id);
+
+            const tbody = document.getElementById('discount-table-body');
+            this.renderDiscountRows(tbody, discounts);
+
+            const sortableHeaders = container.querySelectorAll('th.sortable');
+            sortableHeaders.forEach(header => {
+                header.addEventListener('click', () => {
+                    const sortKey = header.dataset.sort;
+                    const currentOrder = header.querySelector('.sort-icon').textContent;
+                    const newOrder = currentOrder === '↑' ? '↓' : '↑';
+                    
+                    sortableHeaders.forEach(h => h.querySelector('.sort-icon').textContent = '↕');
+                    header.querySelector('.sort-icon').textContent = newOrder;
+                    
+                    discounts.sort((a, b) => {
+                        const aValue = a[sortKey];
+                        const bValue = b[sortKey];
+                        const modifier = newOrder === '↑' ? 1 : -1;
+                        
+                        if (typeof aValue === 'string') {
+                            return modifier * aValue.localeCompare(bValue);
+                        }
+                        return modifier * (aValue - bValue);
+                    });
+                    
+                    this.renderDiscountRows(tbody, discounts);
+                });
             });
         } catch (error) {
-            console.error("Ошибка при загрузке данных для таблицы:", error);
+            console.error("Ошибка при загрузке данных:", error);
+            container.innerHTML = '<p>Ошибка при загрузке данных</p>';
         }
+    }
+
+    renderDiscountRows(tbody, discounts) {
+        tbody.innerHTML = '';
+        discounts.forEach(discount => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${discount.id}</td>
+                <td>${discount.type}</td>
+                <td>${discount.name}</td>
+                <td>${discount.percent}%</td>
+                <td>${discount.type === 'Промокод' ? discount.quantity : '-'}</td>
+            `;
+            tbody.appendChild(row);
+        });
     }
 
     async handleAddDiscount() {
@@ -182,41 +220,39 @@ class DiscountManager {
         const quantity = parseInt(this.discountAddQuantity.value);
         const name = this.discountAddName.value.trim();
         const specialPercent = parseFloat(this.discountAddSpecialPercent.value);
+
         if (!this.validateFields(type, code, percent, quantity, name, specialPercent)) {
             alert("Пожалуйста, заполните все поля корректно.");
             return;
         }
-        const data = {
-            type: type,
-            code: type === "promo" ? code : undefined,
-            percent: type === "promo" ? percent : specialPercent,
-            quantity: type === "promo" ? quantity : undefined,
-            name: type === "special" ? name : undefined
-        };
+
+        const endpoint = type === "promo" ? "/api/discount-codes" : "/api/discount-specials";
+        const data = type === "promo" 
+            ? { code, percent, quantity }
+            : { name, percent: specialPercent };
+
         try {
-            const response = await this.addDiscount(data);
-            if (response.ok) {
-                this.resetAddForm();
-                const discountTableContainer = document.querySelector(".table__discount");
-                if (discountTableContainer) {
-                    await this.generateDiscountTable(discountTableContainer);
-                }
-            } else {
+            const response = await fetch(endpoint, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) {
                 throw new Error(`Ошибка: ${response.status}`);
+            }
+
+            this.resetAddForm();
+            const discountTableContainer = document.querySelector(".table__discount");
+            if (discountTableContainer) {
+                await this.generateDiscountTable(discountTableContainer);
             }
         } catch (error) {
             console.error("Ошибка при добавлении скидки:", error);
-            alert("Произошла ошибка. Попробуйте снова.");
+            alert("Произошла ошибка при добавлении скидки. Попробуйте снова.");
         }
-    }
-
-    validateFields(type, code, percent, quantity, name, specialPercent) {
-        if (type === "promo") {
-            return code && !isNaN(percent) && !isNaN(quantity);
-        } else if (type === "special") {
-            return name && !isNaN(specialPercent);
-        }
-        return false;
     }
 
     async handleUpdateDiscount() {
@@ -227,32 +263,40 @@ class DiscountManager {
         const quantity = parseInt(this.discountUpdateQuantity.value);
         const name = this.discountUpdateName.value.trim();
         const specialPercent = parseFloat(this.discountUpdateSpecialPercent.value);
+
         if (!this.validateFields(type, code, percent, quantity, name, specialPercent)) {
             alert("Пожалуйста, заполните все поля корректно.");
             return;
         }
-        const data = {
-            id: id,
-            type: type,
-            code: type === "promo" ? code : undefined,
-            percent: type === "promo" ? percent : specialPercent,
-            quantity: type === "promo" ? quantity : undefined,
-            name: type === "special" ? name : undefined
-        };
+
+        const endpoint = type === "promo" 
+            ? `/api/discount-codes/${id}` 
+            : `/api/discount-specials/${id}`;
+        const data = type === "promo" 
+            ? { code, percent, quantity }
+            : { name, percent: specialPercent };
+
         try {
-            const response = await this.updateDiscount(data);
-            if (response.ok) {
-                this.resetUpdateForm();
-                const discountTableContainer = document.querySelector(".table__discount");
-                if (discountTableContainer) {
-                    await this.generateDiscountTable(discountTableContainer);
-                }
-            } else {
+            const response = await fetch(endpoint, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) {
                 throw new Error(`Ошибка: ${response.status}`);
+            }
+
+            this.resetUpdateForm();
+            const discountTableContainer = document.querySelector(".table__discount");
+            if (discountTableContainer) {
+                await this.generateDiscountTable(discountTableContainer);
             }
         } catch (error) {
             console.error("Ошибка при обновлении скидки:", error);
-            alert("Произошла ошибка. Попробуйте снова.");
+            alert("Произошла ошибка при обновлении скидки. Попробуйте снова.");
         }
     }
 
@@ -265,13 +309,13 @@ class DiscountManager {
             return;
         }
 
+        const endpoint = type === "promo" 
+            ? `/api/discount-codes/${id}` 
+            : `/api/discount-specials/${id}`;
+
         try {
-            const endpoint = type === "promo" 
-                ? `/api/discount_code/${id}` 
-                : `/api/discount_special/${id}`;
             const response = await fetch(endpoint, {
-                method: "DELETE",
-                headers: { "Content-Type": "application/json" }
+                method: "DELETE"
             });
 
             if (!response.ok) {
@@ -285,57 +329,17 @@ class DiscountManager {
             }
         } catch (error) {
             console.error("Ошибка при удалении скидки:", error);
-            alert("Произошла ошибка. Попробуйте снова.");
+            alert("Произошла ошибка при удалении скидки. Попробуйте снова.");
         }
     }
 
-    async addDiscount(data) {
-        const endpoint = data.type === "promo" ? "/api/discount_code" : "/api/discount_special";
-        try {
-            const response = await fetch(endpoint, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data)
-            });
-            if (!response.ok) {
-                throw new Error(`Ошибка: ${response.status}`);
-            }
-            return response;
-        } catch (error) {
-            console.error("Ошибка при добавлении скидки:", error);
-            throw error;
+    validateFields(type, code, percent, quantity, name, specialPercent) {
+        if (type === "promo") {
+            return code && !isNaN(percent) && !isNaN(quantity) && quantity > 0;
+        } else if (type === "special") {
+            return name && !isNaN(specialPercent);
         }
-    }
-
-    async updateDiscount(data) {
-        const endpoint = data.type === "promo" 
-            ? "/api/discount_code" 
-            : "/api/discount_special";
-        try {
-            const response = await fetch(endpoint, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data)
-            });
-            if (!response.ok) {
-                throw new Error(`Ошибка: ${response.status}`);
-            }
-            return response;
-        } catch (error) {
-            console.error("Ошибка при обновлении скидки:", error);
-            throw error;
-        }
-    }
-
-    async deleteDiscount(data) {
-        const response = await fetch(`/api/discounts/${data.id}`, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(data)
-        });
-        return response;
+        return false;
     }
 
     resetAddForm() {
@@ -360,9 +364,16 @@ class DiscountManager {
     }
 
     resetDeleteForm() {
+        this.discountDeleteType.value = "";
         this.discountDeleteId.value = "";
+        this.toggleDeleteButton();
     }
 }
 
 const discountManager = new DiscountManager();
+const discountTableContainer = document.querySelector(".table__discount");
+if (discountTableContainer) {
+    discountManager.generateDiscountTable(discountTableContainer);
+}
+
 export { discountManager };

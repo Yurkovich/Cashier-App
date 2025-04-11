@@ -1,3 +1,4 @@
+import { categoryCache } from './category-cache.js';
 
 class CategoryManager {
     constructor() {
@@ -75,16 +76,21 @@ class CategoryManager {
             return;
         }
 
-        const data = { name, parent_id: parentId || null };
+        const data = { 
+            name, 
+            parent_id: parentId === "" ? null : parseInt(parentId)
+        };
 
         try {
             const response = await this.addCategory(data);
             if (response.ok) {
                 this.resetAddForm();
+                await categoryCache.refreshCache();
                 this.refreshCategoryTable();
                 this.refreshCategorySelects();
             } else {
-                throw new Error(`Ошибка: ${response.status}`);
+                const errorData = await response.json();
+                throw new Error(errorData.detail || `Ошибка: ${response.status}`);
             }
         } catch (error) {
             console.error("Ошибка при добавлении категории:", error);
@@ -93,30 +99,31 @@ class CategoryManager {
     }
 
     async handleUpdateCategory() {
-        const id = this.categoryUpdateId.value.trim();
+        const id = parseInt(this.categoryUpdateId.value);
         const name = this.categoryUpdateName.value.trim();
         const parentId = this.categoryUpdateParent.value;
 
         if (!id || !name) {
-            alert("ID и название категории не могут быть пустыми.");
+            alert("ID и название категории обязательны.");
             return;
         }
 
-        if (id == parentId) {
-            alert("Вы не можете выбрать родителем категорию, которую обновляете.");
-            return;
-        }
-
-        const data = { id, name, parent_id: parentId || null };
+        const data = {
+            id,
+            name,
+            parent_id: parentId === "" ? null : parseInt(parentId)
+        };
 
         try {
             const response = await this.updateCategory(data);
             if (response.ok) {
                 this.resetUpdateForm();
+                await categoryCache.refreshCache();
                 this.refreshCategoryTable();
                 this.refreshCategorySelects();
             } else {
-                throw new Error(`Ошибка: ${response.status}`);
+                const errorData = await response.json();
+                throw new Error(errorData.detail || `Ошибка: ${response.status}`);
             }
         } catch (error) {
             console.error("Ошибка при обновлении категории:", error);
@@ -125,10 +132,14 @@ class CategoryManager {
     }
 
     async handleDeleteCategory() {
-        const id = this.categoryDeleteId.value.trim();
+        const id = parseInt(this.categoryDeleteId.value);
 
         if (!id) {
-            alert("ID категории не может быть пустым.");
+            alert("Введите ID категории для удаления.");
+            return;
+        }
+
+        if (!confirm("Вы уверены, что хотите удалить эту категорию?")) {
             return;
         }
 
@@ -136,10 +147,12 @@ class CategoryManager {
             const response = await this.deleteCategory(id);
             if (response.ok) {
                 this.resetDeleteForm();
+                await categoryCache.refreshCache();
                 this.refreshCategoryTable();
                 this.refreshCategorySelects();
             } else {
-                throw new Error(`Ошибка: ${response.status}`);
+                const errorData = await response.json();
+                throw new Error(errorData.detail || `Ошибка: ${response.status}`);
             }
         } catch (error) {
             console.error("Ошибка при удалении категории:", error);
@@ -193,7 +206,7 @@ class CategoryManager {
 
     async fetchCategories() {
         try {
-            const response = await fetch("/api/categories");
+            const response = await fetch("/api/categories/nested");
             if (!response.ok) {
                 throw new Error(`Ошибка HTTP: ${response.status}`);
             }
@@ -205,37 +218,108 @@ class CategoryManager {
     }
 
     async refreshCategoryTable() {
-        const categories = await this.fetchCategories();
-        this.generateCategoryTable(categories);
+        if (!this.categoryTable) {
+            console.error("Элемент с классом 'table__category' не найден");
+            return;
+        }
+        await this.generateCategoryTable(this.categoryTable);
     }
     
 
-    generateCategoryTable(categories) {
-        this.categoryTable.innerHTML = "";
-
-        if (!Array.isArray(categories) || categories.length === 0) {
-            this.categoryTable.textContent = "Категории не найдены.";
+    async generateCategoryTable(container) {
+        if (!container) {
+            console.error("Контейнер для таблицы категорий не найден");
             return;
         }
+        
+        container.innerHTML = `
+            <table>
+                <thead>
+                    <tr>
+                        <th data-sort="id" class="sortable">ID <span class="sort-icon">↕</span></th>
+                        <th data-sort="name" class="sortable">Название <span class="sort-icon">↕</span></th>
+                    </tr>
+                </thead>
+                <tbody id="category-table-body">
+                </tbody>
+            </table>
+        `;
 
-        const table = document.createElement("table");
-        const thead = document.createElement("thead");
-        const tbody = document.createElement("tbody");
+        try {
+            const response = await fetch('/api/categories');
+            const categories = await response.json();
+            
+            const categoryMap = new Map();
+            function addCategoriesToMap(categories) {
+                categories.forEach(category => {
+                    categoryMap.set(category.id, category.name);
+                    if (category.subcategories && category.subcategories.length > 0) {
+                        addCategoriesToMap(category.subcategories);
+                    }
+                });
+            }
+            addCategoriesToMap(categories);
 
-        const headerRow = document.createElement("tr");
-        const headers = [{ key: "id", text: "ID" }, { key: "name", text: "Название" }];
+            const flattenedCategories = [];
+            function flattenCategories(categories, parentName = '') {
+                categories.forEach(category => {
+                    flattenedCategories.push({
+                        ...category,
+                        parentName: parentName
+                    });
+                    if (category.subcategories && category.subcategories.length > 0) {
+                        flattenCategories(category.subcategories, category.name);
+                    }
+                });
+            }
+            flattenCategories(categories);
 
-        headers.forEach(({ text }) => {
-            const th = document.createElement("th");
-            th.textContent = text;
-            headerRow.appendChild(th);
-        });
+            flattenedCategories.sort((a, b) => a.id - b.id);
 
-        thead.appendChild(headerRow);
-        tbody.appendChild(this.createCategoryRows(categories));
-        table.appendChild(thead);
-        table.appendChild(tbody);
-        this.categoryTable.appendChild(table);
+            const tbody = container.querySelector('#category-table-body');
+            if (!tbody) {
+                console.error("Не удалось найти элемент tbody с id 'category-table-body'");
+                return;
+            }
+            
+            tbody.innerHTML = '';
+            
+            const nestedCategories = this.buildNestedCategories(flattenedCategories);
+            
+            const categoryRows = this.createCategoryRows(nestedCategories);
+            tbody.appendChild(categoryRows);
+
+            const sortableHeaders = container.querySelectorAll('th.sortable');
+            sortableHeaders.forEach(header => {
+                header.addEventListener('click', () => {
+                    const sortKey = header.dataset.sort;
+                    const currentOrder = header.querySelector('.sort-icon').textContent;
+                    const newOrder = currentOrder === '↑' ? '↓' : '↑';
+                    
+                    sortableHeaders.forEach(h => h.querySelector('.sort-icon').textContent = '↕');
+                    header.querySelector('.sort-icon').textContent = newOrder;
+                    
+                    flattenedCategories.sort((a, b) => {
+                        const aValue = a[sortKey];
+                        const bValue = b[sortKey];
+                        const modifier = newOrder === '↑' ? 1 : -1;
+                        
+                        if (typeof aValue === 'string') {
+                            return modifier * aValue.localeCompare(bValue);
+                        }
+                        return modifier * (aValue - bValue);
+                    });
+                    
+                    const nestedCategories = this.buildNestedCategories(flattenedCategories);
+                    tbody.innerHTML = '';
+                    const categoryRows = this.createCategoryRows(nestedCategories);
+                    tbody.appendChild(categoryRows);
+                });
+            });
+        } catch (error) {
+            console.error("Ошибка при загрузке данных:", error);
+            container.innerHTML = '<p>Ошибка при загрузке данных</p>';
+        }
     }
 
     createCategoryRows(categories, level = 0) {
@@ -270,10 +354,9 @@ class CategoryManager {
             return;
         }
 
-        selectElement.innerHTML = '<option value="0">Выберите родительскую категорию</option>';
+        selectElement.innerHTML = '<option value="">Выберите родительскую категорию</option>';
 
-        const categories = await this.fetchCategories();
-        console.log('Из populate')
+        const categories = await categoryCache.getCategories();
         const options = this.createCategoryOptions(categories);
         selectElement.appendChild(options);
     }
@@ -287,7 +370,7 @@ class CategoryManager {
 
                 const option = document.createElement("option");
                 option.value = category.id;
-                option.textContent = `${"—".repeat(level)} ${category.name}`;
+                option.textContent = level > 0 ? `${"—".repeat(level)} ${category.name}` : category.name;
                 fragment.appendChild(option);
 
                 if (category.subcategories && category.subcategories.length > 0) {
@@ -327,6 +410,33 @@ class CategoryManager {
 
     resetDeleteForm() {
         this.categoryDeleteId.value = '';
+    }
+
+    buildNestedCategories(flattenedCategories) {
+        const categoryMap = new Map();
+        flattenedCategories.forEach(category => {
+            categoryMap.set(category.id, {
+                ...category,
+                subcategories: []
+            });
+        });
+
+        const rootCategories = [];
+        flattenedCategories.forEach(category => {
+            const categoryWithSubcategories = categoryMap.get(category.id);
+            if (category.parent_id === null || category.parent_id === 0) {
+                rootCategories.push(categoryWithSubcategories);
+            } else {
+                const parent = categoryMap.get(category.parent_id);
+                if (parent) {
+                    parent.subcategories.push(categoryWithSubcategories);
+                } else {
+                    rootCategories.push(categoryWithSubcategories);
+                }
+            }
+        });
+
+        return rootCategories;
     }
 }
 

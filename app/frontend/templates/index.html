@@ -187,7 +187,9 @@
                     </div>
                     <div class="calculator">
                         <div class="calculator__info">
-                            <p>К оплате: <span class="calculator__total-cost">0 ₽</span></p>
+                            <div class="calculator__total">
+                                <p>К оплате: <span class="calculator__total-cost">0 ₽</span></p>
+                            </div>
                             <p>Cдача: <span class="calculator__change">0 ₽</span></p>
                         </div>
                         <div class="calculator__field">
@@ -249,10 +251,12 @@
             <div class="discount-code__modal modal">
                 <div class="discount-code__window modal__window">
                     <div class="discount-code__body">
-                        <!-- Генерация кнопок со скидками -->
+                        <div class="discount-code__buttons">
+                            <!-- Генерация кнопок со скидками -->
+                        </div>
                     </div>
-                    <button class="discount-code__accept">Применить</button>
-                    <button class="discount-code__decline">Убрать скидку</button>
+                    <button class="discount-code__apply">Применить</button>
+                    <button class="discount-code__remove">Убрать скидку</button>
                 </div>
             </div>
 

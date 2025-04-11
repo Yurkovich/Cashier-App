@@ -268,7 +268,7 @@ button, a {
 }
 
 .order__item-amount {
-    justify-self: end;
+    justify-self: start;
 }
 .order__item-price {
     justify-self: end;
